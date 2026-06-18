@@ -6,17 +6,26 @@ import api from '@/services/api'
 const auth = useAuthStore()
 const usuarios = ref([])
 const loading = ref(true)
-const showForm = ref(false)
+const showDialog = ref(false)
 const editingUser = ref(null)
+const submitted = ref(false)
+
 const form = ref({
   username: '',
   email: '',
   password: '',
   first_name: '',
   last_name: '',
-  rol: 'mecanico',
+  rol: null,
   gerencia_id: null,
 })
+
+const roles = [
+  { label: 'Gerente Nacional', value: 'gerente_nacional' },
+  { label: 'Analista Nacional', value: 'analista_nacional' },
+  { label: 'Responsable Estatal', value: 'responsable_estatal' },
+  { label: 'Mecánico', value: 'mecanico' },
+]
 
 async function loadUsuarios() {
   loading.value = true
@@ -30,7 +39,7 @@ async function loadUsuarios() {
   }
 }
 
-function openCreate() {
+function openNew() {
   editingUser.value = null
   form.value = {
     username: '',
@@ -38,10 +47,11 @@ function openCreate() {
     password: '',
     first_name: '',
     last_name: '',
-    rol: 'mecanico',
+    rol: null,
     gerencia_id: null,
   }
-  showForm.value = true
+  submitted.value = false
+  showDialog.value = true
 }
 
 function openEdit(user) {
@@ -55,39 +65,55 @@ function openEdit(user) {
     rol: user.rol,
     gerencia_id: user.gerencia,
   }
-  showForm.value = true
+  submitted.value = false
+  showDialog.value = true
 }
 
 async function saveUser() {
+  submitted.value = true
+
+  if (!form.value.rol) return
+
   try {
     if (editingUser.value) {
-      const payload = { ...form.value }
-      delete payload.password
-      delete payload.username
-      if (!payload.password) delete payload.password
+      const payload = {
+        email: form.value.email,
+        first_name: form.value.first_name,
+        last_name: form.value.last_name,
+        rol: form.value.rol,
+        gerencia_id: form.value.gerencia_id,
+      }
       await api.put(`/usuarios/${editingUser.value.id}`, payload)
     } else {
-      await api.post('/usuarios/', form.value)
+      await api.post('/usuarios/', {
+        ...form.value,
+        rol: form.value.rol.value || form.value.rol,
+      })
     }
-    showForm.value = false
+    showDialog.value = false
     await loadUsuarios()
   } catch (err) {
     console.error(err)
   }
 }
 
-async function deactivateUser(id) {
-  if (confirm('¿Desactivar este usuario?')) {
-    try {
-      await api.delete(`/usuarios/${id}`)
-      await loadUsuarios()
-    } catch (err) {
-      console.error(err)
-    }
+async function deactivateUser(user) {
+  try {
+    await api.delete(`/usuarios/${user.id}`)
+    await loadUsuarios()
+  } catch (err) {
+    console.error(err)
   }
 }
 
-const rolNombre = (rol) => ({
+const rolSeverity = (rol) => ({
+  gerente_nacional: 'danger',
+  analista_nacional: 'warn',
+  responsable_estatal: 'info',
+  mecanico: 'success',
+}[rol] || 'info')
+
+const rolLabel = (rol) => ({
   gerente_nacional: 'Gerente Nacional',
   analista_nacional: 'Analista Nacional',
   responsable_estatal: 'Responsable Estatal',
@@ -98,207 +124,191 @@ onMounted(loadUsuarios)
 </script>
 
 <template>
-  <div class="usuarios">
-    <div class="header">
+  <div class="usuarios-page">
+    <div class="page-header">
       <h1>Usuarios</h1>
-      <button v-if="auth.isGerenteNacional" class="btn-primary" @click="openCreate">
-        + Nuevo usuario
-      </button>
+      <Button
+        v-if="auth.isGerenteNacional"
+        label="Nuevo usuario"
+        icon="pi pi-plus"
+        @click="openNew"
+      />
     </div>
 
-    <div v-if="loading" class="loading">Cargando...</div>
+    <Card>
+      <template #content>
+        <DataTable
+          :value="usuarios"
+          :loading="loading"
+          stripedRows
+          paginator
+          :rows="10"
+          :rowsPerPageOptions="[10, 25, 50]"
+          sortField="username"
+          :sortOrder="1"
+        >
+          <Column field="username" header="Usuario" sortable />
+          <Column field="first_name" header="Nombre" sortable>
+            <template #body="{ data }">
+              {{ data.first_name }} {{ data.last_name }}
+            </template>
+          </Column>
+          <Column field="email" header="Correo" sortable />
+          <Column field="rol" header="Rol" sortable>
+            <template #body="{ data }">
+              <Tag :value="rolLabel(data.rol)" :severity="rolSeverity(data.rol)" />
+            </template>
+          </Column>
+          <Column field="gerencia_nombre" header="Gerencia" sortable>
+            <template #body="{ data }">
+              {{ data.gerencia_nombre || '—' }}
+            </template>
+          </Column>
+          <Column field="is_active" header="Estado" sortable>
+            <template #body="{ data }">
+              <Tag
+                :value="data.is_active ? 'Activo' : 'Inactivo'"
+                :severity="data.is_active ? 'success' : 'danger'"
+              />
+            </template>
+          </Column>
+          <Column v-if="auth.isGerenteNacional" header="Acciones" style="width: 10rem">
+            <template #body="{ data }">
+              <Button
+                icon="pi pi-pencil"
+                severity="secondary"
+                text
+                rounded
+                @click="openEdit(data)"
+                v-tooltip.top="'Editar'"
+              />
+              <Button
+                v-if="data.is_active"
+                icon="pi pi-ban"
+                severity="danger"
+                text
+                rounded
+                @click="deactivateUser(data)"
+                v-tooltip.top="'Desactivar'"
+              />
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
 
-    <div v-else class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Gerencia</th>
-            <th>Estado</th>
-            <th v-if="auth.isGerenteNacional">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="u in usuarios" :key="u.id">
-            <td>{{ u.username }}</td>
-            <td>{{ u.first_name }} {{ u.last_name }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ rolNombre(u.rol) }}</td>
-            <td>{{ u.gerencia_nombre || '—' }}</td>
-            <td>{{ u.is_active ? 'Activo' : 'Inactivo' }}</td>
-            <td v-if="auth.isGerenteNacional">
-              <button class="btn-sm" @click="openEdit(u)">Editar</button>
-              <button class="btn-sm btn-danger" @click="deactivateUser(u.id)" v-if="u.is_active">
-                Desactivar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Modal Formulario -->
-    <div v-if="showForm" class="modal-overlay" @click.self="showForm = false">
-      <div class="modal">
-        <h2>{{ editingUser ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
-        <form @submit.prevent="saveUser">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Usuario</label>
-              <input v-model="form.username" required :disabled="!!editingUser" />
-            </div>
-            <div class="form-group">
-              <label>Correo</label>
-              <input v-model="form.email" type="email" required />
-            </div>
-            <div class="form-group">
-              <label>Contraseña</label>
-              <input v-model="form.password" type="password" :required="!editingUser" :placeholder="editingUser ? 'Dejar vacío para no cambiar' : ''" />
-            </div>
-            <div class="form-group">
-              <label>Nombre</label>
-              <input v-model="form.first_name" />
-            </div>
-            <div class="form-group">
-              <label>Apellido</label>
-              <input v-model="form.last_name" />
-            </div>
-            <div class="form-group">
-              <label>Rol</label>
-              <select v-model="form.rol">
-                <option value="gerente_nacional">Gerente Nacional</option>
-                <option value="analista_nacional">Analista Nacional</option>
-                <option value="responsable_estatal">Responsable Estatal</option>
-                <option value="mecanico">Mecánico</option>
-              </select>
-            </div>
-            <div class="form-group" v-if="form.rol !== 'gerente_nacional' && form.rol !== 'analista_nacional'">
-              <label>Gerencia</label>
-              <input v-model="form.gerencia_id" type="number" placeholder="ID de gerencia" />
-            </div>
+    <Dialog
+      v-model:visible="showDialog"
+      :header="editingUser ? 'Editar usuario' : 'Nuevo usuario'"
+      :modal="true"
+      :style="{ width: '550px' }"
+      :closable="true"
+    >
+      <form @submit.prevent="saveUser">
+        <div class="form-grid">
+          <div class="field">
+            <label for="username">Usuario</label>
+            <InputText
+              id="username"
+              v-model="form.username"
+              class="w-full"
+              :disabled="!!editingUser"
+              :class="{ 'p-invalid': submitted && !form.username && !editingUser }"
+            />
           </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="showForm = false">Cancelar</button>
-            <button type="submit" class="btn-primary">{{ editingUser ? 'Guardar' : 'Crear' }}</button>
+
+          <div class="field">
+            <label for="email">Correo</label>
+            <InputText
+              id="email"
+              v-model="form.email"
+              type="email"
+              class="w-full"
+              :class="{ 'p-invalid': submitted && !form.email }"
+            />
           </div>
-        </form>
-      </div>
-    </div>
+
+          <div class="field">
+            <label for="password">Contraseña</label>
+            <Password
+              id="password"
+              v-model="form.password"
+              :feedback="false"
+              class="w-full"
+              :input-style="{ width: '100%' }"
+              :required="!editingUser"
+              :placeholder="editingUser ? 'Dejar vacío para no cambiar' : ''"
+              toggleMask
+            />
+          </div>
+
+          <div class="field">
+            <label for="first_name">Nombre</label>
+            <InputText id="first_name" v-model="form.first_name" class="w-full" />
+          </div>
+
+          <div class="field">
+            <label for="last_name">Apellido</label>
+            <InputText id="last_name" v-model="form.last_name" class="w-full" />
+          </div>
+
+          <div class="field">
+            <label for="rol">Rol</label>
+            <Dropdown
+              id="rol"
+              v-model="form.rol"
+              :options="roles"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar rol"
+              class="w-full"
+              :class="{ 'p-invalid': submitted && !form.rol }"
+            />
+          </div>
+
+          <div
+            v-if="form.rol && form.rol !== 'gerente_nacional' && form.rol !== 'analista_nacional'"
+            class="field"
+          >
+            <label for="gerencia">Gerencia (ID)</label>
+            <InputNumber
+              id="gerencia"
+              v-model="form.gerencia_id"
+              class="w-full"
+              placeholder="ID de gerencia"
+              :min="1"
+            />
+          </div>
+        </div>
+      </form>
+
+      <template #footer>
+        <Button label="Cancelar" severity="secondary" @click="showDialog = false" />
+        <Button
+          :label="editingUser ? 'Guardar' : 'Crear'"
+          @click="saveUser"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <style scoped>
-.usuarios {
+.usuarios-page {
   max-width: 1200px;
 }
 
-.header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.header h1 {
+.page-header h1 {
   margin: 0;
-  color: #1a1a2e;
-}
-
-.loading {
-  text-align: center;
-  color: #666;
-  padding: 2rem;
-}
-
-.table-container {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #eee;
-  font-size: 0.875rem;
-}
-
-th {
-  background: #f9f9f9;
-  color: #666;
-  font-weight: 600;
-}
-
-.btn-primary {
-  padding: 0.5rem 1rem;
-  background-color: #1a1a2e;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.btn-sm {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 0.8rem;
-  margin-right: 0.375rem;
-}
-
-.btn-danger {
-  color: #c53030;
-  border-color: #c53030;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 0.875rem;
-  margin-right: 0.5rem;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal {
-  background: #fff;
-  border-radius: 8px;
-  padding: 2rem;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal h2 {
-  margin: 0 0 1.5rem;
-  color: #1a1a2e;
+  font-size: 1.5rem;
+  color: var(--p-text-color);
 }
 
 .form-grid {
@@ -307,32 +317,22 @@ th {
   gap: 1rem;
 }
 
-.form-group {
+.field {
   display: flex;
   flex-direction: column;
+  gap: 0.375rem;
 }
 
-.form-group.full {
-  grid-column: 1 / -1;
-}
-
-.form-group label {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.5rem 0.625rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.field label {
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.modal-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: flex-end;
+.w-full {
+  width: 100%;
+}
+
+:deep(.p-password input) {
+  width: 100%;
 }
 </style>

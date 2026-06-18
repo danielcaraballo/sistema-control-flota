@@ -1,9 +1,58 @@
 <script setup>
 import { RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ref, computed } from 'vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+
+const menuItems = computed(() => {
+  const items = [
+    {
+      label: 'Dashboard',
+      icon: 'pi pi-home',
+      command: () => router.push('/'),
+    },
+  ]
+
+  if (auth.isGerenteNacional) {
+    items.push({
+      label: 'Usuarios',
+      icon: 'pi pi-users',
+      command: () => router.push('/usuarios'),
+    })
+  }
+
+  items.push(
+    {
+      label: 'Vehículos',
+      icon: 'pi pi-truck',
+      command: () => router.push('/vehiculos'),
+    },
+    {
+      label: 'Taller',
+      icon: 'pi pi-wrench',
+      command: () => router.push('/taller'),
+    },
+  )
+
+  if (auth.isGerenteNacional || auth.isAnalistaNacional) {
+    items.push({
+      label: 'Reportes',
+      icon: 'pi pi-chart-bar',
+      command: () => router.push('/reportes'),
+    })
+  }
+
+  return items
+})
+
+const rolLabel = computed(() => ({
+  gerente_nacional: 'Gerente Nacional',
+  analista_nacional: 'Analista Nacional',
+  responsable_estatal: 'Responsable Estatal',
+  mecanico: 'Mecánico',
+}[auth.user?.rol] || ''))
 
 function handleLogout() {
   auth.logout()
@@ -12,122 +61,125 @@ function handleLogout() {
 </script>
 
 <template>
-  <div class="default-layout">
+  <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>SCF</h2>
-        <span class="user-rol">{{ auth.user?.rol ? {gerente_nacional:'Gerente Nacional',analista_nacional:'Analista Nacional',responsable_estatal:'Responsable Estatal',mecanico:'Mecánico'}[auth.user.rol] : '' }}</span>
+        <div class="brand">
+          <i class="pi pi-car" style="font-size: 1.5rem"></i>
+          <span class="brand-text">SCF</span>
+        </div>
+        <Tag :value="rolLabel" severity="info" />
       </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li><router-link to="/">Dashboard</router-link></li>
-          <li v-if="auth.isGerenteNacional"><router-link to="/usuarios">Usuarios</router-link></li>
-          <li><router-link to="/vehiculos">Vehículos</router-link></li>
-          <li><router-link to="/taller">Taller</router-link></li>
-          <li v-if="auth.isGerenteNacional || auth.isAnalistaNacional"><router-link to="/reportes">Reportes</router-link></li>
-        </ul>
-      </nav>
+
+      <PanelMenu :model="menuItems" class="sidebar-menu" />
+
       <div class="sidebar-footer">
-        <span class="user-name">{{ auth.user?.first_name }} {{ auth.user?.last_name }}</span>
-        <button class="logout-btn" @click="handleLogout">Cerrar sesión</button>
+        <div class="user-info">
+          <Avatar
+            :label="(auth.user?.first_name?.[0] || '').toUpperCase()"
+            size="small"
+            shape="circle"
+          />
+          <div class="user-details">
+            <span class="user-name">{{ auth.user?.first_name }} {{ auth.user?.last_name }}</span>
+            <span class="user-email">{{ auth.user?.email }}</span>
+          </div>
+        </div>
+        <Button
+          icon="pi pi-sign-out"
+          severity="secondary"
+          text
+          rounded
+          @click="handleLogout"
+          v-tooltip.bottom="'Cerrar sesión'"
+        />
       </div>
     </aside>
-    <main class="main-content">
+
+    <main class="content">
       <RouterView />
     </main>
   </div>
 </template>
 
 <style scoped>
-.default-layout {
+.layout {
   display: flex;
   min-height: 100vh;
 }
 
 .sidebar {
-  width: 260px;
-  background-color: #1a1a2e;
-  color: #fff;
+  width: 280px;
+  background: var(--p-surface-0);
+  border-right: 1px solid var(--p-surface-200);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 
 .sidebar-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.sidebar-header h2 {
-  margin: 0;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--p-primary-color);
 }
 
-.user-rol {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  display: block;
-  margin-top: 0.25rem;
+.brand-text {
+  font-size: 1.5rem;
 }
 
-.sidebar-nav {
+.sidebar-menu {
   flex: 1;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-nav li {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.sidebar-nav a {
-  display: block;
-  padding: 0.875rem 1.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  transition: background-color 0.2s;
-}
-
-.sidebar-nav a:hover,
-.sidebar-nav a.router-link-exact-active {
-  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  overflow-y: auto;
 }
 
 .sidebar-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--p-surface-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .user-name {
-  display: block;
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
-.logout-btn {
-  width: 100%;
-  padding: 0.5rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
+.user-email {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+  line-height: 1;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.main-content {
+.content {
   flex: 1;
   padding: 2rem;
-  background-color: #f5f5f5;
+  background: var(--p-surface-50);
   overflow-y: auto;
 }
 </style>
