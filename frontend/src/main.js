@@ -46,6 +46,7 @@ app.use(PrimeVue, {
       },
     },
   },
+  ripple: true,
 })
 
 // Global component registration
