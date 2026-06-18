@@ -46,6 +46,11 @@ app.use(PrimeVue, {
       },
     },
   },
+  pt: {
+    global: {
+      fontFamily: "'Poppins', sans-serif",
+    },
+  },
   ripple: true,
 })
 
