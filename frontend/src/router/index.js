@@ -12,11 +12,18 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('../layouts/DefaultLayout.vue'),
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'dashboard',
           component: () => import('../views/DashboardView.vue'),
+        },
+        {
+          path: 'usuarios',
+          name: 'usuarios',
+          component: () => import('../views/UsuariosView.vue'),
+          meta: { roles: ['gerente_nacional'] },
         },
         {
           path: 'vehiculos',
@@ -36,6 +43,20 @@ const router = createRouter({
       ],
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access_token')
+
+  if (to.name === 'login' && token) {
+    return next({ name: 'dashboard' })
+  }
+
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: 'login' })
+  }
+
+  next()
 })
 
 export default router

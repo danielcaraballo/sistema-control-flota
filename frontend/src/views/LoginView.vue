@@ -1,14 +1,27 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
+
 const email = ref('')
 const password = ref('')
+const error = ref('')
+const loading = ref(false)
 
-function handleLogin() {
-  // TODO: Conectar con API de autenticación
-  router.push('/')
+async function handleLogin() {
+  error.value = ''
+  loading.value = true
+  try {
+    await auth.login(email.value, password.value)
+    router.push('/')
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Error al iniciar sesión'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -18,6 +31,7 @@ function handleLogin() {
       <h1>SCF</h1>
       <p class="subtitle">Sistema de Control de Flota</p>
       <form @submit.prevent="handleLogin">
+        <div v-if="error" class="error-message">{{ error }}</div>
         <div class="form-group">
           <label for="email">Correo corporativo</label>
           <input id="email" v-model="email" type="email" required placeholder="usuario@corp.com" />
@@ -26,7 +40,9 @@ function handleLogin() {
           <label for="password">Contraseña</label>
           <input id="password" v-model="password" type="password" required />
         </div>
-        <button type="submit" class="btn-primary">Iniciar sesión</button>
+        <button type="submit" class="btn-primary" :disabled="loading">
+          {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
+        </button>
       </form>
     </div>
   </div>
@@ -56,6 +72,15 @@ function handleLogin() {
   text-align: center;
   color: #666;
   margin-bottom: 2rem;
+}
+
+.error-message {
+  background: #fde8e8;
+  color: #c53030;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .form-group {
@@ -90,7 +115,12 @@ function handleLogin() {
   margin-top: 0.5rem;
 }
 
-.btn-primary:hover {
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
   background-color: #16213e;
 }
 </style>
