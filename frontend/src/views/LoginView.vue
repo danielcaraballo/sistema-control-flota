@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 const router = useRouter()
 const auth = useAuthStore()
 
-const email = ref('')
+const credential = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
@@ -15,7 +15,7 @@ async function handleLogin() {
   error.value = ''
   loading.value = true
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(credential.value, password.value)
     router.push('/')
   } catch (err) {
     error.value = err.response?.data?.detail || 'Error al iniciar sesión'
@@ -44,12 +44,12 @@ async function handleLogin() {
           </Message>
 
           <div class="field mb-3">
-            <label for="email">Correo corporativo</label>
+            <label for="credential">Correo o usuario</label>
             <InputText
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="usuario@corp.com"
+              id="credential"
+              v-model="credential"
+              type="text"
+              placeholder="usuario o correo"
               class="w-full"
               :disabled="loading"
             />

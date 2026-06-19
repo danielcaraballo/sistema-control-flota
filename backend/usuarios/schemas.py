@@ -4,8 +4,8 @@ from .models import Usuario
 
 
 class UsuarioOut(ModelSchema):
-    gerencia_nombre: str | None = None
     estado_nombre: str | None = None
+    gerencia_nombre: str | None = None
 
     class Meta:
         model = Usuario
@@ -16,18 +16,20 @@ class UsuarioOut(ModelSchema):
             "first_name",
             "last_name",
             "rol",
+            "estado",
             "gerencia",
             "is_active",
         ]
 
 
 class UsuarioCreate(Schema):
-    username: str
+    username: str | None = None
     email: str
     password: str
     first_name: str = ""
     last_name: str = ""
     rol: Usuario.Rol
+    estado_id: int | None = None
     gerencia_id: int | None = None
 
 
@@ -36,12 +38,13 @@ class UsuarioUpdate(Schema):
     first_name: str | None = None
     last_name: str | None = None
     rol: Usuario.Rol | None = None
+    estado_id: int | None = None
     gerencia_id: int | None = None
     is_active: bool | None = None
 
 
 class LoginInput(Schema):
-    email: str
+    username: str
     password: str
 
 

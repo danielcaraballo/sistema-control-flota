@@ -18,6 +18,13 @@ class Usuario(AbstractUser):
         related_name="usuarios",
         verbose_name="Gerencia",
     )
+    estado = models.ForeignKey(
+        "organizacion.Estado",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Estado",
+    )
     email = models.EmailField(unique=True, verbose_name="Correo corporativo")
 
     class Meta:

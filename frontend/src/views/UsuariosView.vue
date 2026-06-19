@@ -5,10 +5,12 @@ import api from '@/services/api'
 
 const auth = useAuthStore()
 const usuarios = ref([])
+const estados = ref([])
 const loading = ref(true)
 const showDialog = ref(false)
 const editingUser = ref(null)
 const submitted = ref(false)
+const errorMessage = ref('')
 
 const form = ref({
   username: '',
@@ -17,6 +19,7 @@ const form = ref({
   first_name: '',
   last_name: '',
   rol: null,
+  estado_id: null,
   gerencia_id: null,
 })
 
@@ -26,6 +29,17 @@ const roles = [
   { label: 'Responsable Estatal', value: 'responsable_estatal' },
   { label: 'Mecánico', value: 'mecanico' },
 ]
+
+const ESTATAL_ROLES = ['responsable_estatal', 'mecanico']
+
+async function loadEstados() {
+  try {
+    const { data } = await api.get('/organizacion/estados/')
+    estados.value = data
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 async function loadUsuarios() {
   loading.value = true
@@ -41,6 +55,7 @@ async function loadUsuarios() {
 
 function openNew() {
   editingUser.value = null
+  errorMessage.value = ''
   form.value = {
     username: '',
     email: '',
@@ -48,6 +63,7 @@ function openNew() {
     first_name: '',
     last_name: '',
     rol: null,
+    estado_id: null,
     gerencia_id: null,
   }
   submitted.value = false
@@ -56,6 +72,7 @@ function openNew() {
 
 function openEdit(user) {
   editingUser.value = user
+  errorMessage.value = ''
   form.value = {
     username: user.username,
     email: user.email,
@@ -63,6 +80,7 @@ function openEdit(user) {
     first_name: user.first_name,
     last_name: user.last_name,
     rol: user.rol,
+    estado_id: user.estado,
     gerencia_id: user.gerencia,
   }
   submitted.value = false
@@ -71,6 +89,7 @@ function openEdit(user) {
 
 async function saveUser() {
   submitted.value = true
+  errorMessage.value = ''
 
   if (!form.value.rol) return
 
@@ -81,6 +100,7 @@ async function saveUser() {
         first_name: form.value.first_name,
         last_name: form.value.last_name,
         rol: form.value.rol,
+        estado_id: form.value.estado_id,
         gerencia_id: form.value.gerencia_id,
       }
       await api.put(`/usuarios/${editingUser.value.id}`, payload)
@@ -93,7 +113,7 @@ async function saveUser() {
     showDialog.value = false
     await loadUsuarios()
   } catch (err) {
-    console.error(err)
+    errorMessage.value = err.response?.data?.detail || 'Error al guardar el usuario'
   }
 }
 
@@ -120,7 +140,10 @@ const rolLabel = (rol) => ({
   mecanico: 'Mecánico',
 }[rol] || rol)
 
-onMounted(loadUsuarios)
+onMounted(() => {
+  loadUsuarios()
+  loadEstados()
+})
 </script>
 
 <template>
@@ -157,6 +180,11 @@ onMounted(loadUsuarios)
           <Column field="rol" header="Rol" sortable>
             <template #body="{ data }">
               <Tag :value="rolLabel(data.rol)" :severity="rolSeverity(data.rol)" />
+            </template>
+          </Column>
+          <Column field="estado_nombre" header="Estado" sortable>
+            <template #body="{ data }">
+              {{ data.estado_nombre || 'Nacional' }}
             </template>
           </Column>
           <Column field="gerencia_nombre" header="Gerencia" sortable>
@@ -205,6 +233,10 @@ onMounted(loadUsuarios)
       :closable="true"
     >
       <form @submit.prevent="saveUser">
+        <Message v-if="errorMessage" severity="error" :closable="false" class="mb-3">
+          {{ errorMessage }}
+        </Message>
+
         <div class="form-grid">
           <div class="field">
             <label for="username">Usuario</label>
@@ -213,8 +245,10 @@ onMounted(loadUsuarios)
               v-model="form.username"
               class="w-full"
               :disabled="!!editingUser"
-              :class="{ 'p-invalid': submitted && !form.username && !editingUser }"
             />
+            <small v-if="!editingUser" class="text-muted">
+              Se genera automáticamente a partir del nombre
+            </small>
           </div>
 
           <div class="field">
@@ -267,16 +301,19 @@ onMounted(loadUsuarios)
           </div>
 
           <div
-            v-if="form.rol && form.rol !== 'gerente_nacional' && form.rol !== 'analista_nacional'"
+            v-if="form.rol && ESTATAL_ROLES.includes(form.rol)"
             class="field"
           >
-            <label for="gerencia">Gerencia (ID)</label>
-            <InputNumber
-              id="gerencia"
-              v-model="form.gerencia_id"
+            <label for="estado">Estado</label>
+            <Dropdown
+              id="estado"
+              v-model="form.estado_id"
+              :options="estados"
+              optionLabel="nombre"
+              optionValue="id"
+              placeholder="Seleccionar estado"
               class="w-full"
-              placeholder="ID de gerencia"
-              :min="1"
+              :class="{ 'p-invalid': submitted && !form.estado_id && ESTATAL_ROLES.includes(form.rol) }"
             />
           </div>
         </div>

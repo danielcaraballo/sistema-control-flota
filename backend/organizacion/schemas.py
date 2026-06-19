@@ -12,4 +12,4 @@ class EstadoSchema(ModelSchema):
 class GerenciaSchema(ModelSchema):
     class Meta:
         model = Gerencia
-        fields = ["id", "nombre", "estado", "estatus_activo"]
+        fields = ["id", "nombre", "estatus_activo"]

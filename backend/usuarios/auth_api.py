@@ -1,4 +1,4 @@
-from django.contrib.auth.hashers import check_password
+from django.db.models import Q
 from ninja import Router
 from ninja.errors import HttpError
 
@@ -18,12 +18,12 @@ router = Router()
 
 @router.post("/login", response=LoginOutput, auth=None)
 def login(request, payload: LoginInput):
-    try:
-        user = Usuario.objects.get(email=payload.email, is_active=True)
-    except Usuario.DoesNotExist:
-        raise HttpError(401, "Credenciales inválidas")
+    user = Usuario.objects.filter(
+        Q(email=payload.username) | Q(username=payload.username),
+        is_active=True,
+    ).first()
 
-    if not check_password(payload.password, user.password):
+    if not user or not user.check_password(payload.password):
         raise HttpError(401, "Credenciales inválidas")
 
     access = create_access_token(user)
@@ -39,10 +39,11 @@ def login(request, payload: LoginInput):
             first_name=user.first_name,
             last_name=user.last_name,
             rol=user.rol,
+            estado=user.estado_id,
             gerencia=user.gerencia_id,
             is_active=user.is_active,
+            estado_nombre=user.estado.nombre if user.estado else None,
             gerencia_nombre=str(user.gerencia) if user.gerencia else None,
-            estado_nombre=user.gerencia.estado.nombre if user.gerencia else None,
         ),
     )
 
@@ -69,8 +70,9 @@ def me(request):
         first_name=user.first_name,
         last_name=user.last_name,
         rol=user.rol,
+        estado=user.estado_id,
         gerencia=user.gerencia_id,
         is_active=user.is_active,
+        estado_nombre=user.estado.nombre if user.estado else None,
         gerencia_nombre=str(user.gerencia) if user.gerencia else None,
-        estado_nombre=user.gerencia.estado.nombre if user.gerencia else None,
     )

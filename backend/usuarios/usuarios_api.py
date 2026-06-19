@@ -5,13 +5,16 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizacion.models import Gerencia
+from organizacion.models import Estado, Gerencia
 from usuarios.models import Usuario
 
 from .auth import AuthBearer
 from .schemas import UsuarioCreate, UsuarioOut, UsuarioUpdate
+from .utils import generate_username
 
 router = Router()
+
+ESTATAL_ROLES = {"responsable_estatal", "mecanico"}
 
 
 def require_roles(*roles: str):
@@ -36,42 +39,52 @@ def _build_usuario_out(user: Usuario) -> UsuarioOut:
         first_name=user.first_name,
         last_name=user.last_name,
         rol=user.rol,
+        estado=user.estado_id,
         gerencia=user.gerencia_id,
         is_active=user.is_active,
+        estado_nombre=user.estado.nombre if user.estado else None,
         gerencia_nombre=str(user.gerencia) if user.gerencia else None,
-        estado_nombre=user.gerencia.estado.nombre if user.gerencia else None,
     )
 
 
 @router.get("/", response=list[UsuarioOut], auth=AuthBearer())
 @require_roles("gerente_nacional")
 def list_usuarios(request):
-    usuarios = Usuario.objects.select_related("gerencia__estado").all()
+    usuarios = Usuario.objects.select_related("estado", "gerencia").all()
     return [_build_usuario_out(u) for u in usuarios]
 
 
 @router.post("/", response=UsuarioOut, auth=AuthBearer())
 @require_roles("gerente_nacional")
 def create_usuario(request, data: UsuarioCreate):
-    if Usuario.objects.filter(username=data.username).exists():
+    username = data.username or generate_username(data.first_name, data.last_name)
+    if not username:
+        raise HttpError(400, "Debe proporcionar un nombre de usuario o nombre y apellido")
+
+    if Usuario.objects.filter(username=username).exists():
         raise HttpError(409, "El nombre de usuario ya existe")
     if Usuario.objects.filter(email=data.email).exists():
         raise HttpError(409, "El correo ya está registrado")
 
-    if data.rol != "gerente_nacional" and not data.gerencia_id:
-        raise HttpError(400, "Debe asignar una gerencia para este rol")
+    if data.rol in ESTATAL_ROLES and not data.estado_id:
+        raise HttpError(400, "Debe asignar un estado para este rol")
+
+    estado = None
+    if data.estado_id:
+        estado = get_object_or_404(Estado, id=data.estado_id, estatus_activo=True)
 
     gerencia = None
     if data.gerencia_id:
         gerencia = get_object_or_404(Gerencia, id=data.gerencia_id, estatus_activo=True)
 
     user = Usuario.objects.create(
-        username=data.username,
+        username=username,
         email=data.email,
         password=make_password(data.password),
         first_name=data.first_name,
         last_name=data.last_name,
         rol=data.rol,
+        estado=estado,
         gerencia=gerencia,
     )
 
@@ -94,13 +107,17 @@ def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
         user.last_name = data.last_name
     if data.rol is not None:
         user.rol = data.rol
+    if data.estado_id is not None:
+        user.estado = get_object_or_404(Estado, id=data.estado_id, estatus_activo=True)
     if data.gerencia_id is not None:
         user.gerencia = get_object_or_404(Gerencia, id=data.gerencia_id, estatus_activo=True)
     if data.is_active is not None:
         user.is_active = data.is_active
 
-    if user.rol != "gerente_nacional" and not user.gerencia:
-        raise HttpError(400, "Debe asignar una gerencia para este rol")
+    rol = data.rol or user.rol
+    estado = data.estado_id if data.estado_id is not None else user.estado_id
+    if rol in ESTATAL_ROLES and not estado:
+        raise HttpError(400, "Debe asignar un estado para este rol")
 
     user.save()
     return _build_usuario_out(user)

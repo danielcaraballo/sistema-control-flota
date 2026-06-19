@@ -13,8 +13,8 @@ export const useAuthStore = defineStore('auth', () => {
   const isResponsableEstatal = computed(() => rol.value === 'responsable_estatal')
   const isMecanico = computed(() => rol.value === 'mecanico')
 
-  async function login(email, password) {
-    const { data } = await api.post('/auth/login', { email, password })
+  async function login(credential, password) {
+    const { data } = await api.post('/auth/login', { username: credential, password })
     token.value = data.access
     user.value = data.user
     isAuthenticated.value = true
