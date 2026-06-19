@@ -1,5 +1,3 @@
-from typing import List
-
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -94,7 +92,7 @@ def me(request):
     )
 
 
-@router.get("/", response=List[UsuarioOut], auth=AuthBearer())
+@router.get("/", response=list[UsuarioOut], auth=AuthBearer())
 @require_roles("gerente_nacional")
 def list_usuarios(request):
     usuarios = Usuario.objects.select_related("gerencia__estado").all()

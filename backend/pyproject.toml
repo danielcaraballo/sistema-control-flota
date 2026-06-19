@@ -1,0 +1,48 @@
+[project]
+name = "sistema-control-flota"
+version = "0.1.0"
+description = "Sistema de Control de Flota"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.2,<5.3",
+    "django-ninja>=1.6,<2.0",
+    "python-decouple>=3.8",
+    "psycopg2-binary>=2.9",
+    "django-cors-headers>=4.0",
+    "django-ninja-jwt>=5.4.4",
+]
+
+[dependency-groups]
+dev = ["ruff"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = ["*/migrations/*", ".venv", "*.egg-info"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # PEP8 naming
+    "UP",  # pyupgrade
+    "DJ",  # Django
+    "RUF", # ruff-specific
+]
+ignore = [
+    "DJ001",  # allow null=False on ForeignKey with default
+    "E501",   # line-too-long (handled by formatter)
+    "RUF012", # mutable class attrs (Django patterns like list_display)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/migrations/*" = ["ALL"]
+"*/tests.py" = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+

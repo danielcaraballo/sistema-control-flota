@@ -1,4 +1,5 @@
 from ninja import ModelSchema, Schema
+
 from .models import Usuario
 
 
@@ -8,7 +9,16 @@ class UsuarioOut(ModelSchema):
 
     class Meta:
         model = Usuario
-        fields = ["id", "username", "email", "first_name", "last_name", "rol", "gerencia", "is_active"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "rol",
+            "gerencia",
+            "is_active",
+        ]
 
 
 class UsuarioCreate(Schema):

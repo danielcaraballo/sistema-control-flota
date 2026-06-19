@@ -1,8 +1,9 @@
+from django.contrib.auth.hashers import check_password
 from ninja import Router
 from ninja.errors import HttpError
 
-from django.contrib.auth.hashers import check_password
 from usuarios.models import Usuario
+
 from .auth import AuthBearer, create_access_token, create_refresh_token, decode_token
 from .schemas import (
     LoginInput,

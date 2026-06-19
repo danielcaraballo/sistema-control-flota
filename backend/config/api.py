@@ -1,5 +1,4 @@
 from ninja import NinjaAPI
-from ninja.errors import ValidationError
 
 from usuarios.auth import AuthBearer
 from usuarios.auth_api import router as auth_router

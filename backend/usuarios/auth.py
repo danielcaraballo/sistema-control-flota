@@ -4,6 +4,7 @@ from typing import Any
 import jwt
 from django.conf import settings
 from ninja.security import HttpBearer
+
 from usuarios.models import Usuario
 
 
