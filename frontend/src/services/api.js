@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
 const api = axios.create({
@@ -28,11 +27,9 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-          const { data } = await axios.post(
-            `${baseUrl}/auth/refresh`,
-            { refresh: refreshToken },
-          )
+          const { data } = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
+            refresh: refreshToken,
+          })
           localStorage.setItem('access_token', data.access)
           originalRequest.headers.Authorization = `Bearer ${data.access}`
           return api(originalRequest)

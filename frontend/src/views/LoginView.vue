@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Button from 'primevue/button'
-import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 import Password from 'primevue/password'
@@ -31,103 +30,52 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="login-wrapper">
-    <Card class="login-card">
-      <template #title>
-        <div class="login-header">
-          <i class="pi pi-car" style="font-size: 2rem; color: var(--p-primary-color)"></i>
-          <h1>SCF</h1>
+  <div class="w-full flex items-center justify-center">
+    <div class="w-full max-w-[420px] px-4">
+      <div class="border border-surface-200 rounded-md bg-surface-0">
+        <div class="px-6 pt-6 pb-2">
+          <div class="flex items-center gap-3 mb-1">
+            <i class="pi pi-car text-2xl" style="color: var(--p-primary-color)" />
+            <h1 class="m-0 text-xl font-semibold">SCF</h1>
+          </div>
+          <p class="text-sm text-muted-color mt-1">Sistema de Control de Flota</p>
         </div>
-      </template>
-      <template #subtitle>
-        Sistema de Control de Flota
-      </template>
-      <template #content>
-        <form @submit.prevent="handleLogin">
-          <Message v-if="error" severity="error" :closable="false" class="mb-3">
-            {{ error }}
-          </Message>
+        <div class="px-6 pb-6 pt-4">
+          <form @submit.prevent="handleLogin">
+            <Message v-if="error" severity="error" :closable="false" class="mb-3 text-xs">
+              {{ error }}
+            </Message>
 
-          <div class="field mb-3">
-            <label for="credential">Correo o usuario</label>
-            <InputText
-              id="credential"
-              v-model="credential"
-              type="text"
-              placeholder="usuario o correo"
-              class="w-full"
-              :disabled="loading"
-            />
-          </div>
+            <div class="flex flex-col gap-1.5 mb-3">
+              <label for="credential" class="text-sm font-semibold">Correo o usuario</label>
+              <InputText
+                id="credential"
+                v-model="credential"
+                type="text"
+                placeholder="usuario o correo"
+                class="w-full"
+                :disabled="loading"
+              />
+            </div>
 
-          <div class="field mb-4">
-            <label for="password">Contraseña</label>
-            <Password
-              id="password"
-              v-model="password"
-              :feedback="false"
-              placeholder="Contraseña"
-              class="w-full"
-              :input-style="{ width: '100%' }"
-              :disabled="loading"
-              toggleMask
-            />
-          </div>
+            <div class="flex flex-col gap-1.5 mb-5">
+              <label for="password" class="text-sm font-semibold">Contraseña</label>
+              <Password
+                id="password"
+                v-model="password"
+                :feedback="false"
+                placeholder="Contraseña"
+                class="w-full"
+                pt:input:class="w-full"
+                :disabled="loading"
+                toggleMask
+              />
+            </div>
 
-          <Button
-            type="submit"
-            label="Iniciar sesión"
-            class="w-full"
-            :loading="loading"
-          />
-        </form>
-      </template>
-    </Card>
+            <Button type="submit" label="Iniciar sesión" class="w-full" :loading="loading" />
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.login-wrapper {
-  width: 100%;
-  max-width: 420px;
-  padding: 1rem;
-}
-
-.login-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.login-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.mb-3 {
-  margin-bottom: 1rem;
-}
-
-.mb-4 {
-  margin-bottom: 1.5rem;
-}
-
-.w-full {
-  width: 100%;
-}
-
-:deep(.p-password input) {
-  width: 100%;
-}
-</style>
