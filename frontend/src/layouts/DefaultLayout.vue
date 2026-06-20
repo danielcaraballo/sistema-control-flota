@@ -1,7 +1,11 @@
 <script setup>
 import { RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import Avatar from 'primevue/avatar'
+import Button from 'primevue/button'
+import PanelMenu from 'primevue/panelmenu'
+import Tag from 'primevue/tag'
 
 const auth = useAuthStore()
 const router = useRouter()

@@ -1,14 +1,13 @@
 from functools import wraps
 
-from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
+from ninja_jwt.authentication import JWTAuth
 
 from organizacion.models import Estado, Gerencia
 from usuarios.models import Usuario
 
-from .auth import AuthBearer
 from .schemas import UsuarioCreate, UsuarioOut, UsuarioUpdate
 from .utils import generate_username
 
@@ -47,14 +46,14 @@ def _build_usuario_out(user: Usuario) -> UsuarioOut:
     )
 
 
-@router.get("/", response=list[UsuarioOut], auth=AuthBearer())
+@router.get("/", response=list[UsuarioOut], auth=JWTAuth())
 @require_roles("gerente_nacional")
 def list_usuarios(request):
     usuarios = Usuario.objects.select_related("estado", "gerencia").all()
     return [_build_usuario_out(u) for u in usuarios]
 
 
-@router.post("/", response=UsuarioOut, auth=AuthBearer())
+@router.post("/", response=UsuarioOut, auth=JWTAuth())
 @require_roles("gerente_nacional")
 def create_usuario(request, data: UsuarioCreate):
     username = data.username or generate_username(data.first_name, data.last_name)
@@ -71,27 +70,34 @@ def create_usuario(request, data: UsuarioCreate):
 
     estado = None
     if data.estado_id:
-        estado = get_object_or_404(Estado, id=data.estado_id, estatus_activo=True)
+        try:
+            estado = Estado.objects.get(id=data.estado_id, estatus_activo=True)
+        except Estado.DoesNotExist:
+            raise HttpError(400, "Estado no válido")
 
     gerencia = None
     if data.gerencia_id:
-        gerencia = get_object_or_404(Gerencia, id=data.gerencia_id, estatus_activo=True)
+        try:
+            gerencia = Gerencia.objects.get(id=data.gerencia_id, estatus_activo=True)
+        except Gerencia.DoesNotExist:
+            raise HttpError(400, "Gerencia no válida")
 
-    user = Usuario.objects.create(
+    user = Usuario(
         username=username,
         email=data.email,
-        password=make_password(data.password),
         first_name=data.first_name,
         last_name=data.last_name,
         rol=data.rol,
         estado=estado,
         gerencia=gerencia,
     )
+    user.set_password(data.password)
+    user.save()
 
     return _build_usuario_out(user)
 
 
-@router.put("/{usuario_id}", response=UsuarioOut, auth=AuthBearer())
+@router.put("/{usuario_id}", response=UsuarioOut, auth=JWTAuth())
 @require_roles("gerente_nacional")
 def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
     user = get_object_or_404(Usuario, id=usuario_id)
@@ -108,9 +114,15 @@ def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
     if data.rol is not None:
         user.rol = data.rol
     if data.estado_id is not None:
-        user.estado = get_object_or_404(Estado, id=data.estado_id, estatus_activo=True)
+        try:
+            user.estado = Estado.objects.get(id=data.estado_id, estatus_activo=True)
+        except Estado.DoesNotExist:
+            raise HttpError(400, "Estado no válido")
     if data.gerencia_id is not None:
-        user.gerencia = get_object_or_404(Gerencia, id=data.gerencia_id, estatus_activo=True)
+        try:
+            user.gerencia = Gerencia.objects.get(id=data.gerencia_id, estatus_activo=True)
+        except Gerencia.DoesNotExist:
+            raise HttpError(400, "Gerencia no válida")
     if data.is_active is not None:
         user.is_active = data.is_active
 
@@ -123,7 +135,7 @@ def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
     return _build_usuario_out(user)
 
 
-@router.delete("/{usuario_id}", response={204: None}, auth=AuthBearer())
+@router.delete("/{usuario_id}", response={204: None}, auth=JWTAuth())
 @require_roles("gerente_nacional")
 def deactivate_usuario(request, usuario_id: int):
     user = get_object_or_404(Usuario, id=usuario_id)

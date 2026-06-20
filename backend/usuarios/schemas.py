@@ -54,9 +54,5 @@ class LoginOutput(Schema):
     user: UsuarioOut
 
 
-class TokenRefreshInput(Schema):
+class RefreshInput(Schema):
     refresh: str
-
-
-class TokenRefreshOutput(Schema):
-    access: str

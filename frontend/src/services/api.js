@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,8 +28,9 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
           const { data } = await axios.post(
-            'http://localhost:8000/api/auth/refresh',
+            `${baseUrl}/auth/refresh`,
             { refresh: refreshToken },
           )
           localStorage.setItem('access_token', data.access)

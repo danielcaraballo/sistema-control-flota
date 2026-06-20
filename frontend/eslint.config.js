@@ -1,0 +1,16 @@
+import pluginVue from 'eslint-plugin-vue'
+import prettierConfig from '@vue/eslint-config-prettier'
+
+export default [
+  ...pluginVue.configs['flat/essential'],
+  prettierConfig,
+  {
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    ignores: ['dist/**', 'node_modules/**'],
+  },
+]

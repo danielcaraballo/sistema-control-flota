@@ -1,15 +1,15 @@
 from ninja import NinjaAPI
+from ninja_jwt.authentication import JWTAuth
 
-from usuarios.auth import AuthBearer
+from organizacion.api import router as organizacion_router
 from usuarios.auth_api import router as auth_router
 from usuarios.usuarios_api import router as usuarios_router
-from organizacion.api import router as organizacion_router
 
 api = NinjaAPI(
     title="SCF - Sistema de Control de Flota",
     version="1.0.0",
     description="API para la gestión integral de flota vehicular corporativa",
-    auth=AuthBearer(),
+    auth=JWTAuth(),
 )
 
 api.add_router("/auth/", auth_router, tags=["Autenticación"])
