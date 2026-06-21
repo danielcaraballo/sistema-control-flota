@@ -8,7 +8,7 @@ from usuarios.usuarios_api import router as usuarios_router
 api = NinjaAPI(
     title="SCF - Sistema de Control de Flota",
     version="1.0.0",
-    description="API para la gestión integral de flota vehicular corporativa",
+    description="API del Sistema de Control de Flota (SCF).",
     auth=JWTAuth(),
 )
 

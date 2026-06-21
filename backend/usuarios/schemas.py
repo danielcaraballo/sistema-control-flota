@@ -4,6 +4,8 @@ from .models import Usuario
 
 
 class UsuarioOut(ModelSchema):
+    estado: int | None = None
+    gerencia: int | None = None
     estado_nombre: str | None = None
     gerencia_nombre: str | None = None
 
@@ -16,8 +18,6 @@ class UsuarioOut(ModelSchema):
             "first_name",
             "last_name",
             "rol",
-            "estado",
-            "gerencia",
             "is_active",
         ]
 
