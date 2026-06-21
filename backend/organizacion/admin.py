@@ -1,17 +1,18 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Estado, Gerencia
 
 
 @admin.register(Estado)
-class EstadoAdmin(admin.ModelAdmin):
+class EstadoAdmin(ModelAdmin):
     list_display = ["nombre", "estatus_activo"]
     search_fields = ["nombre"]
     list_filter = ["estatus_activo"]
 
 
 @admin.register(Gerencia)
-class GerenciaAdmin(admin.ModelAdmin):
+class GerenciaAdmin(ModelAdmin):
     list_display = ["nombre", "estatus_activo"]
     search_fields = ["nombre"]
     list_filter = ["estatus_activo"]

@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% load i18n unfold %}
+
+{% block title %}
+    Dashboard | {{ site_title|default:_("Django site admin") }}
+{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    {% component "unfold/components/container.html" %}
+        <div class="flex flex-col gap-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% component "unfold/components/card.html" with title="Total Usuarios" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ total_usuarios }}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Usuarios Activos" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ usuarios_activos }}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Estados Activos" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ total_estados }}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Gerencias Activas" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ total_gerencias }}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {% component "unfold/components/card.html" with title="Usuarios por Rol" %}
+                    {% component "unfold/components/chart/bar.html" with data=rol_chart_data height=320 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Usuarios por Estado" %}
+                    {% component "unfold/components/chart/bar.html" with data=estado_chart_data height=320 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+            <div>
+                {% component "unfold/components/card.html" with title="Usuarios Recientes" %}
+                    {% component "unfold/components/table.html" with table=users_table card_included=1 striped=1 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+        </div>
+    {% endcomponent %}
+{% endblock %}

@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from decouple import Csv, config
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,6 +13,8 @@ ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 INSTALLED_APPS = [
+    "unfold",
+    "dashboard",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +46,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -96,4 +99,40 @@ NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+UNFOLD = {
+    "DASHBOARD_CALLBACK": "dashboard.callbacks.dashboard_callback",
+    "SIDEBAR": {
+        "show_search": True,
+        "navigation": [
+            {
+                "title": "Flota",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": "Usuarios",
+                        "icon": "people",
+                        "link": reverse_lazy("admin:usuarios_usuario_changelist"),
+                    },
+                    {
+                        "title": "Estados",
+                        "icon": "location_on",
+                        "link": reverse_lazy("admin:organizacion_estado_changelist"),
+                    },
+                    {
+                        "title": "Gerencias",
+                        "icon": "business",
+                        "link": reverse_lazy("admin:organizacion_gerencia_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
 }

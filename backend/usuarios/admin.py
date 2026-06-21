@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Usuario
 
 
 @admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
+class UsuarioAdmin(ModelAdmin):
     list_display = ["username", "email", "rol", "estado", "gerencia", "is_active"]
     search_fields = ["username", "email"]
     list_filter = ["rol", "estado", "is_active"]
