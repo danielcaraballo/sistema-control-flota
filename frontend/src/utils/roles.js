@@ -1,29 +1,33 @@
+const JERARQUIA = ['mecanico', 'analista', 'estatal', 'nacional']
+
 export const ROLES = [
-  { label: 'Gerente Nacional', value: 'gerente_nacional' },
-  { label: 'Analista Nacional', value: 'analista_nacional' },
-  { label: 'Responsable Estatal', value: 'responsable_estatal' },
-  { label: 'Mecánico', value: 'mecanico' },
+  { label: 'Nacional', value: 'nacional', estatal: false },
+  { label: 'Estatal', value: 'estatal', estatal: true },
+  { label: 'Analista', value: 'analista', estatal: true },
+  { label: 'Mecánico', value: 'mecanico', estatal: true },
 ]
 
-export const ESTATAL_ROLES = ['responsable_estatal', 'mecanico']
+export const ESTATAL_ROLES = ROLES.filter((r) => r.estatal).map((r) => r.value)
+
+export function tieneRolMinimo(rol, rolMinimo) {
+  return JERARQUIA.indexOf(rol) >= JERARQUIA.indexOf(rolMinimo)
+}
+
+export function esEstatal(rol) {
+  return ESTATAL_ROLES.includes(rol)
+}
 
 export function rolLabel(rol) {
-  return (
-    {
-      gerente_nacional: 'Gerente Nacional',
-      analista_nacional: 'Analista Nacional',
-      responsable_estatal: 'Responsable Estatal',
-      mecanico: 'Mecánico',
-    }[rol] || rol
-  )
+  const found = ROLES.find((r) => r.value === rol)
+  return found?.label || rol
 }
 
 export function rolSeverity(rol) {
   return (
     {
-      gerente_nacional: 'danger',
-      analista_nacional: 'warn',
-      responsable_estatal: 'info',
+      nacional: 'danger',
+      estatal: 'warn',
+      analista: 'info',
       mecanico: 'success',
     }[rol] || 'info'
   )

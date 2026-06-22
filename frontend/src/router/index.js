@@ -23,7 +23,7 @@ const router = createRouter({
           path: 'usuarios',
           name: 'usuarios',
           component: () => import('../views/UsuariosView.vue'),
-          meta: { roles: ['gerente_nacional'] },
+          meta: { rolMinimo: 'nacional' },
         },
         {
           path: 'vehiculos',
@@ -39,6 +39,7 @@ const router = createRouter({
           path: 'reportes',
           name: 'reportes',
           component: () => import('../views/ReportesView.vue'),
+          meta: { rolMinimo: 'analista' },
         },
       ],
     },
@@ -56,7 +57,7 @@ router.beforeEach((to, from, next) => {
     return next({ name: 'login' })
   }
 
-  if (to.meta.roles && !to.meta.roles.includes(auth.rol)) {
+  if (to.meta.rolMinimo && !auth.tieneRol(to.meta.rolMinimo)) {
     return next({ name: 'dashboard' })
   }
 

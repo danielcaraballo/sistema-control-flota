@@ -5,9 +5,7 @@ from .models import Usuario
 
 class UsuarioOut(ModelSchema):
     estado: int | None = None
-    gerencia: int | None = None
     estado_nombre: str | None = None
-    gerencia_nombre: str | None = None
 
     class Meta:
         model = Usuario
@@ -25,12 +23,11 @@ class UsuarioOut(ModelSchema):
 class UsuarioCreate(Schema):
     username: str | None = None
     email: str
-    password: str
+    password: str | None = None
     first_name: str = ""
     last_name: str = ""
     rol: Usuario.Rol
     estado_id: int | None = None
-    gerencia_id: int | None = None
 
 
 class UsuarioUpdate(Schema):
@@ -39,7 +36,6 @@ class UsuarioUpdate(Schema):
     last_name: str | None = None
     rol: Usuario.Rol | None = None
     estado_id: int | None = None
-    gerencia_id: int | None = None
     is_active: bool | None = None
 
 
@@ -56,3 +52,12 @@ class LoginOutput(Schema):
 
 class RefreshInput(Schema):
     refresh: str
+
+
+class UsuarioCreateOut(Schema):
+    user: UsuarioOut
+    password: str
+
+
+class ResetPasswordOut(Schema):
+    password: str

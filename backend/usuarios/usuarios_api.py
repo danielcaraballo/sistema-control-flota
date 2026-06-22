@@ -1,33 +1,22 @@
-from functools import wraps
-
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 
-from organizacion.models import Estado, Gerencia
+from organizacion.models import Estado
 from usuarios.models import Usuario
 
-from .schemas import UsuarioCreate, UsuarioOut, UsuarioUpdate
-from .utils import generate_username
+from .roles import acotar_por_estado, es_estatal, requiere_rol_minimo
+from .schemas import (
+    ResetPasswordOut,
+    UsuarioCreate,
+    UsuarioCreateOut,
+    UsuarioOut,
+    UsuarioUpdate,
+)
+from .utils import generate_password, generate_username
 
 router = Router()
-
-ESTATAL_ROLES = {"responsable_estatal", "mecanico"}
-
-
-def require_roles(*roles: str):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(request, **kwargs):
-            user: Usuario = request.auth
-            if user.rol not in roles:
-                raise HttpError(403, "No tienes permiso para realizar esta acción")
-            return func(request, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 def _build_usuario_out(user: Usuario) -> UsuarioOut:
@@ -39,22 +28,20 @@ def _build_usuario_out(user: Usuario) -> UsuarioOut:
         last_name=user.last_name,
         rol=user.rol,
         estado=user.estado_id,
-        gerencia=user.gerencia_id,
         is_active=user.is_active,
         estado_nombre=user.estado.nombre if user.estado else None,
-        gerencia_nombre=str(user.gerencia) if user.gerencia else None,
     )
 
 
 @router.get("/", response=list[UsuarioOut], auth=JWTAuth())
-@require_roles("gerente_nacional")
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def list_usuarios(request):
-    usuarios = Usuario.objects.select_related("estado", "gerencia").all()
+    usuarios = Usuario.objects.select_related("estado").all()
     return [_build_usuario_out(u) for u in usuarios]
 
 
-@router.post("/", response=UsuarioOut, auth=JWTAuth())
-@require_roles("gerente_nacional")
+@router.post("/", response=UsuarioCreateOut, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def create_usuario(request, data: UsuarioCreate):
     username = data.username or generate_username(data.first_name, data.last_name)
     if not username:
@@ -65,7 +52,9 @@ def create_usuario(request, data: UsuarioCreate):
     if Usuario.objects.filter(email=data.email).exists():
         raise HttpError(409, "El correo ya está registrado")
 
-    if data.rol in ESTATAL_ROLES and not data.estado_id:
+    if data.rol == Usuario.Rol.NACIONAL and data.estado_id:
+        raise HttpError(400, "El rol Nacional no debe tener estado asignado")
+    if es_estatal(data.rol) and not data.estado_id:
         raise HttpError(400, "Debe asignar un estado para este rol")
 
     estado = None
@@ -75,13 +64,7 @@ def create_usuario(request, data: UsuarioCreate):
         except Estado.DoesNotExist:
             raise HttpError(400, "Estado no válido")
 
-    gerencia = None
-    if data.gerencia_id:
-        try:
-            gerencia = Gerencia.objects.get(id=data.gerencia_id, estatus_activo=True)
-        except Gerencia.DoesNotExist:
-            raise HttpError(400, "Gerencia no válida")
-
+    plain_password = data.password or generate_password()
     user = Usuario(
         username=username,
         email=data.email,
@@ -89,16 +72,15 @@ def create_usuario(request, data: UsuarioCreate):
         last_name=data.last_name,
         rol=data.rol,
         estado=estado,
-        gerencia=gerencia,
     )
-    user.set_password(data.password)
+    user.set_password(plain_password)
     user.save()
 
-    return _build_usuario_out(user)
+    return {"user": _build_usuario_out(user), "password": plain_password}
 
 
 @router.put("/{usuario_id}", response=UsuarioOut, auth=JWTAuth())
-@require_roles("gerente_nacional")
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
     user = get_object_or_404(Usuario, id=usuario_id)
 
@@ -118,27 +100,36 @@ def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
             user.estado = Estado.objects.get(id=data.estado_id, estatus_activo=True)
         except Estado.DoesNotExist:
             raise HttpError(400, "Estado no válido")
-    if data.gerencia_id is not None:
-        try:
-            user.gerencia = Gerencia.objects.get(id=data.gerencia_id, estatus_activo=True)
-        except Gerencia.DoesNotExist:
-            raise HttpError(400, "Gerencia no válida")
     if data.is_active is not None:
         user.is_active = data.is_active
 
     rol = data.rol or user.rol
-    estado = data.estado_id if data.estado_id is not None else user.estado_id
-    if rol in ESTATAL_ROLES and not estado:
-        raise HttpError(400, "Debe asignar un estado para este rol")
+    if rol == Usuario.Rol.NACIONAL and data.estado_id is not None:
+        if data.estado_id:
+            raise HttpError(400, "El rol Nacional no debe tener estado asignado")
+    if es_estatal(rol):
+        estado_val = data.estado_id if data.estado_id is not None else user.estado_id
+        if not estado_val:
+            raise HttpError(400, "Debe asignar un estado para este rol")
 
     user.save()
     return _build_usuario_out(user)
 
 
 @router.delete("/{usuario_id}", response={204: None}, auth=JWTAuth())
-@require_roles("gerente_nacional")
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def deactivate_usuario(request, usuario_id: int):
     user = get_object_or_404(Usuario, id=usuario_id)
     user.is_active = False
     user.save()
     return 204, None
+
+
+@router.post("/{usuario_id}/reset-password", response=ResetPasswordOut, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def reset_password(request, usuario_id: int):
+    user = get_object_or_404(Usuario, id=usuario_id)
+    plain_password = generate_password()
+    user.set_password(plain_password)
+    user.save()
+    return {"password": plain_password}

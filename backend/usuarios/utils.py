@@ -1,8 +1,15 @@
 import re
+import secrets
+import string
 
 from .models import Usuario
 
 TRANSLIT = str.maketrans("áéíóúüñÁÉÍÓÚÜÑ", "aeiouunAEIOUUN")
+
+
+def generate_password(length: int = 16) -> str:
+    chars = string.ascii_letters + string.digits + "!@#$%^&*"
+    return "".join(secrets.choice(chars) for _ in range(length))
 
 
 def generate_username(first_name: str, last_name: str) -> str:

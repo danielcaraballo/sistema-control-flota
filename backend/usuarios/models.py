@@ -4,21 +4,13 @@ from django.db import models
 
 class Usuario(AbstractUser):
     class Rol(models.TextChoices):
-        GERENTE_NACIONAL = "gerente_nacional", "Gerente Nacional"
-        ANALISTA_NACIONAL = "analista_nacional", "Analista Nacional"
-        RESPONSABLE_ESTATAL = "responsable_estatal", "Responsable Estatal"
+        NACIONAL = "nacional", "Nacional"
+        ESTATAL = "estatal", "Estatal"
+        ANALISTA = "analista", "Analista"
         MECANICO = "mecanico", "Mecánico"
 
     rol = models.CharField(
         max_length=25, choices=Rol.choices, verbose_name="Rol")
-    gerencia = models.ForeignKey(
-        "organizacion.Gerencia",
-        on_delete=models.RESTRICT,
-        null=True,
-        blank=True,
-        related_name="usuarios",
-        verbose_name="Gerencia",
-    )
     estado = models.ForeignKey(
         "organizacion.Estado",
         on_delete=models.SET_NULL,

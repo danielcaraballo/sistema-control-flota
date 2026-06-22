@@ -1,8 +1,10 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import Toast from 'primevue/toast'
 </script>
 
 <template>
+  <Toast position="bottom-right" />
   <RouterView v-slot="{ Component }">
     <Transition name="fade" mode="out-in">
       <component :is="Component" />

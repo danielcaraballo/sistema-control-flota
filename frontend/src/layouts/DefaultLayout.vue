@@ -50,14 +50,14 @@ function navigate(path) {
 
 const menuItems = computed(() => {
   const items = [{ label: 'Dashboard', icon: 'pi pi-home', routeName: 'dashboard', path: '/' }]
-  if (auth.isGerenteNacional) {
+  if (auth.tieneRol('nacional')) {
     items.push({ label: 'Usuarios', icon: 'pi pi-users', routeName: 'usuarios', path: '/usuarios' })
   }
   items.push(
     { label: 'Vehículos', icon: 'pi pi-truck', routeName: 'vehiculos', path: '/vehiculos' },
     { label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' },
   )
-  if (auth.isGerenteNacional || auth.isAnalistaNacional) {
+  if (auth.tieneRol('analista')) {
     items.push({
       label: 'Reportes',
       icon: 'pi pi-chart-bar',

@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/services/api'
+import { tieneRolMinimo, esEstatal, ROLES } from '@/utils/roles'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -8,10 +9,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!token.value)
 
   const rol = computed(() => user.value?.rol || null)
-  const isGerenteNacional = computed(() => rol.value === 'gerente_nacional')
-  const isAnalistaNacional = computed(() => rol.value === 'analista_nacional')
-  const isResponsableEstatal = computed(() => rol.value === 'responsable_estatal')
-  const isMecanico = computed(() => rol.value === 'mecanico')
+  const rolData = computed(() => ROLES.find(r => r.value === rol.value))
+  const esEstatalValue = computed(() => esEstatal(rol.value))
+
+  function tieneRol(rolMinimo) {
+    return tieneRolMinimo(rol.value, rolMinimo)
+  }
 
   async function login(credential, password) {
     const { data } = await api.post('/auth/login', { username: credential, password })
@@ -53,10 +56,9 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     rol,
-    isGerenteNacional,
-    isAnalistaNacional,
-    isResponsableEstatal,
-    isMecanico,
+    rolData,
+    esEstatal: esEstatalValue,
+    tieneRol,
     login,
     fetchMe,
     logout,

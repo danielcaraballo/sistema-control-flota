@@ -2,7 +2,7 @@ from django.test import TestCase
 from ninja.testing import TestClient
 
 from config.api import api
-from organizacion.models import Estado, Gerencia
+from organizacion.models import Estado
 
 from .models import Usuario
 
@@ -11,13 +11,12 @@ client = TestClient(api)
 
 class TestUsuariosAPI(TestCase):
     def setUp(self):
-        self.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
         self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
         self.admin = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
-            rol=Usuario.Rol.GERENTE_NACIONAL,
+            rol=Usuario.Rol.NACIONAL,
         )
         login_resp = client.post(
             "/auth/login",
@@ -32,21 +31,23 @@ class TestUsuariosAPI(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json(), list)
 
-    def test_create_usuario(self):
+    def test_create_usuario_nacional(self):
         response = client.post(
             "/usuarios/",
             headers=self.headers,
             json={
-                "username": "newuser",
-                "email": "new@test.com",
+                "username": "nacional_user",
+                "email": "nacional@test.com",
                 "password": "pass123",
-                "first_name": "New",
+                "first_name": "Nacional",
                 "last_name": "User",
-                "rol": "analista_nacional",
+                "rol": "nacional",
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["email"], "new@test.com")
+        data = response.json()
+        self.assertIn("password", data)
+        self.assertEqual(data["user"]["email"], "nacional@test.com")
 
     def test_create_usuario_with_estado(self):
         response = client.post(
@@ -57,14 +58,15 @@ class TestUsuariosAPI(TestCase):
                 "password": "pass123",
                 "first_name": "Maria",
                 "last_name": "Garcia",
-                "rol": "responsable_estatal",
+                "rol": "estatal",
                 "estado_id": self.estado.id,
             },
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["estado"], self.estado.id)
-        self.assertEqual(data["estado_nombre"], "Test Estado")
+        self.assertIn("password", data)
+        self.assertEqual(data["user"]["estado"], self.estado.id)
+        self.assertEqual(data["user"]["estado_nombre"], "Test Estado")
 
     def test_create_usuario_estatal_without_estado(self):
         response = client.post(
@@ -75,7 +77,22 @@ class TestUsuariosAPI(TestCase):
                 "password": "pass123",
                 "first_name": "No",
                 "last_name": "Estado",
-                "rol": "responsable_estatal",
+                "rol": "estatal",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_usuario_nacional_with_estado(self):
+        response = client.post(
+            "/usuarios/",
+            headers=self.headers,
+            json={
+                "email": "nacional_estado@test.com",
+                "password": "pass123",
+                "first_name": "Nac",
+                "last_name": "Estado",
+                "rol": "nacional",
+                "estado_id": self.estado.id,
             },
         )
         self.assertEqual(response.status_code, 400)
@@ -89,7 +106,7 @@ class TestUsuariosAPI(TestCase):
                 "password": "pass123",
                 "first_name": "Invalid",
                 "last_name": "Estado",
-                "rol": "analista_nacional",
+                "rol": "analista",
                 "estado_id": 99999,
             },
         )
@@ -100,7 +117,8 @@ class TestUsuariosAPI(TestCase):
             username="existing",
             email="dup@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         response = client.post(
             "/usuarios/",
@@ -111,7 +129,8 @@ class TestUsuariosAPI(TestCase):
                 "password": "pass123",
                 "first_name": "New",
                 "last_name": "User",
-                "rol": "analista_nacional",
+                "rol": "analista",
+                "estado_id": self.estado.id,
             },
         )
         self.assertEqual(response.status_code, 409)
@@ -121,7 +140,8 @@ class TestUsuariosAPI(TestCase):
             username="updatable",
             email="update@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         response = client.put(
             f"/usuarios/{user.id}",
@@ -138,13 +158,15 @@ class TestUsuariosAPI(TestCase):
             username="user1",
             email="user1@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         user2 = Usuario.objects.create_user(
             username="user2",
             email="user2@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         response = client.put(
             f"/usuarios/{user1.id}",
@@ -158,7 +180,8 @@ class TestUsuariosAPI(TestCase):
             username="delete_me",
             email="delete@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         response = client.delete(
             f"/usuarios/{user.id}",
@@ -168,16 +191,17 @@ class TestUsuariosAPI(TestCase):
         user.refresh_from_db()
         self.assertFalse(user.is_active)
 
-    def test_non_gerente_cannot_list_usuarios(self):
+    def test_non_nacional_cannot_list_usuarios(self):
         user = Usuario.objects.create_user(
-            username="analista",
+            username="analista_user",
             email="analista@test.com",
             password="pass123",
-            rol=Usuario.Rol.ANALISTA_NACIONAL,
+            rol=Usuario.Rol.ANALISTA,
+            estado=self.estado,
         )
         login_resp = client.post(
             "/auth/login",
-            json={"username": "analista", "password": "pass123"},
+            json={"username": "analista_user", "password": "pass123"},
         )
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -188,3 +212,5 @@ class TestUsuariosAPI(TestCase):
     def test_unauthorized_access(self):
         response = client.get("/usuarios/")
         self.assertEqual(response.status_code, 401)
+
+

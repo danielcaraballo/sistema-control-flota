@@ -33,10 +33,8 @@ def login(request, payload: LoginInput):
             last_name=user.last_name,
             rol=user.rol,
             estado=user.estado_id,
-            gerencia=user.gerencia_id,
             is_active=user.is_active,
             estado_nombre=user.estado.nombre if user.estado else None,
-            gerencia_nombre=str(user.gerencia) if user.gerencia else None,
         ),
     }
 
@@ -61,8 +59,6 @@ def me(request):
         last_name=user.last_name,
         rol=user.rol,
         estado=user.estado_id,
-        gerencia=user.gerencia_id,
         is_active=user.is_active,
         estado_nombre=user.estado.nombre if user.estado else None,
-        gerencia_nombre=str(user.gerencia) if user.gerencia else None,
     )
