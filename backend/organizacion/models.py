@@ -25,3 +25,16 @@ class Gerencia(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class CentroDeServicio(models.Model):
+    nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
+    estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
+
+    class Meta:
+        verbose_name = "Centro de Servicio"
+        verbose_name_plural = "Centros de Servicio"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre

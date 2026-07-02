@@ -48,35 +48,38 @@ function navigate(path) {
   closeMobile()
 }
 
-const menuItems = computed(() => {
-  const items = [{ label: 'Dashboard', icon: 'pi pi-home', routeName: 'dashboard', path: '/' }]
-  if (auth.tieneRol('nacional')) {
-    items.push({ label: 'Usuarios', icon: 'pi pi-users', routeName: 'usuarios', path: '/usuarios' })
-  }
-  items.push({
-    label: 'Vehículos',
-    icon: 'pi pi-truck',
-    routeName: 'vehiculos',
-    path: '/vehiculos',
-  })
-  if (auth.tieneRol('nacional')) {
-    items.push({
-      label: 'Catálogos',
-      icon: 'pi pi-book',
-      routeName: 'catalogos',
-      path: '/catalogos',
-    })
-  }
-  items.push({ label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' })
+const menuSections = computed(() => {
+  const mainItems = [
+    { label: 'Dashboard', icon: 'pi pi-home', routeName: 'dashboard', path: '/' },
+    { label: 'Vehículos', icon: 'pi pi-truck', routeName: 'vehiculos', path: '/vehiculos' },
+    { label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' },
+  ]
   if (auth.tieneRol('analista')) {
-    items.push({
+    mainItems.push({
       label: 'Reportes',
       icon: 'pi pi-chart-bar',
       routeName: 'reportes',
       path: '/reportes',
     })
   }
-  return items
+  const sections = [{ items: mainItems }]
+
+  if (auth.tieneRol('nacional')) {
+    sections.push({
+      label: 'Administración',
+      items: [
+        { label: 'Usuarios', icon: 'pi pi-users', routeName: 'usuarios', path: '/usuarios' },
+        {
+          label: 'Organización',
+          icon: 'pi pi-sitemap',
+          routeName: 'organizacion',
+          path: '/organizacion',
+        },
+        { label: 'Catálogos', icon: 'pi pi-book', routeName: 'catalogos', path: '/catalogos' },
+      ],
+    })
+  }
+  return sections
 })
 
 const userRolLabel = computed(() => rolLabel(auth.user?.rol))
@@ -104,21 +107,30 @@ function handleLogout() {
       </div>
 
       <nav class="flex-1 overflow-y-auto py-2">
-        <a
-          v-for="item in menuItems"
-          :key="item.routeName"
-          class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-white/65 cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-white hover:bg-white/5"
-          :class="{
-            '!text-white !bg-white/8 !border-l-[var(--p-primary-color)]':
-              route.name === item.routeName,
-          }"
-          @click="navigate(item.path)"
-        >
-          <span class="w-7 h-7 flex items-center justify-center shrink-0">
-            <i :class="item.icon" class="text-base" />
-          </span>
-          <span v-show="!sidebarCollapsed || isMobile" class="truncate">{{ item.label }}</span>
-        </a>
+        <template v-for="(section, si) in menuSections" :key="si">
+          <div
+            v-if="section.label"
+            v-show="!sidebarCollapsed || isMobile"
+            class="px-5 pt-4 pb-1 text-xs font-semibold text-white/30 uppercase tracking-wider"
+          >
+            {{ section.label }}
+          </div>
+          <a
+            v-for="item in section.items"
+            :key="item.routeName"
+            class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-white/65 cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-white hover:bg-white/5"
+            :class="{
+              '!text-white !bg-white/8 !border-l-[var(--p-primary-color)]':
+                route.name === item.routeName,
+            }"
+            @click="navigate(item.path)"
+          >
+            <span class="w-7 h-7 flex items-center justify-center shrink-0">
+              <i :class="item.icon" class="text-base" />
+            </span>
+            <span v-show="!sidebarCollapsed || isMobile" class="truncate">{{ item.label }}</span>
+          </a>
+        </template>
       </nav>
 
       <div class="flex items-center justify-between px-5 py-3 border-t border-white/10 shrink-0">

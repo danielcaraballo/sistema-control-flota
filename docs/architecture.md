@@ -71,6 +71,12 @@ erDiagram
         bool estatus_activo
     }
 
+    CENTRO_DE_SERVICIO {
+        int id PK
+        string nombre UK
+        bool estatus_activo
+    }
+
     USUARIO {
         int id PK
         string username UK
@@ -79,7 +85,6 @@ erDiagram
         string first_name
         string last_name
         string rol "gerente_nacional | analista_nacional | responsable_estatal | mecanico"
-        int gerencia_id FK
         int estado_id FK
         bool is_active
     }
@@ -91,6 +96,7 @@ erDiagram
 erDiagram
     ESTADO ||--o{ USUARIO : ""
     GERENCIA ||--o{ USUARIO : pertenece
+    CENTRO_DE_SERVICIO ||--o{ VEHICULO : emplazamiento
     GERENCIA ||--o{ VEHICULO : posee
     CATEGORIA_VEHICULO ||--o{ VEHICULO : clasifica
     MARCA ||--o{ VEHICULO : ""
@@ -111,6 +117,12 @@ erDiagram
         bool estatus_activo
     }
 
+    CENTRO_DE_SERVICIO {
+        int id PK
+        string nombre UK
+        bool estatus_activo
+    }
+
     USUARIO {
         int id PK
         string username UK
@@ -119,7 +131,6 @@ erDiagram
         string first_name
         string last_name
         string rol
-        int gerencia_id FK
         int estado_id FK
         bool is_active
     }
@@ -179,18 +190,24 @@ erDiagram
 |---|---|---|
 | `Estado` | ✅ Implementado | organizacion |
 | `Gerencia` | ✅ Implementado | organizacion |
+| `CentroDeServicio` | ✅ Implementado | organizacion |
 | `Usuario` | ✅ Implementado | usuarios |
 | `Vehiculo` | 🚧 Planificado | — |
 | `OrdenServicio` | 🚧 Planificado | — |
 | `DetalleOrden` | 🚧 Planificado | — |
-| `Marca` | 🚧 Planificado | — |
+| `Marca` | ✅ Implementado | catalogos |
+| `Modelo` | ✅ Implementado | catalogos |
+| `TipoVehiculo` | ✅ Implementado | catalogos |
+| `TipoUso` | ✅ Implementado | catalogos |
+| `Color` | ✅ Implementado | catalogos |
+| `SistemaAfectado` | ✅ Implementado | catalogos |
+| `TipoFalla` | ✅ Implementado | catalogos |
 | `CategoriaVehiculo` | 🚧 Planificado | — |
-| `TipoFalla` | 🚧 Planificado | — |
 
 ## 4. APIs
 
 | Ruta | Método | Descripción | Auth |
-|---|---|---|---|
+|---|---|---|---|---|
 | `/api/auth/login` | POST | Inicio de sesión (username o email) | None |
 | `/api/auth/refresh` | POST | Renovar access token | None |
 | `/api/auth/me` | GET | Perfil del usuario autenticado | JWT |
@@ -198,8 +215,21 @@ erDiagram
 | `/api/usuarios/` | POST | Crear usuario | JWT + gerente_nacional |
 | `/api/usuarios/{id}` | PUT | Actualizar usuario | JWT + gerente_nacional |
 | `/api/usuarios/{id}` | DELETE | Desactivar usuario | JWT + gerente_nacional |
-| `/api/organizacion/estados/` | GET | Listar estados activos | JWT |
-| `/api/organizacion/gerencias/` | GET | Listar gerencias activas | JWT |
+| `/api/organizacion/estados/` | GET | Listar estados | JWT |
+| `/api/organizacion/estados/` | POST | Crear estado | JWT + nacional |
+| `/api/organizacion/estados/{id}` | GET | Obtener estado | JWT |
+| `/api/organizacion/estados/{id}` | PUT | Actualizar estado | JWT + nacional |
+| `/api/organizacion/estados/{id}` | DELETE | Desactivar estado | JWT + nacional |
+| `/api/organizacion/gerencias/` | GET | Listar gerencias | JWT |
+| `/api/organizacion/gerencias/` | POST | Crear gerencia | JWT + nacional |
+| `/api/organizacion/gerencias/{id}` | GET | Obtener gerencia | JWT |
+| `/api/organizacion/gerencias/{id}` | PUT | Actualizar gerencia | JWT + nacional |
+| `/api/organizacion/gerencias/{id}` | DELETE | Desactivar gerencia | JWT + nacional |
+| `/api/organizacion/centros-servicio/` | GET | Listar centros de servicio | JWT |
+| `/api/organizacion/centros-servicio/` | POST | Crear centro de servicio | JWT + nacional |
+| `/api/organizacion/centros-servicio/{id}` | GET | Obtener centro de servicio | JWT |
+| `/api/organizacion/centros-servicio/{id}` | PUT | Actualizar centro de servicio | JWT + nacional |
+| `/api/organizacion/centros-servicio/{id}` | DELETE | Desactivar centro de servicio | JWT + nacional |
 
 Documentación interactiva: `/api/docs` (Swagger UI, generado por Django Ninja).
 

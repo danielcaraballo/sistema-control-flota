@@ -37,6 +37,12 @@ const router = createRouter({
           meta: { rolMinimo: 'nacional' },
         },
         {
+          path: 'organizacion',
+          name: 'organizacion',
+          component: () => import('../views/OrganizacionView.vue'),
+          meta: { rolMinimo: 'nacional' },
+        },
+        {
           path: 'taller',
           name: 'taller',
           component: () => import('../views/TallerView.vue'),

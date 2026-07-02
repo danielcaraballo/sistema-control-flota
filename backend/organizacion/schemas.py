@@ -1,6 +1,6 @@
-from ninja import ModelSchema
+from ninja import ModelSchema, Schema
 
-from .models import Estado, Gerencia
+from .models import CentroDeServicio, Estado, Gerencia
 
 
 class EstadoSchema(ModelSchema):
@@ -9,7 +9,40 @@ class EstadoSchema(ModelSchema):
         fields = ["id", "nombre", "estatus_activo"]
 
 
+class EstadoCreate(Schema):
+    nombre: str
+
+
+class EstadoUpdate(Schema):
+    nombre: str | None = None
+    estatus_activo: bool | None = None
+
+
 class GerenciaSchema(ModelSchema):
     class Meta:
         model = Gerencia
         fields = ["id", "nombre", "estatus_activo"]
+
+
+class GerenciaCreate(Schema):
+    nombre: str
+
+
+class GerenciaUpdate(Schema):
+    nombre: str | None = None
+    estatus_activo: bool | None = None
+
+
+class CentroDeServicioSchema(ModelSchema):
+    class Meta:
+        model = CentroDeServicio
+        fields = ["id", "nombre", "estatus_activo"]
+
+
+class CentroDeServicioCreate(Schema):
+    nombre: str
+
+
+class CentroDeServicioUpdate(Schema):
+    nombre: str | None = None
+    estatus_activo: bool | None = None

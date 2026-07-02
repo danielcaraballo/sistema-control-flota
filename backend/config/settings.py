@@ -108,7 +108,7 @@ UNFOLD = {
         "show_search": True,
         "navigation": [
             {
-                "title": "Flota",
+                "title": "Gestión",
                 "separator": True,
                 "collapsible": True,
                 "items": [
@@ -122,6 +122,13 @@ UNFOLD = {
                         "icon": "people",
                         "link": reverse_lazy("admin:usuarios_usuario_changelist"),
                     },
+                ],
+            },
+            {
+                "title": "Organización",
+                "separator": True,
+                "collapsible": True,
+                "items": [
                     {
                         "title": "Estados",
                         "icon": "location_on",
@@ -131,6 +138,11 @@ UNFOLD = {
                         "title": "Gerencias",
                         "icon": "business",
                         "link": reverse_lazy("admin:organizacion_gerencia_changelist"),
+                    },
+                    {
+                        "title": "Centros de Servicio",
+                        "icon": "business_center",
+                        "link": reverse_lazy("admin:organizacion_centrodeservicio_changelist"),
                     },
                 ],
             },

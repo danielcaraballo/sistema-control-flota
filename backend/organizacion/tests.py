@@ -4,7 +4,7 @@ from ninja.testing import TestClient
 from config.api import api
 from usuarios.models import Usuario
 
-from .models import Estado, Gerencia
+from .models import CentroDeServicio, Estado, Gerencia
 
 client = TestClient(api)
 
@@ -12,8 +12,7 @@ client = TestClient(api)
 class TestOrganizacionAPI(TestCase):
     def setUp(self):
         self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
-        self.gerencia = Gerencia.objects.create(
-            nombre="Gerencia Test", estatus_activo=True)
+        self.gerencia = Gerencia.objects.create(nombre="Gerencia Test", estatus_activo=True)
         self.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
@@ -281,3 +280,269 @@ class TestUsuariosAPI(TestCase):
 
         response = client.get("/usuarios/", headers=headers)
         self.assertEqual(response.status_code, 403)
+
+
+class TestEstadoCRUD(TestCase):
+    def setUp(self):
+        self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
+        self.user = Usuario.objects.create_user(
+            username="admin",
+            email="admin@test.com",
+            password="admin123",
+            rol=Usuario.Rol.NACIONAL,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "admin", "password": "admin123"},
+        )
+        self.token = login_resp.json()["access"]
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
+    def test_get_estado(self):
+        response = client.get(f"/organizacion/estados/{self.estado.id}", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Test Estado")
+
+    def test_get_estado_not_found(self):
+        response = client.get("/organizacion/estados/99999", headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_estado(self):
+        response = client.post(
+            "/organizacion/estados/",
+            headers=self.headers,
+            json={"nombre": "Nuevo Estado"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Nuevo Estado")
+
+    def test_create_estado_duplicate(self):
+        response = client.post(
+            "/organizacion/estados/",
+            headers=self.headers,
+            json={"nombre": "Test Estado"},
+        )
+        self.assertEqual(response.status_code, 409)
+
+    def test_update_estado(self):
+        response = client.put(
+            f"/organizacion/estados/{self.estado.id}",
+            headers=self.headers,
+            json={"nombre": "Estado Actualizado"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Estado Actualizado")
+
+    def test_deactivate_estado(self):
+        response = client.delete(
+            f"/organizacion/estados/{self.estado.id}",
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.estado.refresh_from_db()
+        self.assertFalse(self.estado.estatus_activo)
+
+    def test_list_estados_incluir_inactivos(self):
+        Estado.objects.create(nombre="Inactivo", estatus_activo=False)
+        response = client.get("/organizacion/estados/?incluir_inactivos=true", headers=self.headers)
+        nombres = [e["nombre"] for e in response.json()]
+        self.assertIn("Inactivo", nombres)
+
+    def test_non_nacional_cannot_create_estado(self):
+        mecanico = Usuario.objects.create_user(
+            username="mecanico",
+            email="mecanico@test.com",
+            password="pass123",
+            rol=Usuario.Rol.MECANICO,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "mecanico", "password": "pass123"},
+        )
+        token = login_resp.json()["access"]
+        headers = {"Authorization": f"Bearer {token}"}
+        response = client.post(
+            "/organizacion/estados/",
+            headers=headers,
+            json={"nombre": "No Permitido"},
+        )
+        self.assertEqual(response.status_code, 403)
+
+
+class TestGerenciaCRUD(TestCase):
+    def setUp(self):
+        self.gerencia = Gerencia.objects.create(nombre="Test Gerencia", estatus_activo=True)
+        self.user = Usuario.objects.create_user(
+            username="admin",
+            email="admin@test.com",
+            password="admin123",
+            rol=Usuario.Rol.NACIONAL,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "admin", "password": "admin123"},
+        )
+        self.token = login_resp.json()["access"]
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
+    def test_get_gerencia(self):
+        response = client.get(f"/organizacion/gerencias/{self.gerencia.id}", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Test Gerencia")
+
+    def test_get_gerencia_not_found(self):
+        response = client.get("/organizacion/gerencias/99999", headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_gerencia(self):
+        response = client.post(
+            "/organizacion/gerencias/",
+            headers=self.headers,
+            json={"nombre": "Nueva Gerencia"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Nueva Gerencia")
+
+    def test_create_gerencia_duplicate(self):
+        response = client.post(
+            "/organizacion/gerencias/",
+            headers=self.headers,
+            json={"nombre": "Test Gerencia"},
+        )
+        self.assertEqual(response.status_code, 409)
+
+    def test_update_gerencia(self):
+        response = client.put(
+            f"/organizacion/gerencias/{self.gerencia.id}",
+            headers=self.headers,
+            json={"nombre": "Gerencia Actualizada"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Gerencia Actualizada")
+
+    def test_deactivate_gerencia(self):
+        response = client.delete(
+            f"/organizacion/gerencias/{self.gerencia.id}",
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.gerencia.refresh_from_db()
+        self.assertFalse(self.gerencia.estatus_activo)
+
+
+class TestCentroDeServicioCRUD(TestCase):
+    def setUp(self):
+        self.cs = CentroDeServicio.objects.create(nombre="Test Centro", estatus_activo=True)
+        self.user = Usuario.objects.create_user(
+            username="admin",
+            email="admin@test.com",
+            password="admin123",
+            rol=Usuario.Rol.NACIONAL,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "admin", "password": "admin123"},
+        )
+        self.token = login_resp.json()["access"]
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
+    def test_list_centros_servicio(self):
+        response = client.get("/organizacion/centros-servicio/", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json(), list)
+        nombres = [c["nombre"] for c in response.json()]
+        self.assertIn("Test Centro", nombres)
+
+    def test_list_centros_servicio_only_active(self):
+        CentroDeServicio.objects.create(nombre="Inactivo", estatus_activo=False)
+        response = client.get("/organizacion/centros-servicio/", headers=self.headers)
+        nombres = [c["nombre"] for c in response.json()]
+        self.assertNotIn("Inactivo", nombres)
+
+    def test_list_centros_servicio_incluir_inactivos(self):
+        CentroDeServicio.objects.create(nombre="Inactivo", estatus_activo=False)
+        response = client.get(
+            "/organizacion/centros-servicio/?incluir_inactivos=true", headers=self.headers
+        )
+        nombres = [c["nombre"] for c in response.json()]
+        self.assertIn("Inactivo", nombres)
+
+    def test_get_centro_servicio(self):
+        response = client.get(f"/organizacion/centros-servicio/{self.cs.id}", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Test Centro")
+
+    def test_get_centro_servicio_not_found(self):
+        response = client.get("/organizacion/centros-servicio/99999", headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_centro_servicio(self):
+        response = client.post(
+            "/organizacion/centros-servicio/",
+            headers=self.headers,
+            json={"nombre": "Nuevo Centro"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Nuevo Centro")
+
+    def test_create_centro_servicio_duplicate(self):
+        response = client.post(
+            "/organizacion/centros-servicio/",
+            headers=self.headers,
+            json={"nombre": "Test Centro"},
+        )
+        self.assertEqual(response.status_code, 409)
+
+    def test_update_centro_servicio(self):
+        response = client.put(
+            f"/organizacion/centros-servicio/{self.cs.id}",
+            headers=self.headers,
+            json={"nombre": "Centro Actualizado"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "Centro Actualizado")
+
+    def test_deactivate_centro_servicio(self):
+        response = client.delete(
+            f"/organizacion/centros-servicio/{self.cs.id}",
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.cs.refresh_from_db()
+        self.assertFalse(self.cs.estatus_activo)
+
+    def test_non_nacional_cannot_create_centro_servicio(self):
+        mecanico = Usuario.objects.create_user(
+            username="mecanico",
+            email="mecanico@test.com",
+            password="pass123",
+            rol=Usuario.Rol.MECANICO,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "mecanico", "password": "pass123"},
+        )
+        token = login_resp.json()["access"]
+        headers = {"Authorization": f"Bearer {token}"}
+        response = client.post(
+            "/organizacion/centros-servicio/",
+            headers=headers,
+            json={"nombre": "No Permitido"},
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_mecanico_can_list_centros_servicio(self):
+        mecanico = Usuario.objects.create_user(
+            username="mecanico2",
+            email="mecanico2@test.com",
+            password="pass123",
+            rol=Usuario.Rol.MECANICO,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "mecanico2", "password": "pass123"},
+        )
+        token = login_resp.json()["access"]
+        headers = {"Authorization": f"Bearer {token}"}
+        response = client.get("/organizacion/centros-servicio/", headers=headers)
+        self.assertEqual(response.status_code, 200)
