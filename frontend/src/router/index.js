@@ -31,6 +31,12 @@ const router = createRouter({
           component: () => import('../views/VehiculosView.vue'),
         },
         {
+          path: 'catalogos',
+          name: 'catalogos',
+          component: () => import('../views/CatalogosView.vue'),
+          meta: { rolMinimo: 'nacional' },
+        },
+        {
           path: 'taller',
           name: 'taller',
           component: () => import('../views/TallerView.vue'),

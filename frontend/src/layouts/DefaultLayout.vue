@@ -53,10 +53,21 @@ const menuItems = computed(() => {
   if (auth.tieneRol('nacional')) {
     items.push({ label: 'Usuarios', icon: 'pi pi-users', routeName: 'usuarios', path: '/usuarios' })
   }
-  items.push(
-    { label: 'Vehículos', icon: 'pi pi-truck', routeName: 'vehiculos', path: '/vehiculos' },
-    { label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' },
-  )
+  items.push({
+    label: 'Vehículos',
+    icon: 'pi pi-truck',
+    routeName: 'vehiculos',
+    path: '/vehiculos',
+  })
+  if (auth.tieneRol('nacional')) {
+    items.push({
+      label: 'Catálogos',
+      icon: 'pi pi-book',
+      routeName: 'catalogos',
+      path: '/catalogos',
+    })
+  }
+  items.push({ label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' })
   if (auth.tieneRol('analista')) {
     items.push({
       label: 'Reportes',

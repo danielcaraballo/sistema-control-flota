@@ -25,7 +25,7 @@ function close() {
     :modal="true"
     :closable="true"
     :draggable="false"
-    :style="{ width: '400px' }"
+    :style="{ width: 'min(400px, calc(100vw - 2rem))' }"
     @update:visible="close"
   >
     <p class="text-sm text-muted-color" v-text="message" />
