@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "ninja_jwt",
     "organizacion",
     "usuarios",
+    "catalogos",
 ]
 
 AUTH_USER_MODEL = "usuarios.Usuario"
@@ -130,6 +131,48 @@ UNFOLD = {
                         "title": "Gerencias",
                         "icon": "business",
                         "link": reverse_lazy("admin:organizacion_gerencia_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Catálogos",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Marcas",
+                        "icon": "local_offer",
+                        "link": reverse_lazy("admin:catalogos_marca_changelist"),
+                    },
+                    {
+                        "title": "Modelos",
+                        "icon": "model_training",
+                        "link": reverse_lazy("admin:catalogos_modelo_changelist"),
+                    },
+                    {
+                        "title": "Tipos de Vehículo",
+                        "icon": "directions_car",
+                        "link": reverse_lazy("admin:catalogos_tipovehiculo_changelist"),
+                    },
+                    {
+                        "title": "Tipos de Uso",
+                        "icon": "work_history",
+                        "link": reverse_lazy("admin:catalogos_tipouso_changelist"),
+                    },
+                    {
+                        "title": "Colores",
+                        "icon": "palette",
+                        "link": reverse_lazy("admin:catalogos_color_changelist"),
+                    },
+                    {
+                        "title": "Sistemas Afectados",
+                        "icon": "build",
+                        "link": reverse_lazy("admin:catalogos_sistemaafectado_changelist"),
+                    },
+                    {
+                        "title": "Tipos de Falla",
+                        "icon": "report_problem",
+                        "link": reverse_lazy("admin:catalogos_tipofalla_changelist"),
                     },
                 ],
             },
