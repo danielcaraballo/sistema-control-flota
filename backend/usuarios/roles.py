@@ -4,7 +4,6 @@ from ninja.errors import HttpError
 
 from .models import Usuario
 
-
 ROLE_HIERARCHY = {
     Usuario.Rol.MECANICO: None,
     Usuario.Rol.ANALISTA: Usuario.Rol.MECANICO,

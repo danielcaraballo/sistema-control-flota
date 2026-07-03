@@ -6,7 +6,7 @@ from ninja_jwt.tokens import RefreshToken
 
 from usuarios.models import Usuario
 
-from .schemas import LoginInput, LoginOutput, RefreshInput, UsuarioOut
+from .schemas import ChangePasswordInput, LoginInput, LoginOutput, RefreshInput, UsuarioOut
 
 router = Router()
 
@@ -62,3 +62,15 @@ def me(request):
         is_active=user.is_active,
         estado_nombre=user.estado.nombre if user.estado else None,
     )
+
+
+@router.post("/change-password", auth=JWTAuth())
+def change_password(request, payload: ChangePasswordInput):
+    user: Usuario = request.auth
+    if not user.check_password(payload.current_password):
+        raise HttpError(400, "La contraseña actual no es correcta")
+    if len(payload.new_password) < 8:
+        raise HttpError(400, "La nueva contraseña debe tener al menos 8 caracteres")
+    user.set_password(payload.new_password)
+    user.save()
+    return {"detail": "Contraseña cambiada exitosamente"}

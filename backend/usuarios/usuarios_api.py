@@ -6,7 +6,7 @@ from ninja_jwt.authentication import JWTAuth
 from organizacion.models import Estado
 from usuarios.models import Usuario
 
-from .roles import acotar_por_estado, es_estatal, requiere_rol_minimo
+from .roles import es_estatal, requiere_rol_minimo
 from .schemas import (
     ResetPasswordOut,
     UsuarioCreate,

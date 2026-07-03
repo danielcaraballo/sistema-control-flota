@@ -54,6 +54,11 @@ class RefreshInput(Schema):
     refresh: str
 
 
+class ChangePasswordInput(Schema):
+    current_password: str
+    new_password: str
+
+
 class UsuarioCreateOut(Schema):
     user: UsuarioOut
     password: str

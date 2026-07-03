@@ -2,16 +2,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useTheme } from '@/composables/useTheme'
 import { rolLabel, ROL_ANALISTA, ROL_NACIONAL } from '@/utils/roles'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
+import UserDropdown from '@/components/UserDropdown.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
-
-const { isDark, toggleTheme } = useTheme()
+const userDropdownRef = ref()
+const dropdownOpen = ref(false)
 
 const sidebarCollapsed = ref(false)
 const mobileOpen = ref(false)
@@ -83,11 +83,6 @@ const menuSections = computed(() => {
 })
 
 const userRolLabel = computed(() => rolLabel(auth.user?.rol))
-
-function handleLogout() {
-  auth.logout()
-  router.push('/login')
-}
 </script>
 
 <template>
@@ -133,32 +128,35 @@ function handleLogout() {
         </template>
       </nav>
 
-      <div class="flex items-center justify-between px-5 py-3 border-t border-white/10 shrink-0">
-        <div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+      <div
+        class="border-t border-white/10 shrink-0 cursor-pointer select-none"
+        @click="userDropdownRef?.toggle($event)"
+      >
+        <div class="flex items-center gap-2.5 px-5 py-3">
           <Avatar
             :label="(auth.user?.first_name?.[0] || '').toUpperCase()"
             size="small"
             shape="circle"
             class="!bg-[var(--p-primary-color)] shrink-0"
           />
-          <div v-show="!sidebarCollapsed || isMobile" class="flex flex-col gap-0.5 overflow-hidden">
+          <div
+            v-show="!sidebarCollapsed || isMobile"
+            class="flex flex-col gap-0.5 overflow-hidden min-w-0"
+          >
             <span class="text-sm font-semibold text-white leading-none truncate">
               {{ auth.user?.first_name }} {{ auth.user?.last_name }}
             </span>
             <span class="text-xs text-white/50 leading-none truncate">{{ userRolLabel }}</span>
           </div>
+          <i
+            class="pi text-white/30 text-xs ml-auto shrink-0 transition-transform duration-200"
+            :class="dropdownOpen ? 'pi-chevron-down' : 'pi-chevron-up'"
+          />
         </div>
-        <Button
-          icon="pi pi-sign-out"
-          severity="secondary"
-          text
-          rounded
-          @click="handleLogout"
-          v-tooltip.bottom="'Cerrar sesión'"
-          class="!text-white/45 hover:!text-white shrink-0"
-        />
       </div>
     </aside>
+
+    <UserDropdown ref="userDropdownRef" @show="dropdownOpen = true" @hide="dropdownOpen = false" />
 
     <div
       v-if="isMobile && mobileOpen"
@@ -180,15 +178,6 @@ function handleLogout() {
         />
         <span class="text-sm font-medium text-muted-color">Sistema de Control de Flota</span>
         <div class="flex-1" />
-
-        <Button
-          :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-          severity="secondary"
-          text
-          rounded
-          @click="toggleTheme"
-          v-tooltip.bottom="isDark ? 'Modo claro' : 'Modo oscuro'"
-        />
       </header>
 
       <main class="flex-1 p-6 md:p-8 bg-surface-50 overflow-y-auto">
