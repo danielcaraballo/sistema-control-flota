@@ -11,7 +11,7 @@ defineProps({
 
 <template>
   <div
-    class="border border-surface-200 rounded-md bg-surface-0 transition-all duration-150 hover:border-surface-300 hover:shadow-xs"
+    class="border border-card-border rounded-md bg-card transition-all duration-150 hover:shadow-xs"
   >
     <div class="p-3 flex items-center justify-between gap-3">
       <div class="flex flex-col gap-1 min-w-0">
@@ -37,7 +37,7 @@ defineProps({
         v-if="icon"
         class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
         :class="{
-          'bg-primary-100 text-primary-color': color === 'primary',
+          'bg-primary-100 dark:bg-primary-900/25 text-primary-color': color === 'primary',
           'bg-green-100 dark:bg-green-900/25 text-green-600 dark:text-green-400':
             color === 'success',
           'bg-orange-100 dark:bg-orange-900/25 text-orange-600 dark:text-orange-400':

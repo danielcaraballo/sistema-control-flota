@@ -97,7 +97,7 @@ async function handleLogin() {
 
     <!-- Right panel: Form -->
     <div
-      class="w-full lg:w-2/5 flex items-center justify-center px-6 py-10 sm:px-12 bg-surface-50 dark:bg-surface-950"
+      class="w-full lg:w-2/5 flex items-center justify-center px-6 py-10 sm:px-12 bg-[var(--scf-page-bg)]"
     >
       <div
         :class="['w-full max-w-md', showCard ? 'animate-fade-in-up' : 'opacity-0 translate-y-6']"

@@ -43,7 +43,7 @@ const activeIndex = ref(0)
       icon="pi pi-sitemap"
     />
 
-    <div class="border border-surface-200 rounded-md bg-surface-0">
+    <div class="border border-card-border rounded-md bg-card">
       <TabView v-model:activeIndex="activeIndex" scrollable>
         <TabPanel v-for="cat in CATALOGOS" :key="cat.key">
           <template #header>

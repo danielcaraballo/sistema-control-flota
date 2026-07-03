@@ -3,10 +3,23 @@
 
 @custom-variant dark (&:where(.p-dark, .p-dark *));
 
+@theme {
+  --color-card: var(--p-content-background);
+  --color-card-hover: var(--p-content-hover-background);
+  --color-card-border: var(--p-content-border-color);
+  --color-overlay: var(--p-overlay-modal-background);
+  --color-overlay-border: var(--p-overlay-modal-border-color);
+}
+
 :root {
   --scf-sidebar-width: 260px;
   --scf-sidebar-collapsed-width: 64px;
   --scf-sidebar-z-index: 100;
+  --scf-page-bg: var(--p-surface-50);
+}
+
+:root.p-dark {
+  --scf-page-bg: var(--p-surface-950);
 }
 
 @layer base {
@@ -19,6 +32,7 @@
   }
 
   body {
+    background-color: var(--scf-page-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

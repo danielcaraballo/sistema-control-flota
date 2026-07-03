@@ -56,7 +56,7 @@ async function copy() {
         <span class="font-semibold">{{ successMessage }}</span>
       </div>
 
-      <div class="bg-surface-50 rounded-md p-4 space-y-2">
+      <div class="bg-card-hover rounded-md p-4 space-y-2">
         <p class="text-sm font-medium">{{ userName }}</p>
         <div class="text-sm text-muted-color space-y-1">
           <p>

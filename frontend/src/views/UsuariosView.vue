@@ -332,7 +332,7 @@ onMounted(() => {
   <div class="w-full">
     <PageHeader title="Usuarios" subtitle="Gestión de usuarios del sistema" icon="pi pi-users" />
 
-    <div class="border border-surface-200 rounded-md bg-surface-0">
+    <div class="border border-card-border rounded-md bg-card">
       <DataTable
         :value="usuarios"
         v-model:filters="filters"
@@ -574,7 +574,7 @@ onMounted(() => {
                 <span class="text-sm text-muted-color">Estado</span>
                 <span class="text-sm font-medium">{{ estadoNombreForm }}</span>
               </div>
-              <div class="mt-4 p-3 bg-surface-50 rounded-md">
+              <div class="mt-4 p-3 bg-card-hover rounded-md">
                 <p class="text-xs text-muted-color">
                   <i class="pi pi-info-circle mr-1" />
                   El usuario y la contraseña se generarán automáticamente.

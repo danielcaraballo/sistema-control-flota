@@ -88,14 +88,14 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
 <template>
   <div class="flex h-dvh">
     <aside
-      class="sidebar fixed md:relative z-[100] flex flex-col bg-[#1e293c] overflow-hidden transition-all duration-200"
+      class="sidebar fixed md:relative z-[100] flex flex-col bg-card border-r border-card-border overflow-hidden transition-all duration-200"
       :class="[
         isMobile ? (mobileOpen ? 'translate-x-0' : '-translate-x-full') : '',
         sidebarCollapsed && !isMobile ? 'w-[64px]' : 'w-[260px]',
       ]"
     >
-      <div class="flex items-center min-h-14 px-5 border-b border-white/10 shrink-0">
-        <div class="flex items-center gap-2 font-bold text-white">
+      <div class="flex items-center min-h-14 px-5 border-b border-card-border shrink-0">
+        <div class="flex items-center gap-2 font-bold text-color">
           <i class="pi pi-car text-xl" />
           <span v-show="!sidebarCollapsed || isMobile" class="text-xl">SCF</span>
         </div>
@@ -106,16 +106,16 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           <div
             v-if="section.label"
             v-show="!sidebarCollapsed || isMobile"
-            class="px-5 pt-4 pb-1 text-xs font-semibold text-white/30 uppercase tracking-wider"
+            class="px-5 pt-4 pb-1 text-xs font-semibold text-muted-color uppercase tracking-wider"
           >
             {{ section.label }}
           </div>
           <a
             v-for="item in section.items"
             :key="item.routeName"
-            class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-white/65 cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-white hover:bg-white/5"
+            class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-muted-color cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-color hover:bg-card-hover"
             :class="{
-              '!text-white !bg-white/8 !border-l-[var(--p-primary-color)]':
+              '!text-primary !bg-card-hover !border-l-[var(--p-primary-color)]':
                 route.name === item.routeName,
             }"
             @click="navigate(item.path)"
@@ -129,7 +129,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
       </nav>
 
       <div
-        class="border-t border-white/10 shrink-0 cursor-pointer select-none"
+        class="border-t border-card-border shrink-0 cursor-pointer select-none"
         @click="userDropdownRef?.toggle($event)"
       >
         <div class="flex items-center gap-2.5 px-5 py-3">
@@ -143,14 +143,14 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
             v-show="!sidebarCollapsed || isMobile"
             class="flex flex-col gap-0.5 overflow-hidden min-w-0"
           >
-            <span class="text-sm font-semibold text-white leading-none truncate">
+            <span class="text-sm font-semibold text-color leading-none truncate">
               {{ auth.user?.first_name }} {{ auth.user?.last_name }}
             </span>
-            <span class="text-xs text-white/50 leading-none truncate">{{ userRolLabel }}</span>
+            <span class="text-xs text-muted-color leading-none truncate">{{ userRolLabel }}</span>
           </div>
           <i
             v-show="!sidebarCollapsed || isMobile"
-            class="pi text-white/30 text-xs ml-auto shrink-0 transition-transform duration-200"
+            class="pi text-muted-color text-xs ml-auto shrink-0 transition-transform duration-200"
             :class="dropdownOpen ? 'pi-chevron-down' : 'pi-chevron-up'"
           />
         </div>
@@ -167,7 +167,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
 
     <div class="flex-1 flex flex-col min-w-0">
       <header
-        class="h-14 flex items-center gap-3 px-6 bg-white dark:bg-surface-50 border-b border-surface-200 shrink-0"
+        class="h-14 flex items-center gap-3 px-6 bg-card border-b border-card-border shrink-0"
       >
         <Button
           icon="pi pi-bars"
@@ -181,7 +181,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
         <div class="flex-1" />
       </header>
 
-      <main class="flex-1 p-6 md:p-8 bg-surface-50 overflow-y-auto">
+      <main class="flex-1 p-6 md:p-8 bg-[var(--scf-page-bg)] overflow-y-auto">
         <RouterView />
       </main>
     </div>

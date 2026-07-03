@@ -99,7 +99,7 @@ function handleClose() {
           class="w-full"
           :invalid="!!(newPassword && !passwordLengthOk)"
         />
-        <small v-if="newPassword && !passwordLengthOk" class="text-red-500">
+        <small v-if="newPassword && !passwordLengthOk" class="text-red-500 dark:text-red-400">
           Mínimo 8 caracteres
         </small>
       </div>
@@ -115,7 +115,7 @@ function handleClose() {
           class="w-full"
           :invalid="!!(confirmPassword && !passwordsMatch)"
         />
-        <small v-if="confirmPassword && !passwordsMatch" class="text-red-500">
+        <small v-if="confirmPassword && !passwordsMatch" class="text-red-500 dark:text-red-400">
           Las contraseñas no coinciden
         </small>
       </div>

@@ -188,12 +188,12 @@ onMounted(loadItems)
         <Skeleton width="7rem" height="2.5rem" borderRadius="8px" />
         <Skeleton width="15rem" height="2.5rem" borderRadius="8px" />
       </div>
-      <div class="border border-surface-200 rounded-md overflow-hidden">
+      <div class="border border-card-border rounded-md overflow-hidden">
         <div
           v-for="i in 10"
           :key="i"
-          class="flex items-center gap-4 px-4 py-3.5 border-b border-surface-200 last:border-b-0"
-          :class="i % 2 === 0 ? 'bg-surface-50' : ''"
+          class="flex items-center gap-4 px-4 py-3.5 border-b border-card-border last:border-b-0"
+          :class="i % 2 === 0 ? 'bg-card-hover' : ''"
         >
           <Skeleton width="40%" height="1.25rem" borderRadius="6px" />
           <Skeleton width="15%" height="1.25rem" borderRadius="6px" class="ml-auto" />
