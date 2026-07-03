@@ -11,6 +11,7 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
+import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
@@ -22,7 +23,7 @@ const props = defineProps({
 const toast = useToast()
 
 const items = ref([])
-const loading = ref(false)
+const loading = ref(true)
 const filters = ref({ global: { value: null, matchMode: 'contains' } })
 const showDialog = ref(false)
 const editingItem = ref(null)
@@ -182,7 +183,26 @@ onMounted(loadItems)
 
 <template>
   <div>
+    <div v-if="loading && items.length === 0" class="flex flex-col gap-3">
+      <div class="flex justify-between items-center">
+        <Skeleton width="7rem" height="2.5rem" borderRadius="8px" />
+        <Skeleton width="15rem" height="2.5rem" borderRadius="8px" />
+      </div>
+      <div class="border border-surface-200 rounded-md overflow-hidden">
+        <div
+          v-for="i in 10"
+          :key="i"
+          class="flex items-center gap-4 px-4 py-3.5 border-b border-surface-200 last:border-b-0"
+          :class="i % 2 === 0 ? 'bg-surface-50' : ''"
+        >
+          <Skeleton width="40%" height="1.25rem" borderRadius="6px" />
+          <Skeleton width="15%" height="1.25rem" borderRadius="6px" class="ml-auto" />
+          <Skeleton width="5rem" height="1.75rem" borderRadius="6px" />
+        </div>
+      </div>
+    </div>
     <DataTable
+      v-else
       :value="items"
       v-model:filters="filters"
       :globalFilterFields="[config.filterField]"
