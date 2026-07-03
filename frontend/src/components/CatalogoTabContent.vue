@@ -215,11 +215,11 @@ onMounted(loadItems)
     >
       <template #header>
         <div class="flex justify-between items-center gap-2 flex-wrap">
-          <Button label="Nuevo" icon="pi pi-plus" size="small" @click="openNew" />
           <IconField>
             <InputIcon class="pi pi-search" />
             <InputText v-model="filters.global.value" placeholder="Buscar..." />
           </IconField>
+          <Button label="Agregar" icon="pi pi-plus" @click="openNew" />
         </div>
       </template>
       <template #empty>

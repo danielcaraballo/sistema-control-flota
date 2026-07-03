@@ -59,7 +59,12 @@ async function loadEstados() {
     const { data } = await api.get('/organizacion/estados/')
     estados.value = data
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.detail || 'Error al cargar los estados', life: 4000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al cargar los estados',
+      life: 4000,
+    })
   }
 }
 
@@ -69,7 +74,12 @@ async function loadUsuarios() {
     const { data } = await api.get('/usuarios/')
     usuarios.value = data
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.detail || 'Error al cargar los usuarios', life: 4000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al cargar los usuarios',
+      life: 4000,
+    })
   } finally {
     loading.value = false
   }
@@ -152,7 +162,12 @@ async function createUser() {
       password: data.password,
     }
     showCredentialsDialog.value = true
-    toast.add({ severity: 'success', summary: 'Usuario creado', detail: `${data.user.first_name} ${data.user.last_name} creado exitosamente`, life: 4000 })
+    toast.add({
+      severity: 'success',
+      summary: 'Usuario creado',
+      detail: `${data.user.first_name} ${data.user.last_name} creado exitosamente`,
+      life: 4000,
+    })
     await loadUsuarios()
   } catch (err) {
     errorMessage.value = err.response?.data?.detail || 'Error al crear el usuario'
@@ -179,7 +194,12 @@ async function updateUser() {
     }
     await api.put(`/usuarios/${editingUser.value.id}`, payload)
     showDialog.value = false
-    toast.add({ severity: 'success', summary: 'Usuario actualizado', detail: `${form.value.first_name} ${form.value.last_name} actualizado exitosamente`, life: 4000 })
+    toast.add({
+      severity: 'success',
+      summary: 'Usuario actualizado',
+      detail: `${form.value.first_name} ${form.value.last_name} actualizado exitosamente`,
+      life: 4000,
+    })
     await loadUsuarios()
   } catch (err) {
     errorMessage.value = err.response?.data?.detail || 'Error al guardar el usuario'
@@ -200,13 +220,23 @@ async function deactivateUser() {
   if (!userToToggle.value) return
   try {
     await api.delete(`/usuarios/${userToToggle.value.id}`)
-    const idx = usuarios.value.findIndex(u => u.id === userToToggle.value.id)
+    const idx = usuarios.value.findIndex((u) => u.id === userToToggle.value.id)
     if (idx !== -1) usuarios.value[idx] = { ...usuarios.value[idx], is_active: false }
     showDeactivateDialog.value = false
-    toast.add({ severity: 'success', summary: 'Usuario desactivado', detail: `${userToToggle.value.first_name} ${userToToggle.value.last_name} desactivado`, life: 4000 })
+    toast.add({
+      severity: 'success',
+      summary: 'Usuario desactivado',
+      detail: `${userToToggle.value.first_name} ${userToToggle.value.last_name} desactivado`,
+      life: 4000,
+    })
     userToToggle.value = null
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.detail || 'Error al desactivar el usuario', life: 4000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al desactivar el usuario',
+      life: 4000,
+    })
   }
 }
 
@@ -214,13 +244,23 @@ async function activateUser() {
   if (!userToToggle.value) return
   try {
     await api.put(`/usuarios/${userToToggle.value.id}`, { is_active: true })
-    const idx = usuarios.value.findIndex(u => u.id === userToToggle.value.id)
+    const idx = usuarios.value.findIndex((u) => u.id === userToToggle.value.id)
     if (idx !== -1) usuarios.value[idx] = { ...usuarios.value[idx], is_active: true }
     showActivateDialog.value = false
-    toast.add({ severity: 'success', summary: 'Usuario reactivado', detail: `${userToToggle.value.first_name} ${userToToggle.value.last_name} reactivado`, life: 4000 })
+    toast.add({
+      severity: 'success',
+      summary: 'Usuario reactivado',
+      detail: `${userToToggle.value.first_name} ${userToToggle.value.last_name} reactivado`,
+      life: 4000,
+    })
     userToToggle.value = null
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.detail || 'Error al reactivar el usuario', life: 4000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al reactivar el usuario',
+      life: 4000,
+    })
   }
 }
 
@@ -236,9 +276,19 @@ async function resetPassword() {
     resetResult.value = data.password
     showResetConfirmDialog.value = false
     showResetCredentialsDialog.value = true
-    toast.add({ severity: 'success', summary: 'Contraseña reseteada', detail: `Contraseña de ${userToReset.value.first_name} ${userToReset.value.last_name} restablecida`, life: 4000 })
+    toast.add({
+      severity: 'success',
+      summary: 'Contraseña reseteada',
+      detail: `Contraseña de ${userToReset.value.first_name} ${userToReset.value.last_name} restablecida`,
+      life: 4000,
+    })
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.detail || 'Error al resetear la contraseña', life: 4000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al resetear la contraseña',
+      life: 4000,
+    })
   }
 }
 
@@ -264,12 +314,12 @@ const resetCopyText = computed(() => {
 
 const rolLabelForm = computed(() => {
   if (!form.value.rol) return ''
-  return ROLES.find(r => r.value === form.value.rol)?.label || form.value.rol
+  return ROLES.find((r) => r.value === form.value.rol)?.label || form.value.rol
 })
 
 const estadoNombreForm = computed(() => {
   if (!form.value.estado_id) return ''
-  return estados.value.find(e => e.id === form.value.estado_id)?.nombre || ''
+  return estados.value.find((e) => e.id === form.value.estado_id)?.nombre || ''
 })
 
 onMounted(() => {
@@ -280,20 +330,20 @@ onMounted(() => {
 
 <template>
   <div class="w-full">
-    <PageHeader title="Usuarios" subtitle="Gestión de usuarios del sistema" icon="pi pi-users">
-      <Button
-        v-if="auth.tieneRol('nacional')"
-        label="Nuevo usuario"
-        icon="pi pi-plus"
-        @click="openNew"
-      />
-    </PageHeader>
+    <PageHeader title="Usuarios" subtitle="Gestión de usuarios del sistema" icon="pi pi-users" />
 
     <div class="border border-surface-200 rounded-md bg-surface-0">
       <DataTable
         :value="usuarios"
         v-model:filters="filters"
-        :globalFilterFields="['username', 'first_name', 'last_name', 'email', 'rol', 'estado_nombre']"
+        :globalFilterFields="[
+          'username',
+          'first_name',
+          'last_name',
+          'email',
+          'rol',
+          'estado_nombre',
+        ]"
         :loading="loading"
         scrollable
         stripedRows
@@ -304,11 +354,17 @@ onMounted(() => {
         :sortOrder="1"
       >
         <template #header>
-          <div class="flex justify-end">
+          <div class="flex justify-between items-center gap-2 flex-wrap">
             <IconField>
               <InputIcon class="pi pi-search" />
               <InputText v-model="filters.global.value" placeholder="Buscar usuarios..." />
             </IconField>
+            <Button
+              v-if="auth.tieneRol('nacional')"
+              label="Agregar usuario"
+              icon="pi pi-plus"
+              @click="openNew"
+            />
           </div>
         </template>
         <template #empty>
