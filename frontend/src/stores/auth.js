@@ -7,9 +7,10 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('access_token') || null)
   const isAuthenticated = ref(!!token.value)
+  const loading = ref(!!token.value)
 
   const rol = computed(() => user.value?.rol || null)
-  const rolData = computed(() => ROLES.find(r => r.value === rol.value))
+  const rolData = computed(() => ROLES.find((r) => r.value === rol.value))
   const esEstatalValue = computed(() => esEstatal(rol.value))
 
   function tieneRol(rolMinimo) {
@@ -41,20 +42,23 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     isAuthenticated.value = false
+    loading.value = false
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
   }
 
-  function initialize() {
-    if (token.value) {
-      fetchMe()
-    }
+  async function initialize() {
+    if (!token.value) return
+    loading.value = true
+    await fetchMe()
+    loading.value = false
   }
 
   return {
     user,
     token,
     isAuthenticated,
+    loading,
     rol,
     rolData,
     esEstatal: esEstatalValue,

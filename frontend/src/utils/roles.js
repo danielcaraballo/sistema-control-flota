@@ -1,10 +1,15 @@
-const JERARQUIA = ['mecanico', 'analista', 'estatal', 'nacional']
+export const ROL_MECANICO = 'mecanico'
+export const ROL_ANALISTA = 'analista'
+export const ROL_ESTATAL = 'estatal'
+export const ROL_NACIONAL = 'nacional'
+
+const JERARQUIA = [ROL_MECANICO, ROL_ANALISTA, ROL_ESTATAL, ROL_NACIONAL]
 
 export const ROLES = [
-  { label: 'Nacional', value: 'nacional', estatal: false },
-  { label: 'Estatal', value: 'estatal', estatal: true },
-  { label: 'Analista', value: 'analista', estatal: true },
-  { label: 'Mecánico', value: 'mecanico', estatal: true },
+  { label: 'Nacional', value: ROL_NACIONAL, estatal: false },
+  { label: 'Estatal', value: ROL_ESTATAL, estatal: true },
+  { label: 'Analista', value: ROL_ANALISTA, estatal: true },
+  { label: 'Mecánico', value: ROL_MECANICO, estatal: true },
 ]
 
 export const ESTATAL_ROLES = ROLES.filter((r) => r.estatal).map((r) => r.value)

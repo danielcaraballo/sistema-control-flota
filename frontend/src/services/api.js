@@ -8,6 +8,12 @@ const api = axios.create({
   },
 })
 
+let refreshPromise = null
+
+function redirectLogin() {
+  router.push('/login')
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
   if (token) {
@@ -21,29 +27,46 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-      const refreshToken = localStorage.getItem('refresh_token')
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error)
+    }
 
-      if (refreshToken) {
+    const refreshToken = localStorage.getItem('refresh_token')
+    if (!refreshToken) {
+      const { useAuthStore } = await import('@/stores/auth')
+      useAuthStore().logout()
+      redirectLogin()
+      return Promise.reject(error)
+    }
+
+    originalRequest._retry = true
+
+    if (!refreshPromise) {
+      refreshPromise = (async () => {
         try {
           const { data } = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
             refresh: refreshToken,
           })
           localStorage.setItem('access_token', data.access)
-          originalRequest.headers.Authorization = `Bearer ${data.access}`
-          return api(originalRequest)
+          return data.access
         } catch {
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
-          router.push('/login')
+          const { useAuthStore } = await import('@/stores/auth')
+          useAuthStore().logout()
+          redirectLogin()
+          return null
         }
-      } else {
-        router.push('/login')
-      }
+      })().finally(() => {
+        refreshPromise = null
+      })
     }
 
-    return Promise.reject(error)
+    const newToken = await refreshPromise
+    if (!newToken) return Promise.reject(error)
+
+    originalRequest.headers.Authorization = `Bearer ${newToken}`
+    return api(originalRequest)
   },
 )
 

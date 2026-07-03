@@ -41,8 +41,13 @@ app.use(ToastService)
 app.directive('tooltip', Tooltip)
 
 const auth = useAuthStore()
-auth.initialize()
 
-applyTheme(readInitialTheme())
+async function startApp() {
+  if (auth.token) {
+    await auth.initialize()
+  }
+  applyTheme(readInitialTheme())
+  app.mount('#app')
+}
 
-app.mount('#app')
+startApp()

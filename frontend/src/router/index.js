@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ROL_NACIONAL, ROL_ANALISTA } from '@/utils/roles'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +24,7 @@ const router = createRouter({
           path: 'usuarios',
           name: 'usuarios',
           component: () => import('../views/UsuariosView.vue'),
-          meta: { rolMinimo: 'nacional' },
+          meta: { rolMinimo: ROL_NACIONAL },
         },
         {
           path: 'vehiculos',
@@ -34,13 +35,13 @@ const router = createRouter({
           path: 'catalogos',
           name: 'catalogos',
           component: () => import('../views/CatalogosView.vue'),
-          meta: { rolMinimo: 'nacional' },
+          meta: { rolMinimo: ROL_NACIONAL },
         },
         {
           path: 'organizacion',
           name: 'organizacion',
           component: () => import('../views/OrganizacionView.vue'),
-          meta: { rolMinimo: 'nacional' },
+          meta: { rolMinimo: ROL_NACIONAL },
         },
         {
           path: 'taller',
@@ -51,29 +52,29 @@ const router = createRouter({
           path: 'reportes',
           name: 'reportes',
           component: () => import('../views/ReportesView.vue'),
-          meta: { rolMinimo: 'analista' },
+          meta: { rolMinimo: ROL_ANALISTA },
         },
       ],
     },
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from) => {
   const auth = useAuthStore()
 
+  if (auth.loading) return
+
   if (to.name === 'login' && auth.isAuthenticated) {
-    return next({ name: 'dashboard' })
+    return { name: 'dashboard' }
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return next({ name: 'login' })
+    return { name: 'login', query: { redirect: to.fullPath } }
   }
 
   if (to.meta.rolMinimo && !auth.tieneRol(to.meta.rolMinimo)) {
-    return next({ name: 'dashboard' })
+    return { name: 'dashboard' }
   }
-
-  next()
 })
 
 export default router
