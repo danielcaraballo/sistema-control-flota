@@ -14,7 +14,10 @@ const props = defineProps({
   username: { type: String, required: true },
   password: { type: String, required: true },
   copyText: { type: String, required: true },
-  warningText: { type: String, default: 'Copia las credenciales ahora. No se podrán mostrar de nuevo.' },
+  warningText: {
+    type: String,
+    default: 'Copia las credenciales ahora. No se podrán mostrar de nuevo.',
+  },
 })
 
 const emit = defineEmits(['update:visible'])
@@ -30,7 +33,9 @@ async function copy() {
   try {
     await navigator.clipboard.writeText(props.copyText)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
   } catch {}
 }
 </script>
