@@ -136,8 +136,8 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           <Avatar
             :label="(auth.user?.first_name?.[0] || '').toUpperCase()"
             size="small"
-            shape="circle"
-            class="!bg-[var(--p-primary-color)] shrink-0"
+            shape="square"
+            class="!bg-[var(--p-primary-color)] shrink-0 !rounded-lg"
           />
           <div
             v-show="!sidebarCollapsed || isMobile"
@@ -149,6 +149,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
             <span class="text-xs text-white/50 leading-none truncate">{{ userRolLabel }}</span>
           </div>
           <i
+            v-show="!sidebarCollapsed || isMobile"
             class="pi text-white/30 text-xs ml-auto shrink-0 transition-transform duration-200"
             :class="dropdownOpen ? 'pi-chevron-down' : 'pi-chevron-up'"
           />

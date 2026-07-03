@@ -31,7 +31,10 @@ function toggle(event) {
   const trigger = event.currentTarget
   const triggerRect = trigger.getBoundingClientRect()
   const target = ensureTarget()
-  const left = triggerRect.left + (triggerRect.width - POPOVER_WIDTH) / 2
+  const isCollapsed = triggerRect.width < 100
+  const left = isCollapsed
+    ? triggerRect.right + 4
+    : triggerRect.left + (triggerRect.width - POPOVER_WIDTH) / 2
   target.style.left = `${left}px`
   target.style.top = `${triggerRect.top}px`
   popoverRef.value.toggle(event, target)
