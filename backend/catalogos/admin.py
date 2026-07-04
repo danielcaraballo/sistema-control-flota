@@ -3,6 +3,7 @@ from unfold.admin import ModelAdmin
 
 from .models import (
     Color,
+    EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
@@ -59,3 +60,10 @@ class TipoFallaAdmin(ModelAdmin):
     list_display = ["descripcion", "sistema_afectado", "estatus_activo"]
     search_fields = ["descripcion", "sistema_afectado__nombre"]
     list_filter = ["sistema_afectado", "estatus_activo"]
+
+
+@admin.register(EstatusVehiculo)
+class EstatusVehiculoAdmin(ModelAdmin):
+    list_display = ["nombre", "estatus_activo"]
+    search_fields = ["nombre"]
+    list_filter = ["estatus_activo"]

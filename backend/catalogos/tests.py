@@ -6,6 +6,7 @@ from usuarios.models import Usuario
 
 from .models import (
     Color,
+    EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
@@ -327,6 +328,34 @@ class TestCatalogosAPI(TestCase):
         self.assertEqual(response.status_code, 204)
         self.tf.refresh_from_db()
         self.assertFalse(self.tf.estatus_activo)
+
+    # ─── Estatus de Vehículo ──────────────────────────────────────────────
+
+    def test_list_estatus_vehiculo(self):
+        ev = EstatusVehiculo.objects.create(nombre="Test Estatus")
+        response = client.get("/catalogos/estatus-vehiculo/", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        nombres = [e["nombre"] for e in response.json()]
+        self.assertIn("Test Estatus", nombres)
+
+    def test_create_estatus_vehiculo(self):
+        response = client.post(
+            "/catalogos/estatus-vehiculo/",
+            headers=self.headers,
+            json={"nombre": "ZZ Test Estatus Nuevo"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "ZZ Test Estatus Nuevo")
+
+    def test_deactivate_estatus_vehiculo(self):
+        ev = EstatusVehiculo.objects.create(nombre="Test Estatus")
+        response = client.delete(
+            f"/catalogos/estatus-vehiculo/{ev.id}",
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 204)
+        ev.refresh_from_db()
+        self.assertFalse(ev.estatus_activo)
 
     # ─── RBAC ─────────────────────────────────────────────────────────────
 

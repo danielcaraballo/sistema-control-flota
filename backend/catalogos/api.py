@@ -7,6 +7,7 @@ from usuarios.roles import requiere_rol_minimo
 
 from .models import (
     Color,
+    EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
@@ -18,6 +19,9 @@ from .schemas import (
     ColorCreate,
     ColorSchema,
     ColorUpdate,
+    EstatusVehiculoCreate,
+    EstatusVehiculoSchema,
+    EstatusVehiculoUpdate,
     MarcaCreate,
     MarcaSchema,
     MarcaUpdate,
@@ -455,4 +459,50 @@ def deactivate_tipo_falla(request, tf_id: int):
     tf = _get_object_or_404(TipoFalla, tf_id)
     tf.estatus_activo = False
     tf.save()
+    return 204, None
+
+
+# ─── Estatus de Vehículo ────────────────────────────────────────────────
+
+
+@router.get("/estatus-vehiculo/", response=list[EstatusVehiculoSchema], auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.MECANICO)
+def list_estatus_vehiculo(request):
+    return _filter_activos(EstatusVehiculo.objects.all(), request)
+
+
+@router.get("/estatus-vehiculo/{ev_id}", response=EstatusVehiculoSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.MECANICO)
+def get_estatus_vehiculo(request, ev_id: int):
+    return _get_object_or_404(EstatusVehiculo, ev_id)
+
+
+@router.post("/estatus-vehiculo/", response=EstatusVehiculoSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def create_estatus_vehiculo(request, data: EstatusVehiculoCreate):
+    if EstatusVehiculo.objects.filter(nombre=data.nombre).exists():
+        raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
+    return EstatusVehiculo.objects.create(**data.dict())
+
+
+@router.put("/estatus-vehiculo/{ev_id}", response=EstatusVehiculoSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def update_estatus_vehiculo(request, ev_id: int, data: EstatusVehiculoUpdate):
+    ev = _get_object_or_404(EstatusVehiculo, ev_id)
+    payload = data.dict(exclude_unset=True)
+    if "nombre" in payload and payload["nombre"] != ev.nombre:
+        if EstatusVehiculo.objects.filter(nombre=payload["nombre"]).exists():
+            raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
+    for attr, value in payload.items():
+        setattr(ev, attr, value)
+    ev.save()
+    return ev
+
+
+@router.delete("/estatus-vehiculo/{ev_id}", response={204: None}, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def deactivate_estatus_vehiculo(request, ev_id: int):
+    ev = _get_object_or_404(EstatusVehiculo, ev_id)
+    ev.estatus_activo = False
+    ev.save()
     return 204, None

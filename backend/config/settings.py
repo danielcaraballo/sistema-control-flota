@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "organizacion",
     "usuarios",
     "catalogos",
+    "vehiculos",
 ]
 
 AUTH_USER_MODEL = "usuarios.Usuario"
@@ -122,6 +123,11 @@ UNFOLD = {
                         "icon": "people",
                         "link": reverse_lazy("admin:usuarios_usuario_changelist"),
                     },
+                    {
+                        "title": "Vehículos",
+                        "icon": "directions_car",
+                        "link": reverse_lazy("admin:vehiculos_vehiculo_changelist"),
+                    },
                 ],
             },
             {
@@ -185,6 +191,11 @@ UNFOLD = {
                         "title": "Tipos de Falla",
                         "icon": "report_problem",
                         "link": reverse_lazy("admin:catalogos_tipofalla_changelist"),
+                    },
+                    {
+                        "title": "Estatus de Vehículo",
+                        "icon": "check_circle",
+                        "link": reverse_lazy("admin:catalogos_estatusvehiculo_changelist"),
                     },
                 ],
             },

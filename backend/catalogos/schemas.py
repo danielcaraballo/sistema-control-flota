@@ -2,6 +2,7 @@ from ninja import ModelSchema, Schema
 
 from .models import (
     Color,
+    EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
@@ -117,3 +118,17 @@ class TipoFallaCreate(Schema):
 class TipoFallaUpdate(Schema):
     descripcion: str | None = None
     sistema_afectado_id: int | None = None
+
+
+class EstatusVehiculoSchema(ModelSchema):
+    class Meta:
+        model = EstatusVehiculo
+        fields = ["id", "nombre", "estatus_activo"]
+
+
+class EstatusVehiculoCreate(Schema):
+    nombre: str
+
+
+class EstatusVehiculoUpdate(Schema):
+    nombre: str | None = None

@@ -82,6 +82,19 @@ class SistemaAfectado(models.Model):
         return self.nombre
 
 
+class EstatusVehiculo(models.Model):
+    nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre")
+    estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
+
+    class Meta:
+        verbose_name = "Estatus de vehículo"
+        verbose_name_plural = "Estatus de vehículos"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+
+
 class TipoFalla(models.Model):
     descripcion = models.CharField(max_length=200, unique=True, verbose_name="Descripción")
     sistema_afectado = models.ForeignKey(
