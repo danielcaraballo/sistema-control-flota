@@ -1,5 +1,6 @@
 from django.test import TestCase
 from ninja.testing import TestClient
+from ninja_jwt.tokens import RefreshToken
 
 from config.api import api
 from organizacion.models import Estado
@@ -10,21 +11,18 @@ client = TestClient(api)
 
 
 class TestUsuariosAPI(TestCase):
-    def setUp(self):
-        self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
-        self.admin = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
+        cls.admin = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.assertEqual(login_resp.status_code, 200, "Login falló en setUp")
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.admin)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_list_usuarios(self):
         response = client.get("/usuarios/", headers=self.headers)

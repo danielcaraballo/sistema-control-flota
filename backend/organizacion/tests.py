@@ -1,6 +1,8 @@
 from django.test import TestCase
 from ninja.testing import TestClient
 
+from ninja_jwt.tokens import RefreshToken
+
 from config.api import api
 from usuarios.models import Usuario
 
@@ -10,23 +12,20 @@ client = TestClient(api)
 
 
 class TestOrganizacionAPI(TestCase):
-    def setUp(self):
-        self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
-        self.gerencia = Gerencia.objects.create(nombre="Gerencia Test", estatus_activo=True)
-        self.user = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
+        cls.gerencia = Gerencia.objects.create(nombre="Gerencia Test", estatus_activo=True)
+        cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.assertEqual(login_resp.status_code, 200, "Login falló en setUp")
-        self.token = login_resp.json()["access"]
-        self.refresh_token = login_resp.json()["refresh"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.user)
+        cls.token = str(refresh.access_token)
+        cls.refresh_token = str(refresh)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_list_estados(self):
         response = client.get("/organizacion/estados/", headers=self.headers)
@@ -143,21 +142,18 @@ class TestAuthAPI(TestCase):
 
 
 class TestUsuariosAPI(TestCase):
-    def setUp(self):
-        self.estado = Estado.objects.create(nombre="Test Estado 2", estatus_activo=True)
-        self.user = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Test Estado 2", estatus_activo=True)
+        cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.assertEqual(login_resp.status_code, 200, "Login falló en setUp")
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.user)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_list_usuarios(self):
         response = client.get("/usuarios/", headers=self.headers)
@@ -284,20 +280,18 @@ class TestUsuariosAPI(TestCase):
 
 
 class TestEstadoCRUD(TestCase):
-    def setUp(self):
-        self.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
-        self.user = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Test Estado", estatus_activo=True)
+        cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.user)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_get_estado(self):
         response = client.get(f"/organizacion/estados/{self.estado.id}", headers=self.headers)
@@ -371,20 +365,18 @@ class TestEstadoCRUD(TestCase):
 
 
 class TestGerenciaCRUD(TestCase):
-    def setUp(self):
-        self.gerencia = Gerencia.objects.create(nombre="Test Gerencia", estatus_activo=True)
-        self.user = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.gerencia = Gerencia.objects.create(nombre="Test Gerencia", estatus_activo=True)
+        cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.user)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_get_gerencia(self):
         response = client.get(f"/organizacion/gerencias/{self.gerencia.id}", headers=self.headers)
@@ -432,20 +424,18 @@ class TestGerenciaCRUD(TestCase):
 
 
 class TestCentroDeServicioCRUD(TestCase):
-    def setUp(self):
-        self.cs = CentroDeServicio.objects.create(nombre="Test Centro", estatus_activo=True)
-        self.user = Usuario.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.cs = CentroDeServicio.objects.create(nombre="Test Centro", estatus_activo=True)
+        cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.user)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def test_list_centros_servicio(self):
         response = client.get("/organizacion/centros-servicio/", headers=self.headers)

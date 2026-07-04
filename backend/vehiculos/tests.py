@@ -6,37 +6,36 @@ from config.api import api
 from organizacion.models import CentroDeServicio, Estado, Gerencia
 from usuarios.models import Usuario
 
+from ninja_jwt.tokens import RefreshToken
+
 from .models import Vehiculo
 
 client = TestClient(api)
 
 
 class TestVehiculoCRUD(TestCase):
-    def setUp(self):
-        self.estado = Estado.objects.create(nombre="Test Estado")
-        self.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
-        self.centro = CentroDeServicio.objects.create(nombre="Test Centro")
-        self.marca = Marca.objects.create(nombre="Test Marca")
-        self.modelo = Modelo.objects.create(
-            nombre="Test Modelo", marca=self.marca)
-        self.categoria = TipoVehiculo.objects.create(nombre="Test Categoria")
-        self.color = Color.objects.create(nombre="Test Color")
-        self.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
-        self.estatus_v = EstatusVehiculo.objects.create(nombre="Test Estatus")
+    @classmethod
+    def setUpTestData(cls):
+        cls.estado = Estado.objects.create(nombre="Test Estado")
+        cls.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
+        cls.centro = CentroDeServicio.objects.create(nombre="Test Centro")
+        cls.marca = Marca.objects.create(nombre="Test Marca")
+        cls.modelo = Modelo.objects.create(
+            nombre="Test Modelo", marca=cls.marca)
+        cls.categoria = TipoVehiculo.objects.create(nombre="Test Categoria")
+        cls.color = Color.objects.create(nombre="Test Color")
+        cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
+        cls.estatus_v = EstatusVehiculo.objects.create(nombre="Test Estatus")
 
-        self.admin = Usuario.objects.create_user(
+        cls.admin = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.assertEqual(login_resp.status_code, 200, "Login falló en setUp")
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.admin)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     def _valid_payload(self, **kwargs):
         base = {

@@ -1,6 +1,8 @@
 from django.test import TestCase
 from ninja.testing import TestClient
 
+from ninja_jwt.tokens import RefreshToken
+
 from config.api import api
 from usuarios.models import Usuario
 
@@ -20,31 +22,28 @@ client = TestClient(api)
 
 
 class TestCatalogosAPI(TestCase):
-    def setUp(self):
-        self.marca = Marca.objects.create(nombre="Test Marca")
-        self.modelo = Modelo.objects.create(
-            nombre="Test Modelo", marca=self.marca)
-        self.tv = TipoVehiculo.objects.create(nombre="Test Tipo Vehiculo")
-        self.tu = TipoUso.objects.create(nombre="Test Tipo Uso")
-        self.color = Color.objects.create(nombre="Test Color")
-        self.sa = SistemaAfectado.objects.create(nombre="Test Sistema")
-        self.tf = TipoFalla.objects.create(
-            descripcion="Test Falla", sistema_afectado=self.sa)
-        self.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
+    @classmethod
+    def setUpTestData(cls):
+        cls.marca = Marca.objects.create(nombre="Test Marca")
+        cls.modelo = Modelo.objects.create(
+            nombre="Test Modelo", marca=cls.marca)
+        cls.tv = TipoVehiculo.objects.create(nombre="Test Tipo Vehiculo")
+        cls.tu = TipoUso.objects.create(nombre="Test Tipo Uso")
+        cls.color = Color.objects.create(nombre="Test Color")
+        cls.sa = SistemaAfectado.objects.create(nombre="Test Sistema")
+        cls.tf = TipoFalla.objects.create(
+            descripcion="Test Falla", sistema_afectado=cls.sa)
+        cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
 
-        self.admin = Usuario.objects.create_user(
+        cls.admin = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
             password="admin123",
             rol=Usuario.Rol.NACIONAL,
         )
-        login_resp = client.post(
-            "/auth/login",
-            json={"username": "admin", "password": "admin123"},
-        )
-        self.assertEqual(login_resp.status_code, 200, "Login falló en setUp")
-        self.token = login_resp.json()["access"]
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        refresh = RefreshToken.for_user(cls.admin)
+        cls.token = str(refresh.access_token)
+        cls.headers = {"Authorization": f"Bearer {cls.token}"}
 
     # ─── Marcas ───────────────────────────────────────────────────────────
 
