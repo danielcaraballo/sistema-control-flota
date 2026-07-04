@@ -88,6 +88,9 @@ def _generate_qr(vehicle_id):
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def list_vehiculos(request):
     qs = Vehiculo.objects.select_related(*SELECT_RELATED)
+    user = request.auth
+    if user.estado_id:
+        qs = qs.filter(estado_id=user.estado_id)
     qs = _filter_activos(qs, request)
     return [_build_vehiculo_schema(v) for v in qs]
 

@@ -159,7 +159,8 @@ async function loadCatalogos() {
 async function loadVehiculos() {
   loading.value = true
   try {
-    const { data } = await api.get('/vehiculos/')
+    const params = auth.tieneRol('nacional') ? '?incluir_inactivos=true' : ''
+    const { data } = await api.get('/vehiculos/' + params)
     vehiculos.value = data
   } catch (err) {
     toast.add({
