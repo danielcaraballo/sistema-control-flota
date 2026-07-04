@@ -1,7 +1,7 @@
 from django.test import TestCase
 from ninja.testing import TestClient
 
-from catalogos.models import Color, EstatusVehiculo, Marca, Modelo, TipoVehiculo
+from catalogos.models import Color, ColorPlaca, EstatusVehiculo, Marca, Modelo, TipoVehiculo
 from config.api import api
 from organizacion.models import CentroDeServicio, Estado, Gerencia
 from usuarios.models import Usuario
@@ -21,6 +21,7 @@ class TestVehiculoCRUD(TestCase):
             nombre="Test Modelo", marca=self.marca)
         self.categoria = TipoVehiculo.objects.create(nombre="Test Categoria")
         self.color = Color.objects.create(nombre="Test Color")
+        self.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
         self.estatus_v = EstatusVehiculo.objects.create(nombre="Test Estatus")
 
         self.admin = Usuario.objects.create_user(
@@ -40,6 +41,7 @@ class TestVehiculoCRUD(TestCase):
     def _valid_payload(self, **kwargs):
         base = {
             "numero_economico": "VEH-001",
+            "numero_unidad": "UN-001",
             "gerencia_id": self.gerencia.id,
             "categoria_id": self.categoria.id,
             "marca_id": self.marca.id,
@@ -50,7 +52,10 @@ class TestVehiculoCRUD(TestCase):
             "emplazamiento_id": self.centro.id,
             "estatus_id": self.estatus_v.id,
             "placa": "ABC-123",
+            "color_placa_id": self.color_placa.id,
             "color_id": self.color.id,
+            "placa_intt": "INTT-001",
+            "serial_motor": "MOTOR-001",
         }
         base.update(kwargs)
         return base
@@ -67,7 +72,9 @@ class TestVehiculoCRUD(TestCase):
         Vehiculo.objects.create(**self._valid_payload())
         Vehiculo.objects.create(
             **self._valid_payload(numero_economico="VEH-002",
+                                   numero_unidad="UN-002",
                                    vin="2HGCM82633A123456",
+                                   placa="XYZ-999",
                                    estatus_activo=False))
         response = client.get("/vehiculos/", headers=self.headers)
         nums = [v["numero_economico"] for v in response.json()]
@@ -77,7 +84,9 @@ class TestVehiculoCRUD(TestCase):
     def test_list_vehiculos_incluir_inactivos(self):
         Vehiculo.objects.create(
             **self._valid_payload(numero_economico="VEH-002",
+                                   numero_unidad="UN-002",
                                    vin="2HGCM82633A123456",
+                                   placa="XYZ-999",
                                    estatus_activo=False))
         response = client.get(
             "/vehiculos/?incluir_inactivos=true", headers=self.headers)
@@ -112,17 +121,42 @@ class TestVehiculoCRUD(TestCase):
         self.assertEqual(data["emplazamiento_nombre"], "Test Centro")
         self.assertEqual(data["estatus_nombre"], "Test Estatus")
         self.assertEqual(data["color_nombre"], "Test Color")
+        self.assertEqual(data["color_placa_nombre"], "Test Color Placa")
+        self.assertEqual(data["numero_unidad"], "UN-001")
+        self.assertEqual(data["placa_intt"], "INTT-001")
+        self.assertEqual(data["serial_motor"], "MOTOR-001")
 
     def test_create_vehiculo_duplicate_numero_economico(self):
         Vehiculo.objects.create(**self._valid_payload())
-        payload = self._valid_payload(vin="2HGCM82633A123456")
+        payload = self._valid_payload(
+            numero_unidad="UN-002", vin="2HGCM82633A123456")
+        response = client.post(
+            "/vehiculos/", headers=self.headers, json=payload)
+        self.assertEqual(response.status_code, 409)
+
+    def test_create_vehiculo_duplicate_numero_unidad(self):
+        Vehiculo.objects.create(**self._valid_payload())
+        payload = self._valid_payload(
+            numero_economico="VEH-002", vin="2HGCM82633A123456")
         response = client.post(
             "/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
 
     def test_create_vehiculo_duplicate_vin(self):
         Vehiculo.objects.create(**self._valid_payload())
-        payload = self._valid_payload(numero_economico="VEH-002")
+        payload = self._valid_payload(
+            numero_economico="VEH-002", numero_unidad="UN-002")
+        response = client.post(
+            "/vehiculos/", headers=self.headers, json=payload)
+        self.assertEqual(response.status_code, 409)
+
+    def test_create_vehiculo_duplicate_placa_mismo_color(self):
+        Vehiculo.objects.create(**self._valid_payload())
+        payload = self._valid_payload(
+            numero_economico="VEH-002",
+            numero_unidad="UN-002",
+            vin="2HGCM82633A123456",
+        )
         response = client.post(
             "/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
@@ -147,14 +181,14 @@ class TestVehiculoCRUD(TestCase):
 
     def test_non_nacional_cannot_create(self):
         mecanico = Usuario.objects.create_user(
-            username="mecanico",
-            email="mecanico@test.com",
+            username="mecanico_test",
+            email="mecanico_test@test.com",
             password="pass123",
             rol=Usuario.Rol.MECANICO,
         )
         login_resp = client.post(
             "/auth/login",
-            json={"username": "mecanico", "password": "pass123"},
+            json={"username": "mecanico_test", "password": "pass123"},
         )
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}

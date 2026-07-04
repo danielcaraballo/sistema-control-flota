@@ -197,6 +197,11 @@ UNFOLD = {
                         "icon": "check_circle",
                         "link": reverse_lazy("admin:catalogos_estatusvehiculo_changelist"),
                     },
+                    {
+                        "title": "Colores de Placa",
+                        "icon": "palette",
+                        "link": reverse_lazy("admin:catalogos_colorplaca_changelist"),
+                    },
                 ],
             },
         ],

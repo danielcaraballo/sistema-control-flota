@@ -95,6 +95,19 @@ class EstatusVehiculo(models.Model):
         return self.nombre
 
 
+class ColorPlaca(models.Model):
+    nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre")
+    estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
+
+    class Meta:
+        verbose_name = "Color de placa"
+        verbose_name_plural = "Colores de placa"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+
+
 class TipoFalla(models.Model):
     descripcion = models.CharField(max_length=200, unique=True, verbose_name="Descripción")
     sistema_afectado = models.ForeignKey(

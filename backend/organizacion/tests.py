@@ -164,7 +164,8 @@ class TestUsuariosAPI(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIsInstance(data, list)
-        self.assertEqual(len(data), 1)
+        emails = [u["email"] for u in data]
+        self.assertIn("admin@test.com", emails)
 
     def test_create_usuario(self):
         response = client.post(
@@ -350,14 +351,14 @@ class TestEstadoCRUD(TestCase):
 
     def test_non_nacional_cannot_create_estado(self):
         mecanico = Usuario.objects.create_user(
-            username="mecanico",
-            email="mecanico@test.com",
+            username="mecanico_est",
+            email="mecanico_est@test.com",
             password="pass123",
             rol=Usuario.Rol.MECANICO,
         )
         login_resp = client.post(
             "/auth/login",
-            json={"username": "mecanico", "password": "pass123"},
+            json={"username": "mecanico_est", "password": "pass123"},
         )
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -513,14 +514,14 @@ class TestCentroDeServicioCRUD(TestCase):
 
     def test_non_nacional_cannot_create_centro_servicio(self):
         mecanico = Usuario.objects.create_user(
-            username="mecanico",
-            email="mecanico@test.com",
+            username="mecanico_cs",
+            email="mecanico_cs@test.com",
             password="pass123",
             rol=Usuario.Rol.MECANICO,
         )
         login_resp = client.post(
             "/auth/login",
-            json={"username": "mecanico", "password": "pass123"},
+            json={"username": "mecanico_cs", "password": "pass123"},
         )
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}

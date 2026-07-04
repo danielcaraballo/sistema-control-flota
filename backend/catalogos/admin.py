@@ -3,6 +3,7 @@ from unfold.admin import ModelAdmin
 
 from .models import (
     Color,
+    ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
@@ -64,6 +65,13 @@ class TipoFallaAdmin(ModelAdmin):
 
 @admin.register(EstatusVehiculo)
 class EstatusVehiculoAdmin(ModelAdmin):
+    list_display = ["nombre", "estatus_activo"]
+    search_fields = ["nombre"]
+    list_filter = ["estatus_activo"]
+
+
+@admin.register(ColorPlaca)
+class ColorPlacaAdmin(ModelAdmin):
     list_display = ["nombre", "estatus_activo"]
     search_fields = ["nombre"]
     list_filter = ["estatus_activo"]

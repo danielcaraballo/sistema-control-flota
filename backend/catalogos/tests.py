@@ -6,6 +6,7 @@ from usuarios.models import Usuario
 
 from .models import (
     Color,
+    ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
@@ -29,6 +30,7 @@ class TestCatalogosAPI(TestCase):
         self.sa = SistemaAfectado.objects.create(nombre="Test Sistema")
         self.tf = TipoFalla.objects.create(
             descripcion="Test Falla", sistema_afectado=self.sa)
+        self.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
 
         self.admin = Usuario.objects.create_user(
             username="admin",
@@ -357,18 +359,44 @@ class TestCatalogosAPI(TestCase):
         ev.refresh_from_db()
         self.assertFalse(ev.estatus_activo)
 
+    # ─── Colores de Placa ────────────────────────────────────────────────
+
+    def test_list_colores_placa(self):
+        response = client.get("/catalogos/colores-placa/", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        nombres = [cp["nombre"] for cp in response.json()]
+        self.assertIn("Test Color Placa", nombres)
+
+    def test_create_color_placa(self):
+        response = client.post(
+            "/catalogos/colores-placa/",
+            headers=self.headers,
+            json={"nombre": "ZZ Test Color Placa Nuevo"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nombre"], "ZZ Test Color Placa Nuevo")
+
+    def test_deactivate_color_placa(self):
+        response = client.delete(
+            f"/catalogos/colores-placa/{self.color_placa.id}",
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.color_placa.refresh_from_db()
+        self.assertFalse(self.color_placa.estatus_activo)
+
     # ─── RBAC ─────────────────────────────────────────────────────────────
 
     def test_non_nacional_cannot_create(self):
         mecanico = Usuario.objects.create_user(
-            username="mecanico",
-            email="mecanico@test.com",
+            username="mecanico_cat",
+            email="mecanico_cat@test.com",
             password="pass123",
             rol=Usuario.Rol.MECANICO,
         )
         login_resp = client.post(
             "/auth/login",
-            json={"username": "mecanico", "password": "pass123"},
+            json={"username": "mecanico_cat", "password": "pass123"},
         )
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}

@@ -20,15 +20,20 @@ class VehiculoSchema(ModelSchema):
     estatus_nombre: str | None = None
     color: int
     color_nombre: str | None = None
+    color_placa: int
+    color_placa_nombre: str | None = None
 
     class Meta:
         model = Vehiculo
         fields = [
             "id",
             "numero_economico",
+            "numero_unidad",
             "anio",
             "vin",
             "placa",
+            "placa_intt",
+            "serial_motor",
             "codigo_qr",
             "estatus_activo",
         ]
@@ -36,6 +41,7 @@ class VehiculoSchema(ModelSchema):
 
 class VehiculoCreate(Schema):
     numero_economico: str
+    numero_unidad: str | None = None
     gerencia_id: int
     categoria_id: int
     marca_id: int
@@ -46,11 +52,15 @@ class VehiculoCreate(Schema):
     emplazamiento_id: int
     estatus_id: int
     placa: str
+    color_placa_id: int
     color_id: int
+    placa_intt: str = ""
+    serial_motor: str = ""
 
 
 class VehiculoUpdate(Schema):
     numero_economico: str | None = None
+    numero_unidad: str | None = None
     gerencia_id: int | None = None
     categoria_id: int | None = None
     marca_id: int | None = None
@@ -61,4 +71,7 @@ class VehiculoUpdate(Schema):
     emplazamiento_id: int | None = None
     estatus_id: int | None = None
     placa: str | None = None
+    color_placa_id: int | None = None
     color_id: int | None = None
+    placa_intt: str | None = None
+    serial_motor: str | None = None

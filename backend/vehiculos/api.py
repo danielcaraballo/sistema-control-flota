@@ -33,9 +33,12 @@ def _build_vehiculo_schema(v):
     return VehiculoSchema(
         id=v.id,
         numero_economico=v.numero_economico,
+        numero_unidad=v.numero_unidad,
         anio=v.anio,
         vin=v.vin,
         placa=v.placa,
+        placa_intt=v.placa_intt,
+        serial_motor=v.serial_motor,
         codigo_qr=v.codigo_qr,
         estatus_activo=v.estatus_activo,
         gerencia=v.gerencia_id,
@@ -54,6 +57,8 @@ def _build_vehiculo_schema(v):
         estatus_nombre=v.estatus.nombre,
         color=v.color_id,
         color_nombre=v.color.nombre,
+        color_placa=v.color_placa_id,
+        color_placa_nombre=v.color_placa.nombre,
     )
 
 
@@ -74,7 +79,7 @@ def _generate_qr(vehicle_id):
 def list_vehiculos(request):
     qs = Vehiculo.objects.select_related(
         "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color",
+        "estado", "emplazamiento", "estatus", "color", "color_placa",
     )
     qs = _filter_activos(qs, request)
     return [_build_vehiculo_schema(v) for v in qs]
@@ -83,11 +88,13 @@ def list_vehiculos(request):
 @router.get("/{vehiculo_id}", response=VehiculoSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def get_vehiculo(request, vehiculo_id: int):
-    v = _get_object_or_404(Vehiculo, vehiculo_id)
-    v = Vehiculo.objects.select_related(
-        "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color",
-    ).get(id=vehiculo_id)
+    try:
+        v = Vehiculo.objects.select_related(
+            "gerencia", "categoria", "marca", "modelo",
+            "estado", "emplazamiento", "estatus", "color", "color_placa",
+        ).get(id=vehiculo_id)
+    except Vehiculo.DoesNotExist:
+        raise HttpError(404, "Vehículo no encontrado")
     return _build_vehiculo_schema(v)
 
 
@@ -96,8 +103,12 @@ def get_vehiculo(request, vehiculo_id: int):
 def create_vehiculo(request, data: VehiculoCreate):
     if Vehiculo.objects.filter(numero_economico=data.numero_economico).exists():
         raise HttpError(409, "Ya existe un vehículo con ese número económico")
+    if data.numero_unidad and Vehiculo.objects.filter(numero_unidad=data.numero_unidad).exists():
+        raise HttpError(409, "Ya existe un vehículo con ese número de unidad")
     if Vehiculo.objects.filter(vin=data.vin).exists():
         raise HttpError(409, "Ya existe un vehículo con ese VIN")
+    if Vehiculo.objects.filter(placa=data.placa, color_placa_id=data.color_placa_id).exists():
+        raise HttpError(409, "Ya existe un vehículo con esa placa para el mismo color de placa")
 
     v = Vehiculo.objects.create(**data.dict())
     v.codigo_qr = _generate_qr(v.id)
@@ -106,7 +117,7 @@ def create_vehiculo(request, data: VehiculoCreate):
     v.refresh_from_db()
     v = Vehiculo.objects.select_related(
         "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color",
+        "estado", "emplazamiento", "estatus", "color", "color_placa",
     ).get(id=v.id)
     return _build_vehiculo_schema(v)
 
@@ -120,6 +131,9 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
     if "numero_economico" in payload and payload["numero_economico"] != v.numero_economico:
         if Vehiculo.objects.filter(numero_economico=payload["numero_economico"]).exists():
             raise HttpError(409, "Ya existe un vehículo con ese número económico")
+    if "numero_unidad" in payload and payload["numero_unidad"] != v.numero_unidad:
+        if Vehiculo.objects.filter(numero_unidad=payload["numero_unidad"]).exists():
+            raise HttpError(409, "Ya existe un vehículo con ese número de unidad")
     if "vin" in payload and payload["vin"] != v.vin:
         if Vehiculo.objects.filter(vin=payload["vin"]).exists():
             raise HttpError(409, "Ya existe un vehículo con ese VIN")
@@ -131,7 +145,7 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
     v.refresh_from_db()
     v = Vehiculo.objects.select_related(
         "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color",
+        "estado", "emplazamiento", "estatus", "color", "color_placa",
     ).get(id=vehiculo_id)
     return _build_vehiculo_schema(v)
 

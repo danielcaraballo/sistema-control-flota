@@ -7,6 +7,7 @@ from usuarios.roles import requiere_rol_minimo
 
 from .models import (
     Color,
+    ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
@@ -17,6 +18,9 @@ from .models import (
 )
 from .schemas import (
     ColorCreate,
+    ColorPlacaCreate,
+    ColorPlacaSchema,
+    ColorPlacaUpdate,
     ColorSchema,
     ColorUpdate,
     EstatusVehiculoCreate,
@@ -505,4 +509,50 @@ def deactivate_estatus_vehiculo(request, ev_id: int):
     ev = _get_object_or_404(EstatusVehiculo, ev_id)
     ev.estatus_activo = False
     ev.save()
+    return 204, None
+
+
+# ─── Colores de Placa ────────────────────────────────────────────────────
+
+
+@router.get("/colores-placa/", response=list[ColorPlacaSchema], auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.MECANICO)
+def list_colores_placa(request):
+    return _filter_activos(ColorPlaca.objects.all(), request)
+
+
+@router.get("/colores-placa/{cp_id}", response=ColorPlacaSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.MECANICO)
+def get_color_placa(request, cp_id: int):
+    return _get_object_or_404(ColorPlaca, cp_id)
+
+
+@router.post("/colores-placa/", response=ColorPlacaSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def create_color_placa(request, data: ColorPlacaCreate):
+    if ColorPlaca.objects.filter(nombre=data.nombre).exists():
+        raise HttpError(409, "Ya existe un color de placa con ese nombre")
+    return ColorPlaca.objects.create(**data.dict())
+
+
+@router.put("/colores-placa/{cp_id}", response=ColorPlacaSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def update_color_placa(request, cp_id: int, data: ColorPlacaUpdate):
+    cp = _get_object_or_404(ColorPlaca, cp_id)
+    payload = data.dict(exclude_unset=True)
+    if "nombre" in payload and payload["nombre"] != cp.nombre:
+        if ColorPlaca.objects.filter(nombre=payload["nombre"]).exists():
+            raise HttpError(409, "Ya existe un color de placa con ese nombre")
+    for attr, value in payload.items():
+        setattr(cp, attr, value)
+    cp.save()
+    return cp
+
+
+@router.delete("/colores-placa/{cp_id}", response={204: None}, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def deactivate_color_placa(request, cp_id: int):
+    cp = _get_object_or_404(ColorPlaca, cp_id)
+    cp.estatus_activo = False
+    cp.save()
     return 204, None

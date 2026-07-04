@@ -2,6 +2,7 @@ from ninja import ModelSchema, Schema
 
 from .models import (
     Color,
+    ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
@@ -131,4 +132,18 @@ class EstatusVehiculoCreate(Schema):
 
 
 class EstatusVehiculoUpdate(Schema):
+    nombre: str | None = None
+
+
+class ColorPlacaSchema(ModelSchema):
+    class Meta:
+        model = ColorPlaca
+        fields = ["id", "nombre", "estatus_activo"]
+
+
+class ColorPlacaCreate(Schema):
+    nombre: str
+
+
+class ColorPlacaUpdate(Schema):
     nombre: str | None = None
