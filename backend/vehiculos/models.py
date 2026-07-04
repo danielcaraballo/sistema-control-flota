@@ -6,6 +6,10 @@ class Vehiculo(models.Model):
         max_length=50, unique=True, verbose_name="Número económico (Activo SAP)")
     gerencia = models.ForeignKey(
         "organizacion.Gerencia", on_delete=models.RESTRICT, verbose_name="Gerencia")
+    unidad_usuaria = models.ForeignKey(
+        "organizacion.Gerencia", on_delete=models.RESTRICT,
+        null=True, blank=True, related_name="vehiculos_usuarios",
+        verbose_name="Unidad usuaria")
     categoria = models.ForeignKey(
         "catalogos.TipoVehiculo", on_delete=models.RESTRICT, verbose_name="Categoría")
     marca = models.ForeignKey(
@@ -27,11 +31,14 @@ class Vehiculo(models.Model):
         "organizacion.CentroDeServicio", on_delete=models.RESTRICT, verbose_name="Emplazamiento")
     estatus = models.ForeignKey(
         "catalogos.EstatusVehiculo", on_delete=models.RESTRICT, verbose_name="Estatus")
-    placa = models.CharField(max_length=20, verbose_name="Placa")
+    placa = models.CharField(
+        max_length=20, blank=True, null=True, verbose_name="Placa")
     color_placa = models.ForeignKey(
-        "catalogos.ColorPlaca", on_delete=models.RESTRICT, verbose_name="Color de placa")
+        "catalogos.ColorPlaca", on_delete=models.RESTRICT,
+        null=True, blank=True, verbose_name="Color de placa")
     color = models.ForeignKey(
-        "catalogos.Color", on_delete=models.RESTRICT, verbose_name="Color")
+        "catalogos.Color", on_delete=models.RESTRICT,
+        null=True, blank=True, verbose_name="Color")
     codigo_qr = models.TextField(
         blank=True, verbose_name="Código QR")
     estatus_activo = models.BooleanField(

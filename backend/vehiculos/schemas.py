@@ -6,6 +6,8 @@ from .models import Vehiculo
 class VehiculoSchema(ModelSchema):
     gerencia: int
     gerencia_nombre: str | None = None
+    unidad_usuaria: int | None = None
+    unidad_usuaria_nombre: str | None = None
     categoria: int
     categoria_nombre: str | None = None
     marca: int
@@ -18,9 +20,9 @@ class VehiculoSchema(ModelSchema):
     emplazamiento_nombre: str | None = None
     estatus: int
     estatus_nombre: str | None = None
-    color: int
+    color: int | None = None
     color_nombre: str | None = None
-    color_placa: int
+    color_placa: int | None = None
     color_placa_nombre: str | None = None
 
     class Meta:
@@ -43,6 +45,7 @@ class VehiculoCreate(Schema):
     numero_economico: str
     numero_unidad: str | None = None
     gerencia_id: int
+    unidad_usuaria_id: int | None = None
     categoria_id: int
     marca_id: int
     modelo_id: int
@@ -51,9 +54,9 @@ class VehiculoCreate(Schema):
     estado_id: int
     emplazamiento_id: int
     estatus_id: int
-    placa: str
-    color_placa_id: int
-    color_id: int
+    placa: str | None = None
+    color_placa_id: int | None = None
+    color_id: int | None = None
     placa_intt: str = ""
     serial_motor: str = ""
 
@@ -62,6 +65,7 @@ class VehiculoUpdate(Schema):
     numero_economico: str | None = None
     numero_unidad: str | None = None
     gerencia_id: int | None = None
+    unidad_usuaria_id: int | None = None
     categoria_id: int | None = None
     marca_id: int | None = None
     modelo_id: int | None = None

@@ -14,6 +14,11 @@ from .schemas import VehiculoCreate, VehiculoSchema, VehiculoUpdate
 
 router = Router()
 
+SELECT_RELATED = [
+    "gerencia", "unidad_usuaria", "categoria", "marca", "modelo",
+    "estado", "emplazamiento", "estatus", "color", "color_placa",
+]
+
 
 def _filter_activos(queryset, request):
     incluir_inactivos = request.GET.get("incluir_inactivos") == "true"
@@ -30,6 +35,9 @@ def _get_object_or_404(model, id):
 
 
 def _build_vehiculo_schema(v):
+    def _name_or_none(related):
+        return related.nombre if related else None
+
     return VehiculoSchema(
         id=v.id,
         numero_economico=v.numero_economico,
@@ -43,6 +51,8 @@ def _build_vehiculo_schema(v):
         estatus_activo=v.estatus_activo,
         gerencia=v.gerencia_id,
         gerencia_nombre=v.gerencia.nombre,
+        unidad_usuaria=v.unidad_usuaria_id,
+        unidad_usuaria_nombre=_name_or_none(v.unidad_usuaria),
         categoria=v.categoria_id,
         categoria_nombre=v.categoria.nombre,
         marca=v.marca_id,
@@ -56,9 +66,9 @@ def _build_vehiculo_schema(v):
         estatus=v.estatus_id,
         estatus_nombre=v.estatus.nombre,
         color=v.color_id,
-        color_nombre=v.color.nombre,
+        color_nombre=_name_or_none(v.color),
         color_placa=v.color_placa_id,
-        color_placa_nombre=v.color_placa.nombre,
+        color_placa_nombre=_name_or_none(v.color_placa),
     )
 
 
@@ -77,10 +87,7 @@ def _generate_qr(vehicle_id):
 @router.get("/", response=list[VehiculoSchema], auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def list_vehiculos(request):
-    qs = Vehiculo.objects.select_related(
-        "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color", "color_placa",
-    )
+    qs = Vehiculo.objects.select_related(*SELECT_RELATED)
     qs = _filter_activos(qs, request)
     return [_build_vehiculo_schema(v) for v in qs]
 
@@ -89,10 +96,7 @@ def list_vehiculos(request):
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def get_vehiculo(request, vehiculo_id: int):
     try:
-        v = Vehiculo.objects.select_related(
-            "gerencia", "categoria", "marca", "modelo",
-            "estado", "emplazamiento", "estatus", "color", "color_placa",
-        ).get(id=vehiculo_id)
+        v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=vehiculo_id)
     except Vehiculo.DoesNotExist:
         raise HttpError(404, "Vehículo no encontrado")
     return _build_vehiculo_schema(v)
@@ -107,18 +111,16 @@ def create_vehiculo(request, data: VehiculoCreate):
         raise HttpError(409, "Ya existe un vehículo con ese número de unidad")
     if Vehiculo.objects.filter(vin=data.vin).exists():
         raise HttpError(409, "Ya existe un vehículo con ese VIN")
-    if Vehiculo.objects.filter(placa=data.placa, color_placa_id=data.color_placa_id).exists():
-        raise HttpError(409, "Ya existe un vehículo con esa placa para el mismo color de placa")
+    if data.placa and data.color_placa_id:
+        if Vehiculo.objects.filter(placa=data.placa, color_placa_id=data.color_placa_id).exists():
+            raise HttpError(409, "Ya existe un vehículo con esa placa para el mismo color de placa")
 
     v = Vehiculo.objects.create(**data.dict())
     v.codigo_qr = _generate_qr(v.id)
     v.save(update_fields=["codigo_qr"])
 
     v.refresh_from_db()
-    v = Vehiculo.objects.select_related(
-        "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color", "color_placa",
-    ).get(id=v.id)
+    v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=v.id)
     return _build_vehiculo_schema(v)
 
 
@@ -143,10 +145,7 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
     v.save()
 
     v.refresh_from_db()
-    v = Vehiculo.objects.select_related(
-        "gerencia", "categoria", "marca", "modelo",
-        "estado", "emplazamiento", "estatus", "color", "color_placa",
-    ).get(id=vehiculo_id)
+    v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=vehiculo_id)
     return _build_vehiculo_schema(v)
 
 
