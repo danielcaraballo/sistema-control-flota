@@ -41,6 +41,14 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 - **Theme**: Light/dark/system toggle in `UserDropdown.vue`, managed by `@/composables/useTheme.js`. Dark class (`p-dark`) applied to `<html>`.
 - **Role utils**: `@/utils/roles.js` exports `tieneRolMinimo()`, `esEstatal()`, `rolLabel()`, `rolSeverity()`, role constants, and `ROLES`/`ESTATAL_ROLES` arrays.
 
+## Commits
+
+- Formato [Conventional Commits](https://www.conventionalcommits.org/).
+- `tipo: mensaje en español` (minúscula, sin punto final).
+- Tipos: `feat`, `fix`, `refactor`, `perf`, `style`, `docs`, `test`, `chore`.
+- Alcance opcional entre paréntesis: `fix(vehiculos): descripción`.
+- Máximo 72 caracteres. Cuerpo si se necesita explicar el qué y el porqué.
+
 ## Repo-level
 
 - No Makefile, no CI, no pre-commit hooks. No `.env` files tracked (`.env.example` in each directory).

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
@@ -33,7 +34,6 @@ api.interceptors.response.use(
 
     const refreshToken = localStorage.getItem('refresh_token')
     if (!refreshToken) {
-      const { useAuthStore } = await import('@/stores/auth')
       useAuthStore().logout()
       redirectLogin()
       return Promise.reject(error)
@@ -50,7 +50,6 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
-          const { useAuthStore } = await import('@/stores/auth')
           useAuthStore().logout()
           redirectLogin()
           return null

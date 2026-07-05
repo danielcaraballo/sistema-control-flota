@@ -2,13 +2,18 @@ import base64
 from io import BytesIO
 
 import qrcode
-from django.db import IntegrityError
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 
 from usuarios.models import Usuario
 from usuarios.roles import requiere_rol_minimo
+from utils.api_helpers import (
+    check_duplicate,
+    check_duplicate_composite,
+    filter_activos,
+    get_object_or_404,
+)
 
 from .models import Vehiculo
 from .schemas import VehiculoCreate, VehiculoSchema, VehiculoUpdate
@@ -27,20 +32,6 @@ SELECT_RELATED = [
     "color",
     "color_placa",
 ]
-
-
-def _filter_activos(queryset, request):
-    incluir_inactivos = request.GET.get("incluir_inactivos") == "true"
-    if not incluir_inactivos:
-        return queryset.filter(estatus_activo=True)
-    return queryset
-
-
-def _get_object_or_404(model, id):
-    try:
-        return model.objects.get(id=id)
-    except model.DoesNotExist:
-        raise HttpError(404, f"{model._meta.verbose_name} no encontrado")
 
 
 def _build_vehiculo_schema(v):
@@ -100,37 +91,35 @@ def list_vehiculos(request):
     user = request.auth
     if user.estado_id:
         qs = qs.filter(estado_id=user.estado_id)
-    qs = _filter_activos(qs, request)
+    qs = filter_activos(qs, request)
     return [_build_vehiculo_schema(v) for v in qs]
 
 
 @router.get("/{vehiculo_id}", response=VehiculoSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def get_vehiculo(request, vehiculo_id: int):
-    try:
-        v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=vehiculo_id)
-    except Vehiculo.DoesNotExist:
-        raise HttpError(404, "Vehículo no encontrado")
+    v = get_object_or_404(Vehiculo.objects.select_related(*SELECT_RELATED), vehiculo_id)
     return _build_vehiculo_schema(v)
 
 
 @router.post("/", response=VehiculoSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def create_vehiculo(request, data: VehiculoCreate):
-    if Vehiculo.objects.filter(numero_economico=data.numero_economico).exists():
-        raise HttpError(409, "Ya existe un vehículo con ese número económico")
-    if data.numero_unidad and Vehiculo.objects.filter(numero_unidad=data.numero_unidad).exists():
-        raise HttpError(409, "Ya existe un vehículo con ese número de unidad")
-    if Vehiculo.objects.filter(vin=data.vin).exists():
-        raise HttpError(409, "Ya existe un vehículo con ese VIN")
+    if check_duplicate(Vehiculo, "numero_economico", data.numero_economico):
+        raise HttpError(409, "Ya existe un vehículo activo con ese número económico")
+    if data.numero_unidad and check_duplicate(Vehiculo, "numero_unidad", data.numero_unidad):
+        raise HttpError(409, "Ya existe un vehículo activo con ese número de unidad")
+    if check_duplicate(Vehiculo, "vin", data.vin):
+        raise HttpError(409, "Ya existe un vehículo activo con ese VIN")
     if data.placa and data.color_placa_id:
-        if Vehiculo.objects.filter(placa=data.placa, color_placa_id=data.color_placa_id).exists():
-            raise HttpError(409, "Ya existe un vehículo con esa placa para el mismo color de placa")
+        if check_duplicate_composite(
+            Vehiculo, {"placa": data.placa, "color_placa_id": data.color_placa_id}
+        ):
+            raise HttpError(
+                409, "Ya existe un vehículo activo con esa placa para el mismo color de placa"
+            )
 
-    try:
-        v = Vehiculo.objects.create(**data.dict())
-    except IntegrityError as e:
-        raise HttpError(400, f"Error de integridad: {e}")
+    v = Vehiculo.objects.create(**data.dict())
     v.codigo_qr = _generate_qr(request, v.id)
     v.save(update_fields=["codigo_qr"])
 
@@ -141,25 +130,26 @@ def create_vehiculo(request, data: VehiculoCreate):
 @router.put("/{vehiculo_id}", response=VehiculoSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
-    v = _get_object_or_404(Vehiculo, vehiculo_id)
+    v = get_object_or_404(Vehiculo, vehiculo_id)
     payload = data.dict(exclude_unset=True)
 
     if "numero_economico" in payload and payload["numero_economico"] != v.numero_economico:
-        if Vehiculo.objects.filter(numero_economico=payload["numero_economico"]).exists():
-            raise HttpError(409, "Ya existe un vehículo con ese número económico")
+        if check_duplicate(
+            Vehiculo, "numero_economico", payload["numero_economico"], exclude_id=vehiculo_id
+        ):
+            raise HttpError(409, "Ya existe un vehículo activo con ese número económico")
     if "numero_unidad" in payload and payload["numero_unidad"] != v.numero_unidad:
-        if Vehiculo.objects.filter(numero_unidad=payload["numero_unidad"]).exists():
-            raise HttpError(409, "Ya existe un vehículo con ese número de unidad")
+        if check_duplicate(
+            Vehiculo, "numero_unidad", payload["numero_unidad"], exclude_id=vehiculo_id
+        ):
+            raise HttpError(409, "Ya existe un vehículo activo con ese número de unidad")
     if "vin" in payload and payload["vin"] != v.vin:
-        if Vehiculo.objects.filter(vin=payload["vin"]).exists():
-            raise HttpError(409, "Ya existe un vehículo con ese VIN")
+        if check_duplicate(Vehiculo, "vin", payload["vin"], exclude_id=vehiculo_id):
+            raise HttpError(409, "Ya existe un vehículo activo con ese VIN")
 
     for attr, value in payload.items():
         setattr(v, attr, value)
-    try:
-        v.save()
-    except IntegrityError:
-        raise HttpError(409, "Ya existe un vehículo con esos datos")
+    v.save()
 
     v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=vehiculo_id)
     return _build_vehiculo_schema(v)
@@ -168,7 +158,7 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
 @router.delete("/{vehiculo_id}", response={204: None}, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def deactivate_vehiculo(request, vehiculo_id: int):
-    v = _get_object_or_404(Vehiculo, vehiculo_id)
+    v = get_object_or_404(Vehiculo, vehiculo_id)
     v.estatus_activo = False
     v.save()
     return 204, None

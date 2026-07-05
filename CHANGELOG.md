@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.6.2 — Fix import dinámico inefectivo en api.js (2026-07-05)
+
+- Reemplaza `import()` dinámico por import estático en `api.js` para eliminar
+  warning `INEFFECTIVE_DYNAMIC_IMPORT` de Vite.
+- Agrega convención de commits (español, Conventional Commits) en `AGENTS.md`.
+- 113 tests, lint 0 warnings, build 691ms sin warnings.
+
+## v0.6.1 — Refactor CRUD: helpers + factory + UniqueConstraints condicionales (2026-07-05)
+
+- `utils/api_helpers.py`: helpers compartidos (filter_activos, get_object_or_404, check_duplicate, check_duplicate_composite) eliminan ~100 líneas duplicadas de 3 api.py
+- `utils/crud_factory.py`: `register_crud()` + `CrudConfig` generan endpoints list/get/create/update/deactivate para catálogos y organización. Elimina ~435 líneas duplicadas
+- `catalogos/api.py`: 531→78 líneas (9 entidades via factory)
+- `organizacion/api.py`: 160→34 líneas (3 entidades via factory)
+- Modelos migrados a `UniqueConstraint(condition=Q(estatus_activo=True))` — permite reciclar nombres de registros soft-deleteados en catálogos y organización. Elimina riesgo de IntegrityError al crear registros que colisionan con nombres de registros inactivos.
+- Modelo cambia de `unique_together` a `UniqueConstraint` condicional
+- `numero_economico` y `vin` mantienen `unique=True` (identificadores reales únicos permanentemente)
+- 113 tests pasan, Ruff 0 warnings
+
 ## v0.6.0 — Frontend Vehículos + CRUD completo (2026-07-05)
 
 - Frontend completo de vehículos: DataTable con filtros, stepper vertical de 4 pasos para crear/editar, vista detalle con QR y ficha técnica

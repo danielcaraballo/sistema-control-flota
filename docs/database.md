@@ -20,19 +20,19 @@ erDiagram
 
     ESTADO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     GERENCIA {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     CENTRO_DE_SERVICIO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
@@ -50,7 +50,7 @@ erDiagram
 
     MARCA {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
@@ -59,47 +59,48 @@ erDiagram
         string nombre
         int marca_id FK
         bool estatus_activo
+        "UK (activos): (nombre, marca)"
     }
 
     TIPO_VEHICULO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     TIPO_USO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     COLOR {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     SISTEMA_AFECTADO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     ESTATUS_VEHICULO {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     COLOR_PLACA {
         int id PK
-        string nombre UK
+        string nombre "UK (activos)"
         bool estatus_activo
     }
 
     TIPO_FALLA {
         int id PK
-        string descripcion UK
+        string descripcion "UK (activos)"
         int sistema_afectado_id FK
         bool estatus_activo
     }
@@ -205,21 +206,29 @@ erDiagram
 | `codigo_qr` | TextField | BLANK | QR en base64 (autogenerado). |
 | `estatus_activo` | BooleanField | Default: True | Soft-delete. |
 
-**Constraint:** `UniqueConstraint(placa, color_placa)` — una placa no puede repetirse en el mismo color.
+**Constraints (condicionales a `estatus_activo=True`):**
+- `UniqueConstraint(numero_economico)` — número económico único entre activos.
+- `UniqueConstraint(vin)` — VIN único entre activos.
+- `UniqueConstraint(numero_unidad)` — número de unidad único entre activos (nullable, permite múltiples NULL).
+- `UniqueConstraint(placa, color_placa)` — una placa no puede repetirse en el mismo color entre activos.
+
+Los catálogos y organización usan el mismo patrón: toda `UNIQUE` es condicional `WHERE estatus_activo = 1`, permitiendo reciclar nombres/valores de registros soft-deleteados sin violar integridad.
 
 ### Catálogos (9 modelos)
 
-| Modelo | App | Campos | FK |
-|---|---|---|---|
-| `Marca` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `Modelo` | catalogos | `id`, `nombre`, `marca_id`, `estatus_activo` | Marca |
-| `TipoVehiculo` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `TipoUso` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — (huérfano, sin FK) |
-| `Color` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `SistemaAfectado` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `EstatusVehiculo` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `ColorPlaca` | catalogos | `id`, `nombre` (UK), `estatus_activo` | — |
-| `TipoFalla` | catalogos | `id`, `descripcion` (UK), `sistema_afectado_id`, `estatus_activo` | SistemaAfectado |
+Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `UniqueConstraint` con `condition=Q(estatus_activo=True)`. Esto permite reciclar nombres de registros soft-deleteados.
+
+| Modelo | App | Campos | FK | UniqueConstraint (condicional) |
+|---|---|---|---|---|
+| `Marca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `Modelo` | catalogos | `id`, `nombre`, `marca_id`, `estatus_activo` | Marca | `(nombre, marca)` |
+| `TipoVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `TipoUso` | catalogos | `id`, `nombre`, `estatus_activo` | — (huérfano, sin FK) | `nombre` |
+| `Color` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `SistemaAfectado` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `EstatusVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `ColorPlaca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `TipoFalla` | catalogos | `id`, `descripcion`, `sistema_afectado_id`, `estatus_activo` | SistemaAfectado | `descripcion` |
 
 ## Reglas de Negocio
 

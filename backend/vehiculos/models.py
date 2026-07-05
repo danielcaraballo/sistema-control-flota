@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 
 class Vehiculo(models.Model):
@@ -58,7 +59,8 @@ class Vehiculo(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["placa", "color_placa"],
-                name="unique_placa_por_color",
+                condition=Q(estatus_activo=True),
+                name="unique_active_vehiculo_placa_color_placa",
             ),
         ]
 
