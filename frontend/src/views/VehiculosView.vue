@@ -336,7 +336,6 @@ function label(id, list) {
         sortField="numero_economico"
         :sortOrder="1"
         @row-click="verDetalle($event.data)"
-        class="cursor-pointer"
       >
         <template #header>
           <div class="flex justify-between items-center gap-2 flex-wrap">
@@ -404,7 +403,7 @@ function label(id, list) {
       v-model:visible="showDialog"
       :header="isCreating ? 'Nuevo vehículo' : 'Editar vehículo'"
       :modal="true"
-      :style="{ width: '760px', height: '560px' }"
+      :style="{ width: '780px', height: '620px' }"
       :closable="true"
       :draggable="false"
     >
@@ -412,18 +411,18 @@ function label(id, list) {
         {{ errorMessage }}
       </Message>
 
-      <Stepper :value="activeStep" :linear="isCreating">
-        <div class="flex gap-4 h-full">
+      <Stepper :value="activeStep" :linear="isCreating" class="h-full flex flex-col">
+        <div class="flex gap-4 flex-1 min-h-0">
           <StepList class="flex-col w-44 shrink-0 border-r border-card-border pr-4">
             <Step :value="1">Identificación</Step>
             <Step :value="2">Características</Step>
             <Step :value="3">Asignación</Step>
             <Step :value="4">Confirmar</Step>
           </StepList>
-          <StepPanels class="flex-1 overflow-y-auto">
+          <StepPanels class="flex-1">
             <StepPanel :value="1">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div class="flex flex-col gap-1.5 col-span-2">
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div class="flex flex-col gap-1 col-span-2">
                   <label class="text-sm font-semibold">Número económico</label>
                   <InputText
                     v-model="form.numero_economico"
@@ -434,7 +433,7 @@ function label(id, list) {
                     El número económico es requerido
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5 col-span-2">
+                <div class="flex flex-col gap-1 col-span-2">
                   <label class="text-sm font-semibold">Serial de carrocería</label>
                   <InputText
                     v-model="form.vin"
@@ -446,11 +445,11 @@ function label(id, list) {
                     El serial de carrocería es requerido
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Placa</label>
                   <InputText v-model="form.placa" class="w-full" />
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Color de placa</label>
                   <Dropdown
                     v-model="form.color_placa_id"
@@ -462,15 +461,15 @@ function label(id, list) {
                     showClear
                   />
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Placa INTT</label>
                   <InputText v-model="form.placa_intt" class="w-full" />
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Serial del motor</label>
                   <InputText v-model="form.serial_motor" class="w-full" />
                 </div>
-                <div class="flex flex-col gap-1.5 col-span-2">
+                <div class="flex flex-col gap-1 col-span-2">
                   <label class="text-sm font-semibold">N° Unidad</label>
                   <InputText v-model="form.numero_unidad" class="w-full" />
                 </div>
@@ -478,8 +477,8 @@ function label(id, list) {
             </StepPanel>
 
             <StepPanel :value="2">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div class="flex flex-col gap-1.5">
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Categoría</label>
                   <Dropdown
                     v-model="form.categoria_id"
@@ -494,7 +493,7 @@ function label(id, list) {
                     La categoría es requerida
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Marca</label>
                   <Dropdown
                     v-model="form.marca_id"
@@ -509,7 +508,7 @@ function label(id, list) {
                     La marca es requerida
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Modelo</label>
                   <Dropdown
                     v-model="form.modelo_id"
@@ -525,7 +524,7 @@ function label(id, list) {
                     El modelo es requerido
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Año</label>
                   <InputNumber
                     v-model="form.anio"
@@ -539,7 +538,7 @@ function label(id, list) {
                     El año es requerido
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Color</label>
                   <Dropdown
                     v-model="form.color_id"
@@ -551,7 +550,7 @@ function label(id, list) {
                     showClear
                   />
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Estatus</label>
                   <Dropdown
                     v-model="form.estatus_id"
@@ -570,8 +569,8 @@ function label(id, list) {
             </StepPanel>
 
             <StepPanel :value="3">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div class="flex flex-col gap-1.5">
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Estado</label>
                   <Dropdown
                     v-model="form.estado_id"
@@ -586,7 +585,7 @@ function label(id, list) {
                     El estado es requerido
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Gerencia</label>
                   <Dropdown
                     v-model="form.gerencia_id"
@@ -601,7 +600,7 @@ function label(id, list) {
                     La gerencia es requerida
                   </small>
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Unidad usuaria</label>
                   <Dropdown
                     v-model="form.unidad_usuaria_id"
@@ -613,7 +612,7 @@ function label(id, list) {
                     showClear
                   />
                 </div>
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-1">
                   <label class="text-sm font-semibold">Emplazamiento</label>
                   <Dropdown
                     v-model="form.emplazamiento_id"
@@ -632,15 +631,15 @@ function label(id, list) {
             </StepPanel>
 
             <StepPanel :value="4">
-              <div class="space-y-3">
-                <p class="text-sm text-muted-color font-semibold mb-4">
+              <div class="space-y-2">
+                <p class="text-sm text-muted-color font-semibold mb-2">
                   Revisa los datos antes de {{ isCreating ? 'crear' : 'guardar' }}:
                 </p>
 
                 <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
                   <i class="pi pi-id-card text-primary" /> Identificación
                 </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 pl-2 mb-4">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
                   <span class="text-muted-color text-sm">N° Económico</span>
                   <span class="text-sm font-medium">{{ form.numero_economico }}</span>
                   <span class="text-muted-color text-sm">Serial carrocería</span>
@@ -658,7 +657,7 @@ function label(id, list) {
                 <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
                   <i class="pi pi-cog text-primary" /> Características
                 </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 pl-2 mb-4">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
                   <span class="text-muted-color text-sm">Categoría</span>
                   <span class="text-sm font-medium">{{
                     label(form.categoria_id, tiposVehiculo)
@@ -682,7 +681,7 @@ function label(id, list) {
                 <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
                   <i class="pi pi-map-marker text-primary" /> Asignación
                 </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 pl-2">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1">
                   <span class="text-muted-color text-sm">Estado</span>
                   <span class="text-sm font-medium">{{ label(form.estado_id, estados) }}</span>
                   <span class="text-muted-color text-sm">Gerencia</span>
@@ -739,3 +738,17 @@ function label(id, list) {
     </Dialog>
   </div>
 </template>
+
+<style scoped>
+.p-datatable-tbody tr {
+  transition: background-color 0.15s ease;
+}
+.p-datatable-tbody tr:hover {
+  background-color: var(--p-card-hover);
+  cursor: pointer;
+}
+.p-steplist .p-step {
+  justify-content: flex-start;
+  text-align: left;
+}
+</style>
