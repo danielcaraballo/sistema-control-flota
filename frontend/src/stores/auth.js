@@ -9,6 +9,11 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!token.value)
   const loading = ref(!!token.value)
 
+  let _resolveInit = null
+  const initialized = new Promise((resolve) => {
+    _resolveInit = resolve
+  })
+
   const rol = computed(() => user.value?.rol || null)
   const rolData = computed(() => ROLES.find((r) => r.value === rol.value))
   const esEstatalValue = computed(() => esEstatal(rol.value))
@@ -48,10 +53,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function initialize() {
-    if (!token.value) return
+    if (!token.value) {
+      _resolveInit()
+      return
+    }
     loading.value = true
     await fetchMe()
     loading.value = false
+    _resolveInit()
   }
 
   return {
@@ -59,6 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     loading,
+    initialized,
     rol,
     rolData,
     esEstatal: esEstatalValue,

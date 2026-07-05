@@ -10,7 +10,7 @@ const props = defineProps({
   icon: { type: String, default: 'pi pi-check-circle' },
   iconColorClass: { type: String, default: 'text-green-600 dark:text-green-400' },
   successMessage: { type: String, required: true },
-  userName: { type: String, required: true },
+  fullName: { type: String, required: true },
   username: { type: String, required: true },
   password: { type: String, required: true },
   copyText: { type: String, required: true },
@@ -57,7 +57,7 @@ async function copy() {
       </div>
 
       <div class="bg-card-hover rounded-md p-4 space-y-2">
-        <p class="text-sm font-medium">{{ userName }}</p>
+        <p class="text-sm font-medium">{{ fullName }}</p>
         <div class="text-sm text-muted-color space-y-1">
           <p>
             <span class="font-medium text-surface-700 dark:text-surface-200">Usuario:</span>

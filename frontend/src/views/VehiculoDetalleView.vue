@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
@@ -119,6 +119,7 @@ async function activar() {
 }
 
 onMounted(loadVehiculo)
+watch(() => route.params.id, loadVehiculo)
 </script>
 
 <template>
@@ -269,7 +270,7 @@ onMounted(loadVehiculo)
       :message="`¿Estás seguro de desactivar el vehículo ${vehiculo?.numero_economico} (${vehiculo?.marca_nombre} ${vehiculo?.modelo_nombre})?`"
       confirmLabel="Desactivar"
       confirmSeverity="danger"
-      :onConfirm="desactivar"
+      @confirm="desactivar"
     />
     <ConfirmDialog
       v-model:visible="showActivateDialog"
@@ -277,7 +278,7 @@ onMounted(loadVehiculo)
       :message="`¿Estás seguro de reactivar el vehículo ${vehiculo?.numero_economico} (${vehiculo?.marca_nombre} ${vehiculo?.modelo_nombre})?`"
       confirmLabel="Reactivar"
       confirmSeverity="success"
-      :onConfirm="activar"
+      @confirm="activar"
     />
   </div>
 </template>

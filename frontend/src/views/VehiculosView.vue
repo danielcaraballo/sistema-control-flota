@@ -269,7 +269,10 @@ async function saveVehiculo() {
       router.push({ name: 'vehiculo-detalle', params: { id: data.id } })
     }
   } catch (err) {
-    errorMessage.value = err.response?.data?.detail || 'Error al guardar el vehículo'
+    const data = err.response?.data
+    errorMessage.value = Array.isArray(data)
+      ? data.map((e) => e.msg).join('; ')
+      : data?.detail || 'Error al guardar el vehículo'
   }
 }
 

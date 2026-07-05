@@ -116,7 +116,8 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
             class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-muted-color cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-color hover:bg-card-hover"
             :class="{
               '!text-primary !bg-card-hover !border-l-[var(--p-primary-color)]':
-                route.name === item.routeName,
+                route.path === item.path ||
+                (item.path !== '/' && route.path.startsWith(item.path + '/')),
             }"
             @click="navigate(item.path)"
           >

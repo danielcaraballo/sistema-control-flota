@@ -2,6 +2,7 @@ from django.db.models import Q
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
+from ninja_jwt.exceptions import TokenError
 from ninja_jwt.tokens import RefreshToken
 
 from usuarios.models import Usuario
@@ -13,10 +14,14 @@ router = Router()
 
 @router.post("/login", response=LoginOutput, auth=None)
 def login(request, payload: LoginInput):
-    user = Usuario.objects.filter(
-        Q(email=payload.username) | Q(username=payload.username),
-        is_active=True,
-    ).first()
+    user = (
+        Usuario.objects.select_related("estado")
+        .filter(
+            Q(email=payload.username) | Q(username=payload.username),
+            is_active=True,
+        )
+        .first()
+    )
 
     if not user or not user.check_password(payload.password):
         raise HttpError(401, "Credenciales inválidas")
@@ -44,13 +49,13 @@ def refresh_token(request, payload: RefreshInput):
     try:
         token = RefreshToken(payload.refresh)
         return {"access": str(token.access_token)}
-    except Exception:
+    except TokenError:
         raise HttpError(401, "Token inválido o expirado")
 
 
 @router.get("/me", response=UsuarioOut, auth=JWTAuth())
 def me(request):
-    user: Usuario = request.auth
+    user = Usuario.objects.select_related("estado").get(id=request.auth.id)
     return UsuarioOut(
         id=user.id,
         username=user.username,

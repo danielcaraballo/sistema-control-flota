@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
@@ -83,7 +84,10 @@ def get_marca(request, marca_id: int):
 def create_marca(request, data: MarcaCreate):
     if Marca.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe una marca con ese nombre")
-    return Marca.objects.create(**data.dict())
+    try:
+        return Marca.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe una marca con ese nombre")
 
 
 @router.put("/marcas/{marca_id}", response=MarcaSchema, auth=JWTAuth())
@@ -96,7 +100,10 @@ def update_marca(request, marca_id: int, data: MarcaUpdate):
             raise HttpError(409, "Ya existe una marca con ese nombre")
     for attr, value in payload.items():
         setattr(marca, attr, value)
-    marca.save()
+    try:
+        marca.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe una marca con ese nombre")
     return marca
 
 
@@ -132,7 +139,10 @@ def list_modelos(request):
 @router.get("/modelos/{modelo_id}", response=ModeloSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def get_modelo(request, modelo_id: int):
-    m = _get_object_or_404(Modelo, modelo_id)
+    try:
+        m = Modelo.objects.select_related("marca").get(id=modelo_id)
+    except Modelo.DoesNotExist:
+        raise HttpError(404, "Modelo no encontrado")
     return ModeloSchema(
         id=m.id,
         nombre=m.nombre,
@@ -149,7 +159,11 @@ def create_modelo(request, data: ModeloCreate):
         raise HttpError(400, "La marca especificada no existe o está inactiva")
     if Modelo.objects.filter(nombre=data.nombre, marca_id=data.marca_id).exists():
         raise HttpError(409, "Ya existe ese modelo para esta marca")
-    m = Modelo.objects.create(nombre=data.nombre, marca_id=data.marca_id)
+    try:
+        m = Modelo.objects.create(nombre=data.nombre, marca_id=data.marca_id)
+    except IntegrityError:
+        raise HttpError(409, "Ya existe ese modelo para esta marca")
+    m = Modelo.objects.select_related("marca").get(id=m.id)
     return ModeloSchema(
         id=m.id,
         nombre=m.nombre,
@@ -173,7 +187,10 @@ def update_modelo(request, modelo_id: int, data: ModeloUpdate):
 
     for attr, value in payload.items():
         setattr(m, attr, value)
-    m.save()
+    try:
+        m.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe ese modelo para esta marca")
     m.refresh_from_db()
     return ModeloSchema(
         id=m.id,
@@ -213,7 +230,10 @@ def get_tipo_vehiculo(request, tv_id: int):
 def create_tipo_vehiculo(request, data: TipoVehiculoCreate):
     if TipoVehiculo.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un tipo de vehículo con ese nombre")
-    return TipoVehiculo.objects.create(**data.dict())
+    try:
+        return TipoVehiculo.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de vehículo con ese nombre")
 
 
 @router.put("/tipos-vehiculo/{tv_id}", response=TipoVehiculoSchema, auth=JWTAuth())
@@ -226,7 +246,10 @@ def update_tipo_vehiculo(request, tv_id: int, data: TipoVehiculoUpdate):
             raise HttpError(409, "Ya existe un tipo de vehículo con ese nombre")
     for attr, value in payload.items():
         setattr(tv, attr, value)
-    tv.save()
+    try:
+        tv.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de vehículo con ese nombre")
     return tv
 
 
@@ -259,7 +282,10 @@ def get_tipo_uso(request, tu_id: int):
 def create_tipo_uso(request, data: TipoUsoCreate):
     if TipoUso.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un tipo de uso con ese nombre")
-    return TipoUso.objects.create(**data.dict())
+    try:
+        return TipoUso.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de uso con ese nombre")
 
 
 @router.put("/tipos-uso/{tu_id}", response=TipoUsoSchema, auth=JWTAuth())
@@ -272,7 +298,10 @@ def update_tipo_uso(request, tu_id: int, data: TipoUsoUpdate):
             raise HttpError(409, "Ya existe un tipo de uso con ese nombre")
     for attr, value in payload.items():
         setattr(tu, attr, value)
-    tu.save()
+    try:
+        tu.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de uso con ese nombre")
     return tu
 
 
@@ -305,7 +334,10 @@ def get_color(request, color_id: int):
 def create_color(request, data: ColorCreate):
     if Color.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un color con ese nombre")
-    return Color.objects.create(**data.dict())
+    try:
+        return Color.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un color con ese nombre")
 
 
 @router.put("/colores/{color_id}", response=ColorSchema, auth=JWTAuth())
@@ -318,7 +350,10 @@ def update_color(request, color_id: int, data: ColorUpdate):
             raise HttpError(409, "Ya existe un color con ese nombre")
     for attr, value in payload.items():
         setattr(color, attr, value)
-    color.save()
+    try:
+        color.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un color con ese nombre")
     return color
 
 
@@ -351,7 +386,10 @@ def get_sistema_afectado(request, sa_id: int):
 def create_sistema_afectado(request, data: SistemaAfectadoCreate):
     if SistemaAfectado.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un sistema afectado con ese nombre")
-    return SistemaAfectado.objects.create(**data.dict())
+    try:
+        return SistemaAfectado.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un sistema afectado con ese nombre")
 
 
 @router.put("/sistemas-afectados/{sa_id}", response=SistemaAfectadoSchema, auth=JWTAuth())
@@ -364,7 +402,10 @@ def update_sistema_afectado(request, sa_id: int, data: SistemaAfectadoUpdate):
             raise HttpError(409, "Ya existe un sistema afectado con ese nombre")
     for attr, value in payload.items():
         setattr(sa, attr, value)
-    sa.save()
+    try:
+        sa.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un sistema afectado con ese nombre")
     return sa
 
 
@@ -400,7 +441,10 @@ def list_tipos_falla(request):
 @router.get("/tipos-falla/{tf_id}", response=TipoFallaSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
 def get_tipo_falla(request, tf_id: int):
-    tf = _get_object_or_404(TipoFalla, tf_id)
+    try:
+        tf = TipoFalla.objects.select_related("sistema_afectado").get(id=tf_id)
+    except TipoFalla.DoesNotExist:
+        raise HttpError(404, "Tipo de falla no encontrado")
     return TipoFallaSchema(
         id=tf.id,
         descripcion=tf.descripcion,
@@ -413,14 +457,20 @@ def get_tipo_falla(request, tf_id: int):
 @router.post("/tipos-falla/", response=TipoFallaSchema, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def create_tipo_falla(request, data: TipoFallaCreate):
-    if not SistemaAfectado.objects.filter(id=data.sistema_afectado_id, estatus_activo=True).exists():
+    if not SistemaAfectado.objects.filter(
+        id=data.sistema_afectado_id, estatus_activo=True
+    ).exists():
         raise HttpError(400, "El sistema afectado especificado no existe o está inactivo")
     if TipoFalla.objects.filter(descripcion=data.descripcion).exists():
         raise HttpError(409, "Ya existe un tipo de falla con esa descripción")
-    tf = TipoFalla.objects.create(
-        descripcion=data.descripcion,
-        sistema_afectado_id=data.sistema_afectado_id,
-    )
+    try:
+        tf = TipoFalla.objects.create(
+            descripcion=data.descripcion,
+            sistema_afectado_id=data.sistema_afectado_id,
+        )
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de falla con esa descripción")
+    tf = TipoFalla.objects.select_related("sistema_afectado").get(id=tf.id)
     return TipoFallaSchema(
         id=tf.id,
         descripcion=tf.descripcion,
@@ -446,7 +496,10 @@ def update_tipo_falla(request, tf_id: int, data: TipoFallaUpdate):
             tf.sistema_afectado_id = sa_id
     for attr, value in payload.items():
         setattr(tf, attr, value)
-    tf.save()
+    try:
+        tf.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un tipo de falla con esa descripción")
     tf.refresh_from_db()
     return TipoFallaSchema(
         id=tf.id,
@@ -486,7 +539,10 @@ def get_estatus_vehiculo(request, ev_id: int):
 def create_estatus_vehiculo(request, data: EstatusVehiculoCreate):
     if EstatusVehiculo.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
-    return EstatusVehiculo.objects.create(**data.dict())
+    try:
+        return EstatusVehiculo.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
 
 
 @router.put("/estatus-vehiculo/{ev_id}", response=EstatusVehiculoSchema, auth=JWTAuth())
@@ -499,7 +555,10 @@ def update_estatus_vehiculo(request, ev_id: int, data: EstatusVehiculoUpdate):
             raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
     for attr, value in payload.items():
         setattr(ev, attr, value)
-    ev.save()
+    try:
+        ev.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un estatus de vehículo con ese nombre")
     return ev
 
 
@@ -532,7 +591,10 @@ def get_color_placa(request, cp_id: int):
 def create_color_placa(request, data: ColorPlacaCreate):
     if ColorPlaca.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un color de placa con ese nombre")
-    return ColorPlaca.objects.create(**data.dict())
+    try:
+        return ColorPlaca.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un color de placa con ese nombre")
 
 
 @router.put("/colores-placa/{cp_id}", response=ColorPlacaSchema, auth=JWTAuth())
@@ -545,7 +607,10 @@ def update_color_placa(request, cp_id: int, data: ColorPlacaUpdate):
             raise HttpError(409, "Ya existe un color de placa con ese nombre")
     for attr, value in payload.items():
         setattr(cp, attr, value)
-    cp.save()
+    try:
+        cp.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un color de placa con ese nombre")
     return cp
 
 

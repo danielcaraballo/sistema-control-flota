@@ -9,8 +9,7 @@ class Usuario(AbstractUser):
         ANALISTA = "analista", "Analista"
         MECANICO = "mecanico", "Mecánico"
 
-    rol = models.CharField(
-        max_length=25, choices=Rol.choices, verbose_name="Rol")
+    rol = models.CharField(max_length=25, choices=Rol.choices, verbose_name="Rol")
     estado = models.ForeignKey(
         "organizacion.Estado",
         on_delete=models.SET_NULL,

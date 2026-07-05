@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
-import Aura from '@primevue/themes/aura'
-import { definePreset } from '@primevue/themes'
+import Aura from '@primeuix/themes/aura'
+import { definePreset } from '@primeuix/themes'
 import ToastService from 'primevue/toastservice'
 import Tooltip from 'primevue/tooltip'
 import 'primeicons/primeicons.css'
@@ -11,7 +11,6 @@ import './assets/main.css'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
-import { applyTheme, readInitialTheme } from './composables/useTheme'
 
 const ScfPreset = definePreset(Aura, {
   semantic: {
@@ -46,7 +45,6 @@ async function startApp() {
   if (auth.token) {
     await auth.initialize()
   }
-  applyTheme(readInitialTheme())
   app.mount('#app')
 }
 

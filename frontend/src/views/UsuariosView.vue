@@ -23,6 +23,13 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import CredentialModal from '@/components/CredentialModal.vue'
 import PageHeader from '@/components/PageHeader.vue'
 
+function extractError(err) {
+  const data = err.response?.data
+  if (Array.isArray(data)) return data.map((e) => e.msg).join('; ')
+  if (data?.detail) return data.detail
+  return null
+}
+
 const toast = useToast()
 const auth = useAuthStore()
 const usuarios = ref([])
@@ -170,7 +177,7 @@ async function createUser() {
     })
     await loadUsuarios()
   } catch (err) {
-    errorMessage.value = err.response?.data?.detail || 'Error al crear el usuario'
+    errorMessage.value = extractError(err) || 'Error al crear el usuario'
   }
 }
 
@@ -202,7 +209,7 @@ async function updateUser() {
     })
     await loadUsuarios()
   } catch (err) {
-    errorMessage.value = err.response?.data?.detail || 'Error al guardar el usuario'
+    errorMessage.value = extractError(err) || 'Error al guardar el usuario'
   }
 }
 
@@ -731,7 +738,7 @@ onMounted(() => {
       v-model:visible="showCredentialsDialog"
       header="Usuario creado"
       successMessage="Usuario creado exitosamente"
-      :userName="`${createdCredentials.firstName} ${createdCredentials.lastName}`"
+      :fullName="`${createdCredentials.firstName} ${createdCredentials.lastName}`"
       :username="createdCredentials.username"
       :password="createdCredentials.password"
       :copyText="createCopyText"
@@ -743,7 +750,7 @@ onMounted(() => {
       :message="`¿Estás seguro de desactivar al usuario ${userToToggle?.first_name} ${userToToggle?.last_name}?`"
       confirmLabel="Desactivar"
       confirmSeverity="danger"
-      :onConfirm="deactivateUser"
+      @confirm="deactivateUser"
     />
     <ConfirmDialog
       v-model:visible="showActivateDialog"
@@ -751,7 +758,7 @@ onMounted(() => {
       :message="`¿Estás seguro de reactivar al usuario ${userToToggle?.first_name} ${userToToggle?.last_name}?`"
       confirmLabel="Reactivar"
       confirmSeverity="success"
-      :onConfirm="activateUser"
+      @confirm="activateUser"
     />
     <ConfirmDialog
       v-model:visible="showResetConfirmDialog"
@@ -759,7 +766,7 @@ onMounted(() => {
       :message="`¿Estás seguro de resetear la contraseña de ${userToReset?.first_name} ${userToReset?.last_name}?`"
       confirmLabel="Resetear"
       confirmSeverity="info"
-      :onConfirm="resetPassword"
+      @confirm="resetPassword"
     />
 
     <CredentialModal
@@ -768,7 +775,7 @@ onMounted(() => {
       icon="pi pi-key"
       iconColorClass="text-blue-600 dark:text-blue-400"
       successMessage="Contraseña restablecida exitosamente"
-      :userName="`${userToReset?.first_name} ${userToReset?.last_name}`"
+      :fullName="`${userToReset?.first_name} ${userToReset?.last_name}`"
       :username="userToReset?.username ?? ''"
       :password="resetResult"
       :copyText="resetCopyText"

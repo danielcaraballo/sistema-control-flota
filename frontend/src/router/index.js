@@ -64,10 +64,12 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from) => {
+router.beforeEach(async (to, _from) => {
   const auth = useAuthStore()
 
-  if (auth.loading) return
+  if (auth.loading) {
+    await auth.initialized
+  }
 
   if (to.name === 'login' && auth.isAuthenticated) {
     return { name: 'dashboard' }

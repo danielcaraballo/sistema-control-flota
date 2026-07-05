@@ -1,4 +1,6 @@
-from ninja import ModelSchema, Schema
+from datetime import date
+
+from ninja import Field, ModelSchema, Schema
 
 from .models import Vehiculo
 
@@ -49,7 +51,7 @@ class VehiculoCreate(Schema):
     categoria_id: int
     marca_id: int
     modelo_id: int
-    anio: int
+    anio: int = Field(ge=1900, le=date.today().year + 1)
     vin: str
     estado_id: int
     emplazamiento_id: int

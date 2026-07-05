@@ -25,14 +25,12 @@ class TestCatalogosAPI(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.marca = Marca.objects.create(nombre="Test Marca")
-        cls.modelo = Modelo.objects.create(
-            nombre="Test Modelo", marca=cls.marca)
+        cls.modelo = Modelo.objects.create(nombre="Test Modelo", marca=cls.marca)
         cls.tv = TipoVehiculo.objects.create(nombre="Test Tipo Vehiculo")
         cls.tu = TipoUso.objects.create(nombre="Test Tipo Uso")
         cls.color = Color.objects.create(nombre="Test Color")
         cls.sa = SistemaAfectado.objects.create(nombre="Test Sistema")
-        cls.tf = TipoFalla.objects.create(
-            descripcion="Test Falla", sistema_afectado=cls.sa)
+        cls.tf = TipoFalla.objects.create(descripcion="Test Falla", sistema_afectado=cls.sa)
         cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
 
         cls.admin = Usuario.objects.create_user(
@@ -62,8 +60,7 @@ class TestCatalogosAPI(TestCase):
 
     def test_list_marcas_incluir_inactivos(self):
         Marca.objects.create(nombre="Inactiva", estatus_activo=False)
-        response = client.get(
-            "/catalogos/marcas/?incluir_inactivos=true", headers=self.headers)
+        response = client.get("/catalogos/marcas/?incluir_inactivos=true", headers=self.headers)
         nombres = [m["nombre"] for m in response.json()]
         self.assertIn("Inactiva", nombres)
 
@@ -103,8 +100,7 @@ class TestCatalogosAPI(TestCase):
         self.assertFalse(self.marca.estatus_activo)
 
     def test_get_marca(self):
-        response = client.get(
-            f"/catalogos/marcas/{self.marca.id}", headers=self.headers)
+        response = client.get(f"/catalogos/marcas/{self.marca.id}", headers=self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["nombre"], "Test Marca")
 
@@ -167,8 +163,7 @@ class TestCatalogosAPI(TestCase):
     # ─── Tipos de Vehículo ────────────────────────────────────────────────
 
     def test_list_tipos_vehiculo(self):
-        response = client.get(
-            "/catalogos/tipos-vehiculo/", headers=self.headers)
+        response = client.get("/catalogos/tipos-vehiculo/", headers=self.headers)
         self.assertEqual(response.status_code, 200)
         nombres = [tv["nombre"] for tv in response.json()]
         self.assertIn("Test Tipo Vehiculo", nombres)
@@ -180,8 +175,7 @@ class TestCatalogosAPI(TestCase):
             json={"nombre": "ZZ Test Tipo Vehiculo Nuevo"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["nombre"],
-                         "ZZ Test Tipo Vehiculo Nuevo")
+        self.assertEqual(response.json()["nombre"], "ZZ Test Tipo Vehiculo Nuevo")
 
     def test_deactivate_tipo_vehiculo(self):
         response = client.delete(
@@ -246,8 +240,7 @@ class TestCatalogosAPI(TestCase):
     # ─── Sistemas Afectados ───────────────────────────────────────────────
 
     def test_list_sistemas_afectados(self):
-        response = client.get(
-            "/catalogos/sistemas-afectados/", headers=self.headers)
+        response = client.get("/catalogos/sistemas-afectados/", headers=self.headers)
         self.assertEqual(response.status_code, 200)
         nombres = [sa["nombre"] for sa in response.json()]
         self.assertIn("Test Sistema", nombres)
@@ -259,8 +252,7 @@ class TestCatalogosAPI(TestCase):
             json={"nombre": "ZZ Test Sistema Nuevo"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["nombre"],
-                         "ZZ Test Sistema Nuevo")
+        self.assertEqual(response.json()["nombre"], "ZZ Test Sistema Nuevo")
 
     def test_deactivate_sistema_afectado(self):
         response = client.delete(
@@ -290,11 +282,9 @@ class TestCatalogosAPI(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["descripcion"],
-                         "ZZ Test Falla Nueva")
+        self.assertEqual(response.json()["descripcion"], "ZZ Test Falla Nueva")
         self.assertEqual(response.json()["sistema_afectado"], self.sa.id)
-        self.assertEqual(response.json()["sistema_afectado_nombre"],
-                         "Test Sistema")
+        self.assertEqual(response.json()["sistema_afectado_nombre"], "Test Sistema")
 
     def test_create_tipo_falla_invalid_sa(self):
         response = client.post(

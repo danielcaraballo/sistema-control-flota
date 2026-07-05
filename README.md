@@ -16,7 +16,7 @@ Sistema corporativo para la gestión integral de flota vehicular. Centraliza el 
 | Backend | Python 3.11+ · Django 5.2 · Django Ninja |
 | Autenticación | django-ninja-jwt (access + refresh tokens) |
 | Frontend | Vue 3.5 · Pinia · Vue Router 5 |
-| UI | PrimeVue 4 · PrimeIcons |
+| UI | PrimeVue 4 · PrimeIcons · Tailwind CSS 4 |
 | PWA | vite-plugin-pwa (offline-first) |
 | Base de datos | PostgreSQL 15+ (SQLite en desarrollo) |
 | Linting | Ruff (backend) · ESLint + Prettier (frontend) |
@@ -36,8 +36,8 @@ Sistema corporativo para la gestión integral de flota vehicular. Centraliza el 
 cd backend
 cp .env.example .env
 uv sync
-python manage.py migrate
-python manage.py runserver
+uv run python manage.py migrate
+uv run python manage.py runserver
 
 # ── Frontend (otra terminal) ──
 cd frontend
@@ -51,25 +51,39 @@ npm run dev
 ```
 sistema-control-flota/
 ├── backend/
-│   ├── config/              # Configuración Django (settings, urls, api)
-│   ├── organizacion/        # App: Estado, Gerencia
-│   │   ├── api.py           #   Endpoints públicos
+│   ├── config/              # Configuración Django (settings, urls, api root)
+│   ├── usuarios/            # App: Usuario (AbstractUser), Auth, CRUD usuarios
+│   │   ├── auth_api.py      #   Login, refresh, /me, change-password
+│   │   ├── usuarios_api.py  #   CRUD usuarios + reset password
+│   │   ├── models.py        #   Usuario con roles RBAC
+│   │   ├── schemas.py       #   Esquemas Ninja
+│   │   ├── roles.py         #   Jerarquía de roles y decoradores
+│   │   └── tests.py         #   Tests
+│   ├── organizacion/        # App: Estado, Gerencia, CentroDeServicio
+│   │   ├── api.py           #   CRUD endpoints
 │   │   ├── models.py        #   Modelos ORM
 │   │   └── tests.py         #   Tests
-│   ├── usuarios/            # App: Usuario, Auth
-│   │   ├── auth_api.py      #   Login, refresh, /me
-│   │   ├── usuarios_api.py  #   CRUD usuarios
-│   │   ├── models.py        #   Usuario (AbstractUser)
-│   │   ├── schemas.py       #   Esquemas Ninja
+│   ├── catalogos/           # App: Marcas, Modelos, Tipos, Colores, etc.
+│   │   ├── api.py           #   CRUD para 9 catálogos
+│   │   ├── models.py        #   9 modelos de catálogo
 │   │   └── tests.py         #   Tests
+│   ├── vehiculos/           # App: Vehiculo CRUD + QR
+│   │   ├── api.py           #   CRUD con filtro por estado y QR
+│   │   ├── models.py        #   Vehiculo (17 campos)
+│   │   └── tests.py         #   Tests
+│   ├── dashboard/           # Unfold dashboard callback
+│   │   └── callbacks.py     #   KPIs, charts, tabla usuarios
 │   ├── manage.py
 │   └── pyproject.toml       # Dependencias + Ruff config
 ├── frontend/
 │   ├── src/
-│   │   ├── layouts/         # AuthLayout, DefaultLayout
-│   │   ├── views/           # Dashboard, Usuarios, Vehículos, Taller...
-│   │   ├── stores/          # Pinia stores (auth)
+│   │   ├── layouts/         # DefaultLayout (sidebar dinámico por rol)
+│   │   ├── views/           # Dashboard, Login, Usuarios, Vehículos, etc.
+│   │   ├── components/      # PageHeader, ConfirmDialog, CatalogoTabContent, etc.
+│   │   ├── composables/     # useTheme (dark/light/system)
+│   │   ├── stores/          # Pinia store (auth)
 │   │   ├── services/        # Axios client + interceptors
+│   │   ├── utils/           # roles.js (constantes + helpers)
 │   │   └── router/          # Vue Router + guards
 │   └── package.json
 ├── docs/
@@ -81,11 +95,12 @@ sistema-control-flota/
 
 | Módulo | Estado |
 |---|---|
-| Autenticación JWT (login/refresh/me) | ✅ |
+| Autenticación JWT (login/refresh/me/change-password) | ✅ |
 | CRUD de usuarios con roles (RBAC) | ✅ |
-| Catálogo de Estados y Gerencias | ✅ |
+| Catálogos (Marcas, Modelos, Tipos, Colores, Fallas, etc.) | ✅ |
+| Organización (Estados, Gerencias, Centros de Servicio) | ✅ |
+| Gestión de Vehículos con QR | ✅ |
 | Dashboard con KPIs | 🟡 Skeleton |
-| Gestión de Vehículos | 🚧 Planificado |
 | Módulo de Taller | 🚧 Planificado |
 | Mantenimiento Preventivo | 🚧 Planificado |
 | Reportes y analítica | 🚧 Planificado |
@@ -94,18 +109,18 @@ sistema-control-flota/
 
 ```bash
 # Backend
-python manage.py runserver     # Iniciar servidor de desarrollo
-python manage.py test          # Ejecutar tests
-python manage.py migrate       # Aplicar migraciones
-python manage.py makemigrations# Crear migraciones
-uv run ruff check .            # Linting
-uv run ruff format .           # Formateo
+uv run python manage.py runserver      # Iniciar servidor de desarrollo
+uv run python manage.py test           # Ejecutar tests
+uv run python manage.py migrate        # Aplicar migraciones
+uv run python manage.py makemigrations # Crear migraciones
+uv run ruff check .                    # Linting
+uv run ruff format .                   # Formateo
 
 # Frontend
-npm run dev                    # Servidor de desarrollo
-npm run build                  # Build producción
-npx eslint .                   # Linting
-npx prettier --write .         # Formateo
+npm run dev                            # Servidor de desarrollo
+npm run build                          # Build producción
+npm run lint                           # Linting (ESLint)
+npm run format                         # Formateo (Prettier)
 ```
 
 ## Documentación
@@ -116,8 +131,7 @@ npx prettier --write .         # Formateo
 ## Pruebas
 
 ```bash
-cd backend
-python manage.py test
+cd backend && uv run python manage.py test
 ```
 
 ## Linting
@@ -127,5 +141,5 @@ python manage.py test
 cd backend && uv run ruff check .
 
 # Frontend
-cd frontend && npx eslint .
+cd frontend && npm run lint
 ```

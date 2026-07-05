@@ -39,8 +39,6 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    originalRequest._retry = true
-
     if (!refreshPromise) {
       refreshPromise = (async () => {
         try {
@@ -65,6 +63,7 @@ api.interceptors.response.use(
     const newToken = await refreshPromise
     if (!newToken) return Promise.reject(error)
 
+    originalRequest._retry = true
     originalRequest.headers.Authorization = `Bearer ${newToken}`
     return api(originalRequest)
   },

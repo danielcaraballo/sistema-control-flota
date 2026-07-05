@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
@@ -55,7 +56,10 @@ def get_estado(request, estado_id: int):
 def create_estado(request, data: EstadoCreate):
     if Estado.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un estado con ese nombre")
-    return Estado.objects.create(**data.dict())
+    try:
+        return Estado.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un estado con ese nombre")
 
 
 @router.put("/estados/{estado_id}", response=EstadoSchema, auth=JWTAuth())
@@ -68,7 +72,10 @@ def update_estado(request, estado_id: int, data: EstadoUpdate):
             raise HttpError(409, "Ya existe un estado con ese nombre")
     for attr, value in payload.items():
         setattr(estado, attr, value)
-    estado.save()
+    try:
+        estado.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un estado con ese nombre")
     return estado
 
 
@@ -101,7 +108,10 @@ def get_gerencia(request, gerencia_id: int):
 def create_gerencia(request, data: GerenciaCreate):
     if Gerencia.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe una gerencia con ese nombre")
-    return Gerencia.objects.create(**data.dict())
+    try:
+        return Gerencia.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe una gerencia con ese nombre")
 
 
 @router.put("/gerencias/{gerencia_id}", response=GerenciaSchema, auth=JWTAuth())
@@ -114,7 +124,10 @@ def update_gerencia(request, gerencia_id: int, data: GerenciaUpdate):
             raise HttpError(409, "Ya existe una gerencia con ese nombre")
     for attr, value in payload.items():
         setattr(gerencia, attr, value)
-    gerencia.save()
+    try:
+        gerencia.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe una gerencia con ese nombre")
     return gerencia
 
 
@@ -147,7 +160,10 @@ def get_centro_servicio(request, cs_id: int):
 def create_centro_servicio(request, data: CentroDeServicioCreate):
     if CentroDeServicio.objects.filter(nombre=data.nombre).exists():
         raise HttpError(409, "Ya existe un centro de servicio con ese nombre")
-    return CentroDeServicio.objects.create(**data.dict())
+    try:
+        return CentroDeServicio.objects.create(**data.dict())
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un centro de servicio con ese nombre")
 
 
 @router.put("/centros-servicio/{cs_id}", response=CentroDeServicioSchema, auth=JWTAuth())
@@ -160,7 +176,10 @@ def update_centro_servicio(request, cs_id: int, data: CentroDeServicioUpdate):
             raise HttpError(409, "Ya existe un centro de servicio con ese nombre")
     for attr, value in payload.items():
         setattr(cs, attr, value)
-    cs.save()
+    try:
+        cs.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un centro de servicio con ese nombre")
     return cs
 
 

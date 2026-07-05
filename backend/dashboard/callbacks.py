@@ -17,40 +17,41 @@ def dashboard_callback(request, context):
     context["total_estados"] = total_estados
     context["total_gerencias"] = total_gerencias
 
-    rol_data = (
-        Usuario.objects
-        .values("rol")
-        .annotate(count=Count("id"))
-        .order_by("rol")
-    )
+    rol_data = Usuario.objects.values("rol").annotate(count=Count("id")).order_by("rol")
     rol_labels = dict(Usuario.Rol.choices)
 
-    context["rol_chart_data"] = json.dumps({
-        "labels": [rol_labels.get(item["rol"], item["rol"]) for item in rol_data],
-        "datasets": [{
-            "label": "Usuarios",
-            "data": [item["count"] for item in rol_data],
-            "maxBarThickness": 80,
-        }],
-    })
+    context["rol_chart_data"] = json.dumps(
+        {
+            "labels": [rol_labels.get(item["rol"], item["rol"]) for item in rol_data],
+            "datasets": [
+                {
+                    "label": "Usuarios",
+                    "data": [item["count"] for item in rol_data],
+                    "maxBarThickness": 80,
+                }
+            ],
+        }
+    )
     estado_data = (
-        Usuario.objects
-        .filter(estado__isnull=False)
+        Usuario.objects.filter(estado__isnull=False)
         .values("estado__nombre")
         .annotate(count=Count("id"))
         .order_by("-count")
     )
-    context["estado_chart_data"] = json.dumps({
-        "labels": [item["estado__nombre"] for item in estado_data],
-        "datasets": [{
-            "label": "Usuarios",
-            "data": [item["count"] for item in estado_data],
-            "maxBarThickness": 80,
-        }],
-    })
+    context["estado_chart_data"] = json.dumps(
+        {
+            "labels": [item["estado__nombre"] for item in estado_data],
+            "datasets": [
+                {
+                    "label": "Usuarios",
+                    "data": [item["count"] for item in estado_data],
+                    "maxBarThickness": 80,
+                }
+            ],
+        }
+    )
 
-    recent_users = Usuario.objects.select_related(
-        "estado").order_by("-date_joined")[:5]
+    recent_users = Usuario.objects.select_related("estado").order_by("-date_joined")[:5]
     context["users_table"] = {
         "headers": ["Usuario", "Email", "Rol", "Estado", "Fecha"],
         "rows": [

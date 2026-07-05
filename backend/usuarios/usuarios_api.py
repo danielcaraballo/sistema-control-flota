@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
@@ -64,7 +65,7 @@ def create_usuario(request, data: UsuarioCreate):
         except Estado.DoesNotExist:
             raise HttpError(400, "Estado no válido")
 
-    plain_password = data.password or generate_password()
+    plain_password = generate_password() if data.password is None else data.password
     user = Usuario(
         username=username,
         email=data.email,
@@ -74,7 +75,10 @@ def create_usuario(request, data: UsuarioCreate):
         estado=estado,
     )
     user.set_password(plain_password)
-    user.save()
+    try:
+        user.save()
+    except IntegrityError:
+        raise HttpError(409, "El nombre de usuario o correo ya existe")
 
     return {"user": _build_usuario_out(user), "password": plain_password}
 
@@ -112,7 +116,10 @@ def update_usuario(request, usuario_id: int, data: UsuarioUpdate):
         if not estado_val:
             raise HttpError(400, "Debe asignar un estado para este rol")
 
-    user.save()
+    try:
+        user.save()
+    except IntegrityError:
+        raise HttpError(409, "El correo ya está registrado")
     return _build_usuario_out(user)
 
 

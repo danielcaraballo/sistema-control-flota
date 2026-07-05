@@ -2,6 +2,7 @@ import base64
 from io import BytesIO
 
 import qrcode
+from django.db import IntegrityError
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
@@ -15,8 +16,16 @@ from .schemas import VehiculoCreate, VehiculoSchema, VehiculoUpdate
 router = Router()
 
 SELECT_RELATED = [
-    "gerencia", "unidad_usuaria", "categoria", "marca", "modelo",
-    "estado", "emplazamiento", "estatus", "color", "color_placa",
+    "gerencia",
+    "unidad_usuaria",
+    "categoria",
+    "marca",
+    "modelo",
+    "estado",
+    "emplazamiento",
+    "estatus",
+    "color",
+    "color_placa",
 ]
 
 
@@ -72,8 +81,8 @@ def _build_vehiculo_schema(v):
     )
 
 
-def _generate_qr(vehicle_id):
-    content = f"/vehiculos/{vehicle_id}"
+def _generate_qr(request, vehicle_id):
+    content = request.build_absolute_uri(f"/vehiculos/{vehicle_id}")
     img = qrcode.make(content)
     buffer = BytesIO()
     img.save(buffer, format="PNG")
@@ -118,11 +127,13 @@ def create_vehiculo(request, data: VehiculoCreate):
         if Vehiculo.objects.filter(placa=data.placa, color_placa_id=data.color_placa_id).exists():
             raise HttpError(409, "Ya existe un vehículo con esa placa para el mismo color de placa")
 
-    v = Vehiculo.objects.create(**data.dict())
-    v.codigo_qr = _generate_qr(v.id)
+    try:
+        v = Vehiculo.objects.create(**data.dict())
+    except IntegrityError as e:
+        raise HttpError(400, f"Error de integridad: {e}")
+    v.codigo_qr = _generate_qr(request, v.id)
     v.save(update_fields=["codigo_qr"])
 
-    v.refresh_from_db()
     v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=v.id)
     return _build_vehiculo_schema(v)
 
@@ -145,9 +156,11 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
 
     for attr, value in payload.items():
         setattr(v, attr, value)
-    v.save()
+    try:
+        v.save()
+    except IntegrityError:
+        raise HttpError(409, "Ya existe un vehículo con esos datos")
 
-    v.refresh_from_db()
     v = Vehiculo.objects.select_related(*SELECT_RELATED).get(id=vehiculo_id)
     return _build_vehiculo_schema(v)
 

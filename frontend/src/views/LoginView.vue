@@ -59,8 +59,13 @@ async function handleLogin() {
       localStorage.removeItem('remember_me')
       localStorage.removeItem('remembered_username')
     }
-    const redirect = route.query.redirect || '/'
-    router.push(redirect)
+    const target = route.query.redirect || '/'
+    const resolved = router.resolve(target)
+    if (resolved.matched.length === 0) {
+      router.push('/')
+    } else {
+      router.push(target)
+    }
   } catch (err) {
     if (err.response) {
       error.value =

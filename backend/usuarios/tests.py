@@ -210,5 +210,3 @@ class TestUsuariosAPI(TestCase):
     def test_unauthorized_access(self):
         response = client.get("/usuarios/")
         self.assertEqual(response.status_code, 401)
-
-

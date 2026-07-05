@@ -16,8 +16,7 @@ class Marca(models.Model):
 
 class Modelo(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
-    marca = models.ForeignKey(
-        Marca, on_delete=models.CASCADE, verbose_name="Marca")
+    marca = models.ForeignKey(Marca, on_delete=models.CASCADE, verbose_name="Marca")
     estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
 
     class Meta:
@@ -111,7 +110,8 @@ class ColorPlaca(models.Model):
 class TipoFalla(models.Model):
     descripcion = models.CharField(max_length=200, unique=True, verbose_name="Descripción")
     sistema_afectado = models.ForeignKey(
-        SistemaAfectado, on_delete=models.RESTRICT, null=True, verbose_name="Sistema afectado")
+        SistemaAfectado, on_delete=models.RESTRICT, null=True, verbose_name="Sistema afectado"
+    )
     estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
 
     class Meta:

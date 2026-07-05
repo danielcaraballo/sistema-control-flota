@@ -28,6 +28,7 @@ def es_estatal(rol: str) -> bool:
 
 def requiere_rol_minimo(rol_minimo: str):
     """Decorador: el usuario autenticado debe tener al menos este rol."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(request, **kwargs):
@@ -35,7 +36,9 @@ def requiere_rol_minimo(rol_minimo: str):
             if not hereda_de(user.rol, rol_minimo):
                 raise HttpError(403, "No tienes permiso para realizar esta acción")
             return func(request, **kwargs)
+
         return wrapper
+
     return decorator
 
 

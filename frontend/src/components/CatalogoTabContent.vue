@@ -91,7 +91,10 @@ async function saveItem() {
   errorMessage.value = ''
 
   const payload = buildPayload()
-  if (Object.keys(payload).length === 0) return
+  if (Object.keys(payload).length === 0) {
+    errorMessage.value = 'Completa al menos un campo antes de guardar'
+    return
+  }
 
   try {
     if (editingItem.value) {
@@ -114,7 +117,10 @@ async function saveItem() {
     showDialog.value = false
     await loadItems()
   } catch (err) {
-    errorMessage.value = err.response?.data?.detail || 'Error al guardar'
+    const errData = err.response?.data
+    errorMessage.value = Array.isArray(errData)
+      ? errData.map((e) => e.msg).join('; ')
+      : errData?.detail || 'Error al guardar'
   }
 }
 
@@ -336,7 +342,7 @@ onMounted(loadItems)
       message="¿Estás seguro de desactivar este elemento?"
       confirmLabel="Desactivar"
       confirmSeverity="danger"
-      :onConfirm="deactivateItem"
+      @confirm="deactivateItem"
     />
     <ConfirmDialog
       v-model:visible="showActivateDialog"
@@ -344,7 +350,7 @@ onMounted(loadItems)
       message="¿Estás seguro de reactivar este elemento?"
       confirmLabel="Reactivar"
       confirmSeverity="success"
-      :onConfirm="activateItem"
+      @confirm="activateItem"
     />
   </div>
 </template>

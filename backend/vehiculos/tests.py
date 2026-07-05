@@ -20,8 +20,7 @@ class TestVehiculoCRUD(TestCase):
         cls.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
         cls.centro = CentroDeServicio.objects.create(nombre="Test Centro")
         cls.marca = Marca.objects.create(nombre="Test Marca")
-        cls.modelo = Modelo.objects.create(
-            nombre="Test Modelo", marca=cls.marca)
+        cls.modelo = Modelo.objects.create(nombre="Test Modelo", marca=cls.marca)
         cls.categoria = TipoVehiculo.objects.create(nombre="Test Categoria")
         cls.color = Color.objects.create(nombre="Test Color")
         cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
@@ -70,11 +69,14 @@ class TestVehiculoCRUD(TestCase):
     def test_list_vehiculos_only_active(self):
         Vehiculo.objects.create(**self._valid_payload())
         Vehiculo.objects.create(
-            **self._valid_payload(numero_economico="VEH-002",
-                                   numero_unidad="UN-002",
-                                   vin="2HGCM82633A123456",
-                                   placa="XYZ-999",
-                                   estatus_activo=False))
+            **self._valid_payload(
+                numero_economico="VEH-002",
+                numero_unidad="UN-002",
+                vin="2HGCM82633A123456",
+                placa="XYZ-999",
+                estatus_activo=False,
+            )
+        )
         response = client.get("/vehiculos/", headers=self.headers)
         nums = [v["numero_economico"] for v in response.json()]
         self.assertIn("VEH-001", nums)
@@ -82,13 +84,15 @@ class TestVehiculoCRUD(TestCase):
 
     def test_list_vehiculos_incluir_inactivos(self):
         Vehiculo.objects.create(
-            **self._valid_payload(numero_economico="VEH-002",
-                                   numero_unidad="UN-002",
-                                   vin="2HGCM82633A123456",
-                                   placa="XYZ-999",
-                                   estatus_activo=False))
-        response = client.get(
-            "/vehiculos/?incluir_inactivos=true", headers=self.headers)
+            **self._valid_payload(
+                numero_economico="VEH-002",
+                numero_unidad="UN-002",
+                vin="2HGCM82633A123456",
+                placa="XYZ-999",
+                estatus_activo=False,
+            )
+        )
+        response = client.get("/vehiculos/?incluir_inactivos=true", headers=self.headers)
         nums = [v["numero_economico"] for v in response.json()]
         self.assertIn("VEH-002", nums)
 
@@ -104,8 +108,7 @@ class TestVehiculoCRUD(TestCase):
 
     def test_create_vehiculo(self):
         payload = self._valid_payload()
-        response = client.post(
-            "/vehiculos/", headers=self.headers, json=payload)
+        response = client.post("/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["numero_economico"], "VEH-001")
@@ -127,26 +130,20 @@ class TestVehiculoCRUD(TestCase):
 
     def test_create_vehiculo_duplicate_numero_economico(self):
         Vehiculo.objects.create(**self._valid_payload())
-        payload = self._valid_payload(
-            numero_unidad="UN-002", vin="2HGCM82633A123456")
-        response = client.post(
-            "/vehiculos/", headers=self.headers, json=payload)
+        payload = self._valid_payload(numero_unidad="UN-002", vin="2HGCM82633A123456")
+        response = client.post("/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
 
     def test_create_vehiculo_duplicate_numero_unidad(self):
         Vehiculo.objects.create(**self._valid_payload())
-        payload = self._valid_payload(
-            numero_economico="VEH-002", vin="2HGCM82633A123456")
-        response = client.post(
-            "/vehiculos/", headers=self.headers, json=payload)
+        payload = self._valid_payload(numero_economico="VEH-002", vin="2HGCM82633A123456")
+        response = client.post("/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
 
     def test_create_vehiculo_duplicate_vin(self):
         Vehiculo.objects.create(**self._valid_payload())
-        payload = self._valid_payload(
-            numero_economico="VEH-002", numero_unidad="UN-002")
-        response = client.post(
-            "/vehiculos/", headers=self.headers, json=payload)
+        payload = self._valid_payload(numero_economico="VEH-002", numero_unidad="UN-002")
+        response = client.post("/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
 
     def test_create_vehiculo_duplicate_placa_mismo_color(self):
@@ -156,8 +153,7 @@ class TestVehiculoCRUD(TestCase):
             numero_unidad="UN-002",
             vin="2HGCM82633A123456",
         )
-        response = client.post(
-            "/vehiculos/", headers=self.headers, json=payload)
+        response = client.post("/vehiculos/", headers=self.headers, json=payload)
         self.assertEqual(response.status_code, 409)
 
     def test_update_vehiculo(self):
@@ -172,8 +168,7 @@ class TestVehiculoCRUD(TestCase):
 
     def test_deactivate_vehiculo(self):
         v = Vehiculo.objects.create(**self._valid_payload())
-        response = client.delete(
-            f"/vehiculos/{v.id}", headers=self.headers)
+        response = client.delete(f"/vehiculos/{v.id}", headers=self.headers)
         self.assertEqual(response.status_code, 204)
         v.refresh_from_db()
         self.assertFalse(v.estatus_activo)
