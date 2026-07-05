@@ -62,6 +62,7 @@ class VehiculoCreate(Schema):
 
 
 class VehiculoUpdate(Schema):
+    estatus_activo: bool | None = None
     numero_economico: str | None = None
     numero_unidad: str | None = None
     gerencia_id: int | None = None
