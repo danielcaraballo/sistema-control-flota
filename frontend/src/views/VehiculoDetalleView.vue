@@ -5,6 +5,7 @@ import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 import Button from 'primevue/button'
+import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -17,6 +18,7 @@ const auth = useAuthStore()
 
 const vehiculo = ref(null)
 const loading = ref(true)
+const notFound = ref(false)
 const showDeactivateDialog = ref(false)
 const showActivateDialog = ref(false)
 
@@ -43,16 +45,21 @@ function estatusSeverity(nombre) {
 
 async function loadVehiculo() {
   loading.value = true
+  notFound.value = false
   try {
     const { data } = await api.get(`/vehiculos/${route.params.id}`)
     vehiculo.value = data
   } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: err.response?.data?.detail || 'Error al cargar el vehículo',
-      life: 4000,
-    })
+    if (err.response?.status === 404) {
+      notFound.value = true
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: err.response?.data?.detail || 'Error al cargar el vehículo',
+        life: 4000,
+      })
+    }
   } finally {
     loading.value = false
   }
@@ -167,6 +174,25 @@ watch(() => route.params.id, loadVehiculo)
           <Skeleton v-for="n in 8" :key="n" height="1rem" />
         </div>
       </div>
+    </template>
+
+    <template v-else-if="notFound">
+      <Message severity="warn" :closable="false" class="!mb-4">
+        <div class="flex flex-col items-center gap-2 py-4">
+          <i class="pi pi-exclamation-triangle text-3xl opacity-60" />
+          <p class="text-base font-medium">Vehículo no encontrado</p>
+          <p class="text-sm text-muted-color">
+            El vehículo que buscas no existe o ha sido eliminado.
+          </p>
+          <Button
+            label="Volver a vehículos"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            @click="volver"
+            class="mt-2"
+          />
+        </div>
+      </Message>
     </template>
 
     <template v-else-if="vehiculo">

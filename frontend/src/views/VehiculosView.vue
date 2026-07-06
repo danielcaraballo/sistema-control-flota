@@ -19,6 +19,7 @@ import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
+import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import PageHeader from '@/components/PageHeader.vue'
 
@@ -39,6 +40,7 @@ const gerencias = ref([])
 const centrosServicio = ref([])
 
 const loading = ref(true)
+const saving = ref(false)
 const showDialog = ref(false)
 const editingVehiculo = ref(null)
 const submitted = ref(false)
@@ -103,55 +105,118 @@ async function loadCatalogos() {
       .then((r) => {
         marcas.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar marcas',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/modelos/')
       .then((r) => {
         modelos.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar modelos',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/tipos-vehiculo/')
       .then((r) => {
         tiposVehiculo.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar tipos de vehículo',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/colores/')
       .then((r) => {
         colores.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar colores',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/colores-placa/')
       .then((r) => {
         coloresPlaca.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar colores de placa',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/estatus-vehiculo/')
       .then((r) => {
         estatusVehiculo.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar estatus de vehículo',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/estados/')
       .then((r) => {
         estados.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar estados',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/gerencias/')
       .then((r) => {
         gerencias.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar gerencias',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/centros-servicio/')
       .then((r) => {
         centrosServicio.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar centros de servicio',
+          life: 4000,
+        })
+      }),
   ]
   await Promise.allSettled(calls)
 }
@@ -231,6 +296,7 @@ function goBack() {
 
 async function saveVehiculo() {
   submitted.value = true
+  saving.value = true
   errorMessage.value = ''
 
   const payload = {
@@ -273,6 +339,8 @@ async function saveVehiculo() {
     errorMessage.value = Array.isArray(data)
       ? data.map((e) => e.msg).join('; ')
       : data?.detail || 'Error al guardar el vehículo'
+  } finally {
+    saving.value = false
   }
 }
 
@@ -358,6 +426,19 @@ function label(id, list) {
           <div class="flex flex-col items-center justify-center py-12 text-muted-color">
             <i class="pi pi-truck text-4xl mb-3 opacity-40" />
             <p class="text-sm font-medium">No hay vehículos registrados</p>
+          </div>
+        </template>
+        <template #loading>
+          <div v-for="n in 5" :key="n" class="flex items-center gap-4 p-2">
+            <Skeleton width="12%" height="1rem" />
+            <Skeleton width="16%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="14%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="10%" height="1rem" />
+            <Skeleton width="12%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
           </div>
         </template>
 
@@ -733,6 +814,8 @@ function label(id, list) {
               v-if="activeStep === 4"
               :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
               icon="pi pi-check"
+              :loading="saving"
+              :disabled="saving"
               @click="saveVehiculo"
             />
           </div>
