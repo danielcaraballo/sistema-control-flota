@@ -8,20 +8,13 @@ import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
-import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
-import Message from 'primevue/message'
-import Stepper from 'primevue/stepper'
-import StepList from 'primevue/steplist'
-import StepPanels from 'primevue/steppanels'
-import Step from 'primevue/step'
-import StepPanel from 'primevue/steppanel'
-import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
+import Skeleton from 'primevue/skeleton'
 import PageHeader from '@/components/PageHeader.vue'
+import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
 
 const toast = useToast()
 const auth = useAuthStore()
@@ -71,11 +64,6 @@ const initialForm = () => ({
 const form = ref(initialForm())
 
 const isCreating = computed(() => !editingVehiculo.value)
-
-const filteredModelos = computed(() => {
-  if (!form.value.marca_id) return []
-  return modelos.value.filter((m) => m.marca === form.value.marca_id)
-})
 
 function placaSeverity(nombre) {
   const map = {
@@ -275,25 +263,6 @@ async function openEdit(vehiculo) {
   showDialog.value = true
 }
 
-function validateStep(step) {
-  const f = form.value
-  if (step === 1) return f.numero_economico && f.vin
-  if (step === 2) return f.categoria_id && f.marca_id && f.modelo_id && f.anio && f.estatus_id
-  if (step === 3) return f.estado_id && f.gerencia_id && f.emplazamiento_id
-  return true
-}
-
-function goToStep(step) {
-  submitted.value = true
-  errorMessage.value = ''
-  if (!validateStep(activeStep.value)) return
-  activeStep.value = step
-}
-
-function goBack() {
-  activeStep.value = activeStep.value - 1
-}
-
 async function saveVehiculo() {
   submitted.value = true
   saving.value = true
@@ -368,10 +337,6 @@ onMounted(async () => {
     await loadVehiculoForEdit(route.query.editar)
   }
 })
-
-function label(id, list) {
-  return list.find((i) => i.id === id)?.nombre ?? ''
-}
 </script>
 
 <template>
@@ -491,336 +456,25 @@ function label(id, list) {
       :closable="true"
       :draggable="false"
     >
-      <Message v-if="errorMessage" severity="error" :closable="false" class="!mb-4 !text-xs">
-        {{ errorMessage }}
-      </Message>
-
-      <Stepper :value="activeStep" :linear="isCreating" class="h-full flex flex-col">
-        <div class="flex gap-4 flex-1 min-h-0">
-          <StepList class="flex-col w-44 shrink-0 border-r border-card-border pr-4">
-            <Step :value="1">Identificación</Step>
-            <Step :value="2">Características</Step>
-            <Step :value="3">Asignación</Step>
-            <Step :value="4">Confirmar</Step>
-          </StepList>
-          <StepPanels class="flex-1">
-            <StepPanel :value="1">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                <div class="flex flex-col gap-1 col-span-2">
-                  <label class="text-sm font-semibold">Número económico</label>
-                  <InputText
-                    v-model="form.numero_economico"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.numero_economico }"
-                  />
-                  <small v-if="submitted && !form.numero_economico" class="text-xs text-red-500">
-                    El número económico es requerido
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1 col-span-2">
-                  <label class="text-sm font-semibold">Serial de carrocería</label>
-                  <InputText
-                    v-model="form.vin"
-                    class="w-full"
-                    maxlength="17"
-                    :class="{ 'p-invalid': submitted && !form.vin }"
-                  />
-                  <small v-if="submitted && !form.vin" class="text-xs text-red-500">
-                    El serial de carrocería es requerido
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Placa</label>
-                  <InputText v-model="form.placa" class="w-full" />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Color de placa</label>
-                  <Dropdown
-                    v-model="form.color_placa_id"
-                    :options="coloresPlaca"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    showClear
-                  />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Placa INTT</label>
-                  <InputText v-model="form.placa_intt" class="w-full" />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Serial del motor</label>
-                  <InputText v-model="form.serial_motor" class="w-full" />
-                </div>
-                <div class="flex flex-col gap-1 col-span-2">
-                  <label class="text-sm font-semibold">N° Unidad</label>
-                  <InputText v-model="form.numero_unidad" class="w-full" />
-                </div>
-              </div>
-            </StepPanel>
-
-            <StepPanel :value="2">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Categoría</label>
-                  <Dropdown
-                    v-model="form.categoria_id"
-                    :options="tiposVehiculo"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.categoria_id }"
-                  />
-                  <small v-if="submitted && !form.categoria_id" class="text-xs text-red-500">
-                    La categoría es requerida
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Marca</label>
-                  <Dropdown
-                    v-model="form.marca_id"
-                    :options="marcas"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.marca_id }"
-                  />
-                  <small v-if="submitted && !form.marca_id" class="text-xs text-red-500">
-                    La marca es requerida
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Modelo</label>
-                  <Dropdown
-                    v-model="form.modelo_id"
-                    :options="filteredModelos"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Primero selecciona una marca"
-                    class="w-full"
-                    :disabled="!form.marca_id"
-                    :class="{ 'p-invalid': submitted && !form.modelo_id }"
-                  />
-                  <small v-if="submitted && !form.modelo_id" class="text-xs text-red-500">
-                    El modelo es requerido
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Año</label>
-                  <InputNumber
-                    v-model="form.anio"
-                    class="w-full"
-                    :useGrouping="false"
-                    :min="1900"
-                    :max="2099"
-                    :class="{ 'p-invalid': submitted && !form.anio }"
-                  />
-                  <small v-if="submitted && !form.anio" class="text-xs text-red-500">
-                    El año es requerido
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Color</label>
-                  <Dropdown
-                    v-model="form.color_id"
-                    :options="colores"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    showClear
-                  />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Estatus</label>
-                  <Dropdown
-                    v-model="form.estatus_id"
-                    :options="estatusVehiculo"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.estatus_id }"
-                  />
-                  <small v-if="submitted && !form.estatus_id" class="text-xs text-red-500">
-                    El estatus es requerido
-                  </small>
-                </div>
-              </div>
-            </StepPanel>
-
-            <StepPanel :value="3">
-              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Estado</label>
-                  <Dropdown
-                    v-model="form.estado_id"
-                    :options="estados"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.estado_id }"
-                  />
-                  <small v-if="submitted && !form.estado_id" class="text-xs text-red-500">
-                    El estado es requerido
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Gerencia</label>
-                  <Dropdown
-                    v-model="form.gerencia_id"
-                    :options="gerencias"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.gerencia_id }"
-                  />
-                  <small v-if="submitted && !form.gerencia_id" class="text-xs text-red-500">
-                    La gerencia es requerida
-                  </small>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Unidad usuaria</label>
-                  <Dropdown
-                    v-model="form.unidad_usuaria_id"
-                    :options="gerencias"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    showClear
-                  />
-                </div>
-                <div class="flex flex-col gap-1">
-                  <label class="text-sm font-semibold">Emplazamiento</label>
-                  <Dropdown
-                    v-model="form.emplazamiento_id"
-                    :options="centrosServicio"
-                    optionLabel="nombre"
-                    optionValue="id"
-                    placeholder="Seleccionar"
-                    class="w-full"
-                    :class="{ 'p-invalid': submitted && !form.emplazamiento_id }"
-                  />
-                  <small v-if="submitted && !form.emplazamiento_id" class="text-xs text-red-500">
-                    El emplazamiento es requerido
-                  </small>
-                </div>
-              </div>
-            </StepPanel>
-
-            <StepPanel :value="4">
-              <div class="space-y-2">
-                <p class="text-sm text-muted-color font-semibold mb-2">
-                  Revisa los datos antes de {{ isCreating ? 'crear' : 'guardar' }}:
-                </p>
-
-                <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
-                  <i class="pi pi-id-card text-primary" /> Identificación
-                </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
-                  <span class="text-muted-color text-sm">N° Económico</span>
-                  <span class="text-sm font-medium">{{ form.numero_economico }}</span>
-                  <span class="text-muted-color text-sm">Serial carrocería</span>
-                  <span class="text-sm font-medium font-mono">{{ form.vin }}</span>
-                  <span class="text-muted-color text-sm">Placa</span>
-                  <span class="text-sm font-medium">{{ form.placa || '—' }}</span>
-                  <span class="text-muted-color text-sm">Placa INTT</span>
-                  <span class="text-sm font-medium">{{ form.placa_intt || '—' }}</span>
-                  <span class="text-muted-color text-sm">Serial del motor</span>
-                  <span class="text-sm font-medium">{{ form.serial_motor || '—' }}</span>
-                  <span class="text-muted-color text-sm">N° Unidad</span>
-                  <span class="text-sm font-medium">{{ form.numero_unidad || '—' }}</span>
-                </div>
-
-                <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
-                  <i class="pi pi-cog text-primary" /> Características
-                </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1 mb-2">
-                  <span class="text-muted-color text-sm">Categoría</span>
-                  <span class="text-sm font-medium">{{
-                    label(form.categoria_id, tiposVehiculo)
-                  }}</span>
-                  <span class="text-muted-color text-sm">Marca</span>
-                  <span class="text-sm font-medium">{{ label(form.marca_id, marcas) }}</span>
-                  <span class="text-muted-color text-sm">Modelo</span>
-                  <span class="text-sm font-medium">{{ label(form.modelo_id, modelos) }}</span>
-                  <span class="text-muted-color text-sm">Año</span>
-                  <span class="text-sm font-medium">{{ form.anio }}</span>
-                  <span class="text-muted-color text-sm">Color</span>
-                  <span class="text-sm font-medium">{{
-                    label(form.color_id, colores) || '—'
-                  }}</span>
-                  <span class="text-muted-color text-sm">Estatus</span>
-                  <span class="text-sm font-medium">{{
-                    label(form.estatus_id, estatusVehiculo)
-                  }}</span>
-                </div>
-
-                <div class="text-sm font-semibold text-color mb-2 flex items-center gap-2">
-                  <i class="pi pi-map-marker text-primary" /> Asignación
-                </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-1">
-                  <span class="text-muted-color text-sm">Estado</span>
-                  <span class="text-sm font-medium">{{ label(form.estado_id, estados) }}</span>
-                  <span class="text-muted-color text-sm">Gerencia</span>
-                  <span class="text-sm font-medium">{{ label(form.gerencia_id, gerencias) }}</span>
-                  <span class="text-muted-color text-sm">Unidad usuaria</span>
-                  <span class="text-sm font-medium">{{
-                    label(form.unidad_usuaria_id, gerencias) || '—'
-                  }}</span>
-                  <span class="text-muted-color text-sm">Emplazamiento</span>
-                  <span class="text-sm font-medium">{{
-                    label(form.emplazamiento_id, centrosServicio)
-                  }}</span>
-                </div>
-              </div>
-            </StepPanel>
-          </StepPanels>
-        </div>
-      </Stepper>
-
-      <template #footer>
-        <div class="flex justify-between w-full">
-          <div>
-            <Button
-              v-if="activeStep > 1"
-              label="Atrás"
-              severity="secondary"
-              icon="pi pi-arrow-left"
-              @click="goBack"
-            />
-          </div>
-          <div class="flex gap-2">
-            <Button
-              v-if="activeStep < 4"
-              label="Cancelar"
-              severity="secondary"
-              @click="showDialog = false"
-            />
-            <Button
-              v-if="activeStep < 4"
-              label="Siguiente"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              @click="goToStep(activeStep + 1)"
-            />
-            <Button
-              v-if="activeStep === 4"
-              :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
-              icon="pi pi-check"
-              :loading="saving"
-              :disabled="saving"
-              @click="saveVehiculo"
-            />
-          </div>
-        </div>
-      </template>
+      <VehiculoFormStepper
+        v-model:active-step="activeStep"
+        v-model:submitted="submitted"
+        v-model:form="form"
+        :error-message="errorMessage"
+        :is-creating="isCreating"
+        :saving="saving"
+        :marcas="marcas"
+        :modelos="modelos"
+        :tipos-vehiculo="tiposVehiculo"
+        :colores="colores"
+        :colores-placa="coloresPlaca"
+        :estatus-vehiculo="estatusVehiculo"
+        :estados="estados"
+        :gerencias="gerencias"
+        :centros-servicio="centrosServicio"
+        @save="saveVehiculo"
+        @cancel="showDialog = false"
+      />
     </Dialog>
   </div>
 </template>
@@ -832,9 +486,5 @@ function label(id, list) {
 .p-datatable-tbody tr:hover {
   background-color: var(--p-card-hover);
   cursor: pointer;
-}
-.p-steplist .p-step {
-  justify-content: flex-start;
-  text-align: left;
 }
 </style>

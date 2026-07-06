@@ -1,15 +1,17 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
 import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,6 +23,48 @@ const loading = ref(true)
 const notFound = ref(false)
 const showDeactivateDialog = ref(false)
 const showActivateDialog = ref(false)
+
+// Edit dialog state
+const showEditDialog = ref(false)
+const editForm = ref(initialEditForm())
+const editSubmitted = ref(false)
+const editActiveStep = ref(1)
+const editErrorMessage = ref('')
+const editSaving = ref(false)
+const editIsCreating = computed(() => false)
+
+// Catalogs loaded for edit dialog
+const marcas = ref([])
+const modelos = ref([])
+const tiposVehiculo = ref([])
+const colores = ref([])
+const coloresPlaca = ref([])
+const estatusVehiculo = ref([])
+const estados = ref([])
+const gerencias = ref([])
+const centrosServicio = ref([])
+
+function initialEditForm() {
+  return {
+    numero_economico: '',
+    vin: '',
+    placa: '',
+    color_placa_id: null,
+    placa_intt: '',
+    serial_motor: '',
+    numero_unidad: '',
+    categoria_id: null,
+    marca_id: null,
+    modelo_id: null,
+    anio: null,
+    color_id: null,
+    estatus_id: null,
+    estado_id: null,
+    gerencia_id: null,
+    unidad_usuaria_id: null,
+    emplazamiento_id: null,
+  }
+}
 
 function placaSeverity(nombre) {
   const map = {
@@ -65,12 +109,163 @@ async function loadVehiculo() {
   }
 }
 
+async function loadCatalogos() {
+  const calls = [
+    api
+      .get('/catalogos/marcas/')
+      .then((r) => {
+        marcas.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/modelos/')
+      .then((r) => {
+        modelos.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/tipos-vehiculo/')
+      .then((r) => {
+        tiposVehiculo.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/colores/')
+      .then((r) => {
+        colores.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/colores-placa/')
+      .then((r) => {
+        coloresPlaca.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/estatus-vehiculo/')
+      .then((r) => {
+        estatusVehiculo.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/organizacion/estados/')
+      .then((r) => {
+        estados.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/organizacion/gerencias/')
+      .then((r) => {
+        gerencias.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/organizacion/centros-servicio/')
+      .then((r) => {
+        centrosServicio.value = r.data
+      })
+      .catch(() => {}),
+  ]
+  await Promise.allSettled(calls)
+}
+
 function volver() {
   router.push({ name: 'vehiculos' })
 }
 
-function editar() {
-  router.push({ name: 'vehiculos', query: { editar: route.params.id } })
+function abrirEdicion() {
+  if (!vehiculo.value) return
+  editErrorMessage.value = ''
+  editActiveStep.value = 1
+  editSubmitted.value = false
+  const v = vehiculo.value
+  editForm.value = {
+    numero_economico: v.numero_economico,
+    vin: v.vin,
+    placa: v.placa ?? '',
+    color_placa_id: v.color_placa ?? null,
+    placa_intt: v.placa_intt,
+    serial_motor: v.serial_motor,
+    numero_unidad: v.numero_unidad ?? '',
+    categoria_id: v.categoria,
+    marca_id: v.marca,
+    modelo_id: v.modelo,
+    anio: v.anio,
+    color_id: v.color ?? null,
+    estatus_id: v.estatus,
+    estado_id: v.estado,
+    gerencia_id: v.gerencia,
+    unidad_usuaria_id: v.unidad_usuaria ?? null,
+    emplazamiento_id: v.emplazamiento,
+  }
+  showEditDialog.value = true
+}
+
+async function actualizarVehiculo() {
+  if (!vehiculo.value) return
+  editSubmitted.value = true
+  editSaving.value = true
+  editErrorMessage.value = ''
+
+  const payload = {
+    numero_economico: editForm.value.numero_economico,
+    vin: editForm.value.vin,
+    placa: editForm.value.placa || null,
+    color_placa_id: editForm.value.color_placa_id,
+    placa_intt: editForm.value.placa_intt || '',
+    serial_motor: editForm.value.serial_motor || '',
+    numero_unidad: editForm.value.numero_unidad || null,
+    categoria_id: editForm.value.categoria_id,
+    marca_id: editForm.value.marca_id,
+    modelo_id: editForm.value.modelo_id,
+    anio: editForm.value.anio,
+    color_id: editForm.value.color_id,
+    estatus_id: editForm.value.estatus_id,
+    estado_id: editForm.value.estado_id,
+    gerencia_id: editForm.value.gerencia_id,
+    unidad_usuaria_id: editForm.value.unidad_usuaria_id || null,
+    emplazamiento_id: editForm.value.emplazamiento_id,
+  }
+
+  try {
+    const { data } = await api.put(`/vehiculos/${vehiculo.value.id}`, payload)
+    showEditDialog.value = false
+    vehiculo.value = data
+    toast.add({
+      severity: 'success',
+      summary: 'Vehículo actualizado',
+      detail: `${data.numero_economico} — ${data.marca_nombre} ${data.modelo_nombre}`,
+      life: 4000,
+    })
+  } catch (err) {
+    const data = err.response?.data
+    editErrorMessage.value = Array.isArray(data)
+      ? data.map((e) => e.msg).join('; ')
+      : data?.detail || 'Error al guardar el vehículo'
+  } finally {
+    editSaving.value = false
+  }
+}
+
+function descargarQR() {
+  if (!vehiculo.value?.codigo_qr) return
+  const link = document.createElement('a')
+  link.href = vehiculo.value.codigo_qr
+  link.download = `${vehiculo.value.numero_economico}_qr.png`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function imprimirQR() {
+  if (!vehiculo.value?.codigo_qr) return
+  const win = window.open('', '_blank')
+  win.document.write(
+    `<!DOCTYPE html><html><head><title>QR ${vehiculo.value.numero_economico}</title><style>body{display:flex;justify-content:center;align-items:center;height:100vh;margin:0}img{max-width:90vw;max-height:90vh}</style></head><body><img src="${vehiculo.value.codigo_qr}" /></body></html>`,
+  )
+  win.document.close()
+  win.focus()
+  setTimeout(() => win.print(), 300)
 }
 
 function confirmDesactivar() {
@@ -125,7 +320,9 @@ async function activar() {
   }
 }
 
-onMounted(loadVehiculo)
+onMounted(async () => {
+  await Promise.all([loadVehiculo(), loadCatalogos()])
+})
 watch(() => route.params.id, loadVehiculo)
 </script>
 
@@ -148,7 +345,7 @@ watch(() => route.params.id, loadVehiculo)
       />
       <div v-else class="flex-1" />
       <div v-if="auth.tieneRol('nacional')" class="flex gap-2 shrink-0">
-        <Button label="Editar" icon="pi pi-pencil" severity="secondary" @click="editar" />
+        <Button label="Editar" icon="pi pi-pencil" severity="secondary" @click="abrirEdicion" />
         <Button
           v-if="vehiculo?.estatus_activo"
           label="Desactivar"
@@ -206,6 +403,22 @@ watch(() => route.params.id, loadVehiculo)
               class="w-44 h-44 border border-card-border rounded-md"
             />
             <span class="text-xs text-muted-color">Código QR</span>
+            <div v-if="vehiculo.codigo_qr" class="flex gap-1">
+              <Button
+                icon="pi pi-download"
+                text
+                size="small"
+                v-tooltip.top="'Descargar QR'"
+                @click="descargarQR"
+              />
+              <Button
+                icon="pi pi-print"
+                text
+                size="small"
+                v-tooltip.top="'Imprimir QR'"
+                @click="imprimirQR"
+              />
+            </div>
           </div>
 
           <div class="flex-1 min-w-0 space-y-6">
@@ -306,5 +519,34 @@ watch(() => route.params.id, loadVehiculo)
       confirmSeverity="success"
       @confirm="activar"
     />
+
+    <Dialog
+      v-model:visible="showEditDialog"
+      header="Editar vehículo"
+      :modal="true"
+      :style="{ width: '780px', height: '620px' }"
+      :closable="true"
+      :draggable="false"
+    >
+      <VehiculoFormStepper
+        v-model:active-step="editActiveStep"
+        v-model:submitted="editSubmitted"
+        v-model:form="editForm"
+        :error-message="editErrorMessage"
+        :is-creating="editIsCreating"
+        :saving="editSaving"
+        :marcas="marcas"
+        :modelos="modelos"
+        :tipos-vehiculo="tiposVehiculo"
+        :colores="colores"
+        :colores-placa="coloresPlaca"
+        :estatus-vehiculo="estatusVehiculo"
+        :estados="estados"
+        :gerencias="gerencias"
+        :centros-servicio="centrosServicio"
+        @save="actualizarVehiculo"
+        @cancel="showEditDialog = false"
+      />
+    </Dialog>
   </div>
 </template>
