@@ -45,11 +45,12 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 
 ## Commits
 
-- Formato [Conventional Commits](https://www.conventionalcommits.org/).
-- `tipo: mensaje en español` (minúscula, sin punto final).
-- Tipos: `feat`, `fix`, `refactor`, `perf`, `style`, `docs`, `test`, `chore`.
-- Alcance opcional entre paréntesis: `fix(vehiculos): descripción`.
-- Máximo 72 caracteres. Cuerpo si se necesita explicar el qué y el porqué.
+Formato [Conventional Commits](https://www.conventionalcommits.org/).
+
+- `tipo: mensaje en español` (minúscula, sin punto final)
+- Tipos: `feat`, `fix`, `refactor`, `perf`, `style`, `docs`, `test`, `chore`
+- Alcance opcional entre paréntesis: `fix(vehiculos): descripción`
+- Máximo 72 caracteres. Cuerpo opcional para explicar qué y porqué
 
 ## Repo-level
 
