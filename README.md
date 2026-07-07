@@ -17,7 +17,7 @@ Sistema corporativo para la gestión integral de flota vehicular. Centraliza el 
 | Autenticación | django-ninja-jwt (access + refresh tokens) |
 | Frontend | Vue 3.5 · Pinia · Vue Router 5 |
 | UI | PrimeVue 4 · PrimeIcons · Tailwind CSS 4 |
-| PWA | vite-plugin-pwa (offline-first) |
+| PWA | vite-plugin-pwa (manifest + SW shell; offline logic planificado) |
 | Base de datos | PostgreSQL 15+ (SQLite en desarrollo) |
 | Linting | Ruff (backend) · ESLint + Prettier (frontend) |
 | Gestión de deps | uv (backend) · npm (frontend) |
@@ -52,6 +52,10 @@ npm run dev
 sistema-control-flota/
 ├── backend/
 │   ├── config/              # Configuración Django (settings, urls, api root)
+│   │   └── api.py           #   NinjaAPI root + routers
+│   ├── utils/               # Helpers compartidos
+│   │   ├── api_helpers.py   #   filter_activos, get_object_or_404, check_duplicate
+│   │   └── crud_factory.py  #   register_crud + CrudConfig genérico
 │   ├── usuarios/            # App: Usuario (AbstractUser), Auth, CRUD usuarios
 │   │   ├── auth_api.py      #   Login, refresh, /me, change-password
 │   │   ├── usuarios_api.py  #   CRUD usuarios + reset password
@@ -87,7 +91,8 @@ sistema-control-flota/
 │   │   └── router/          # Vue Router + guards
 │   └── package.json
 ├── docs/
-│   └── architecture.md      # C4, DER, APIs, ADRs
+│   ├── architecture.md      # C4, stack, ADRs, NFRs
+│   └── database.md          # DER, data dictionary, RBAC
 └── README.md
 ```
 
@@ -125,7 +130,8 @@ npm run format                         # Formateo (Prettier)
 
 ## Documentación
 
-- **Arquitectura y DER:** [`docs/architecture.md`](docs/architecture.md)
+- **Arquitectura:** [`docs/architecture.md`](docs/architecture.md)
+- **Base de datos y DER:** [`docs/database.md`](docs/database.md)
 - **API (Swagger):** `/api/docs` (servidor backend corriendo)
 
 ## Pruebas

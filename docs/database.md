@@ -113,7 +113,7 @@ erDiagram
         int color_placa_id FK
         string placa_intt
         string serial_motor
-        string numero_unidad
+        string numero_unidad UK
         int categoria_id FK
         int marca_id FK
         int modelo_id FK
@@ -177,7 +177,7 @@ erDiagram
 | `first_name` | CharField | — | Nombre |
 | `last_name` | CharField | — | Apellido |
 | `rol` | CharField(25) | Choices | `mecanico`, `analista`, `estatal`, `nacional` |
-| `estado` | ForeignKey(Estado) | NULL, BLANK, SET_NULL | Estado de asignación. Nulo solo si rol es `nacional` |
+| `estado` | ForeignKey(Estado) | NULL, BLANK | Estado de asignación. Nulo solo si rol es `nacional`. on_delete=SET_NULL |
 | `is_active` | BooleanField | — | Heredado de AbstractUser |
 | `is_staff`, `date_joined`, etc. | — | — | Heredado de AbstractUser |
 
@@ -186,31 +186,29 @@ erDiagram
 | Campo | Tipo | Restricciones | Descripción |
 |---|---|---|---|
 | `id` | BigAutoField | PK | |
-| `numero_economico` | CharField(50) | UNIQUE | ID interno. Único nacional. |
-| `vin` | CharField(17) | UNIQUE | Serial de chasis. Único nacional. |
-| `numero_unidad` | CharField(50) | UNIQUE, NULL | Número alterno de unidad. |
+| `numero_economico` | CharField(50) | UNIQUE (incondicional) | ID interno. Único nacional. |
+| `vin` | CharField(17) | UNIQUE (incondicional) | Serial de chasis. Único nacional. |
+| `numero_unidad` | CharField(50) | UNIQUE (incondicional), NULL | Número alterno de unidad. |
 | `placa` | CharField(20) | NULL, BLANK | Matrícula gubernamental. |
-| `color_placa` | FK(ColorPlaca) | NULL, BLANK | Color de la placa. |
+| `color_placa` | FK(ColorPlaca) | NULL, BLANK | Color de la placa. on_delete=RESTRICT |
 | `placa_intt` | CharField(20) | BLANK | Placa INTT. |
 | `serial_motor` | CharField(50) | BLANK | Serial del motor. |
 | `anio` | IntegerField | — | Año. |
-| `marca` | FK(Marca) | RESTRICT | |
-| `modelo` | FK(Modelo) | RESTRICT | |
-| `categoria` | FK(TipoVehiculo) | RESTRICT | Tipo/categoría. |
-| `color` | FK(Color) | NULL, BLANK | |
-| `estatus` | FK(EstatusVehiculo) | RESTRICT | Estatus operativo. |
-| `estado` | FK(Estado) | RESTRICT | Estado donde opera. |
-| `gerencia` | FK(Gerencia) | RESTRICT | Gerencia propietaria. |
-| `unidad_usuaria` | FK(Gerencia) | NULL, BLANK | Gerencia usuaria. |
-| `emplazamiento` | FK(CentroDeServicio) | RESTRICT | Centro de servicio. |
+| `marca` | FK(Marca) | RESTRICT | on_delete=RESTRICT |
+| `modelo` | FK(Modelo) | RESTRICT | on_delete=RESTRICT |
+| `categoria` | FK(TipoVehiculo) | RESTRICT | Tipo/categoría. on_delete=RESTRICT |
+| `color` | FK(Color) | NULL, BLANK | on_delete=RESTRICT |
+| `estatus` | FK(EstatusVehiculo) | RESTRICT | Estatus operativo. on_delete=RESTRICT |
+| `estado` | FK(Estado) | RESTRICT | Estado donde opera. on_delete=RESTRICT |
+| `gerencia` | FK(Gerencia) | RESTRICT | Gerencia propietaria. on_delete=RESTRICT |
+| `unidad_usuaria` | FK(Gerencia) | NULL, BLANK | Gerencia usuaria. related_name="vehiculos_usuarios". on_delete=RESTRICT |
+| `emplazamiento` | FK(CentroDeServicio) | RESTRICT | Centro de servicio. on_delete=RESTRICT |
 | `codigo_qr` | TextField | BLANK | QR en base64 (autogenerado). |
 | `estatus_activo` | BooleanField | Default: True | Soft-delete. |
 
-**Constraints (condicionales a `estatus_activo=True`):**
-- `UniqueConstraint(numero_economico)` — número económico único entre activos.
-- `UniqueConstraint(vin)` — VIN único entre activos.
-- `UniqueConstraint(numero_unidad)` — número de unidad único entre activos (nullable, permite múltiples NULL).
-- `UniqueConstraint(placa, color_placa)` — una placa no puede repetirse en el mismo color entre activos.
+**Constraints:**
+- `unique=True` en `numero_economico`, `vin` y `numero_unidad` — identificadores únicos a nivel nacional, incluso para registros inactivos.
+- `UniqueConstraint(placa, color_placa, condition=Q(estatus_activo=True))` — una placa no puede repetirse en el mismo color entre activos.
 
 Los catálogos y organización usan el mismo patrón: toda `UNIQUE` es condicional `WHERE estatus_activo = 1`, permitiendo reciclar nombres/valores de registros soft-deleteados sin violar integridad.
 
@@ -221,14 +219,14 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | Modelo | App | Campos | FK | UniqueConstraint (condicional) |
 |---|---|---|---|---|
 | `Marca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
-| `Modelo` | catalogos | `id`, `nombre`, `marca_id`, `estatus_activo` | Marca | `(nombre, marca)` |
+| `Modelo` | catalogos | `id`, `nombre`, `marca_id`, `estatus_activo` | Marca (on_delete=CASCADE) | `(nombre, marca)` |
 | `TipoVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `TipoUso` | catalogos | `id`, `nombre`, `estatus_activo` | — (huérfano, sin FK) | `nombre` |
 | `Color` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `SistemaAfectado` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `EstatusVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `ColorPlaca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
-| `TipoFalla` | catalogos | `id`, `descripcion`, `sistema_afectado_id`, `estatus_activo` | SistemaAfectado | `descripcion` |
+| `TipoFalla` | catalogos | `id`, `descripcion`, `sistema_afectado_id` (null=True), `estatus_activo` | SistemaAfectado (on_delete=RESTRICT, null=True) | `descripcion` |
 
 ## Reglas de Negocio
 
@@ -267,7 +265,7 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | Gestionar Catálogos | ✅ CRUD | ❌ | ❌ | ❌ |
 | CRUD Vehículos | ✅ CRUD | ❌ | ❌ | ❌ |
 | Ver Ficha Técnica (QR) | ✅ Todo | ✅ Su Estado | ✅ Su Estado | ✅ Su Estado |
-| Generar Diagnóstico (Taller) | 🚧 | ❌ | ❌ | 🚧 |
+| Generar Diagnóstico (Taller) | 🚧 | 🚧 | ❌ | 🚧 |
 | Cotizar / Aprobar OS | 🚧 | 🚧 | 🚧 | ❌ |
-| Dashboard | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton | ❌ |
-| Reportes | 🚧 | 🚧 | ❌ | ❌ |
+| Dashboard | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton |
+| Reportes | 🚧 | ❌ | ❌ | ❌ |

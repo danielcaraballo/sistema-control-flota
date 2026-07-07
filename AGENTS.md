@@ -34,12 +34,12 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
   - **Tabbed catalog views** (`OrganizacionView`, `CatalogosView`): `TabView` + `TabPanel` reusing `CatalogoTabContent` component which handles generic CRUD (DataTable, Dialog, soft-delete/reactivate, skeleton loading).
   - **Detail view** (`VehiculoDetalleView`): Ficha técnica with QR code, 3 sections (Identificación, Características, Asignación), actions for edit/deactivate.
 - **API client**: `@/services/api.js` — Axios with baseURL from `VITE_API_URL` env var (default `http://localhost:8000/api`). Bearer token from `localStorage.access_token`, auto-refresh on 401.
-- **Router**: `src/router/index.js`. Guard `beforeEach` checks `requiresAuth` and `rolMinimo` meta. Routes use `meta: { rolMinimo: 'nacional' }` where applicable. `rolMinimo` values from `@/utils/roles` (`ROL_NACIONAL`, `ROL_ANALISTA`).
+- **Router**: `src/router/index.js`. Guard `beforeEach` checks `requiresAuth` and `rolMinimo` meta. Routes use `meta: { rolMinimo: ROL_NACIONAL }` where applicable. `rolMinimo` values from `@/utils/roles` (`ROL_NACIONAL`, `ROL_ANALISTA`).
 - **Sidebar**: Built dynamically in `DefaultLayout.vue` via `auth.tieneRol()`. Items: Dashboard (all), Vehiculos (all), Taller (all), Reportes (ANALISTA+), Usuarios/Organización/Catálogos (NACIONAL only).
 - **ESLint**: Flat config (`eslint.config.js`). No `vue/multi-word-component-names`. Prettier as plugin: no semi, single quotes, trailing commas, printWidth 100.
 - **Styling**: Tailwind v4 (`@import 'tailwindcss'` in `main.css`, no config file). `tailwindcss-primeui` plugin bridges PrimeVue + Tailwind. Custom CSS variables for sidebar dimensions and page background in `main.css`.
 - **Theme**: Light/dark/system toggle in `UserDropdown.vue`, managed by `@/composables/useTheme.js`. Dark class (`p-dark`) applied to `<html>`.
-- **Role utils**: `@/utils/roles.js` exports `tieneRolMinimo()`, `esEstatal()`, `rolLabel()`, `rolSeverity()`, role constants, and `ROLES`/`ESTATAL_ROLES` arrays.
+- **Role utils**: `@/utils/roles.js` exports `ROL_MECANICO`, `ROL_ANALISTA`, `ROL_ESTATAL`, `ROL_NACIONAL`, `tieneRolMinimo()`, `esEstatal()`, `rolLabel()`, `rolSeverity()`, and `ROLES`/`ESTATAL_ROLES` arrays.
 
 ## Commits
 
@@ -52,7 +52,7 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 ## Repo-level
 
 - No Makefile, no CI, no pre-commit hooks. No `.env` files tracked (`.env.example` in each directory).
-- Docs in `docs/architecture.md` (C4, stack, ADRs) and `docs/database.md` (DER, data dictionary, RBAC).
+- Docs in `docs/architecture.md` (C4, stack, ADRs, NFRs) and `docs/database.md` (DER, data dictionary, RBAC).
 
 ## Documentation rules
 
@@ -60,4 +60,3 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 - **`docs/architecture.md`** is the source of truth for C4 diagrams, stack versions, and ADRs. UPDATE when stack or architectural decisions change.
 - **`CHANGELOG.md`** is version history. UPDATE on each meaningful change (new feature, breaking change, milestone).
 - **README.md** must reflect current structure and commands. UPDATE when directory structure or dev workflow changes.
-- **Obsidian docs** (`/mnt/c/Users/.../02-Proyectos/Sistema de Control de Flota (SCF)/`) track backlog/project status. UPDATE after each sprint.
