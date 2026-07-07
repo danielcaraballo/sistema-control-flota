@@ -13,14 +13,12 @@ Sistema corporativo para la gestión integral de flota vehicular. Centraliza el 
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Python 3.11+ · Django 5.2 · Django Ninja |
-| Autenticación | django-ninja-jwt (access + refresh tokens) |
-| Frontend | Vue 3.5 · Pinia · Vue Router 5 |
-| UI | PrimeVue 4 · PrimeIcons · Tailwind CSS 4 |
-| PWA | vite-plugin-pwa (manifest + SW shell; offline logic planificado) |
+| Backend | Python + Django + Ninja |
+| Frontend | Vue 3 + Pinia + Vite |
+| UI | PrimeVue 4 + Tailwind CSS 4 |
 | Base de datos | PostgreSQL 15+ (SQLite en desarrollo) |
-| Linting | Ruff (backend) · ESLint + Prettier (frontend) |
-| Gestión de deps | uv (backend) · npm (frontend) |
+
+Versiones exactas y dependencias adicionales en [`docs/architecture.md`](docs/architecture.md).
 
 ## Requisitos
 

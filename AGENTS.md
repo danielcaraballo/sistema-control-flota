@@ -1,4 +1,6 @@
-# SCF — Sistema de Control de Flota
+# SCF — AI Agent Instructions
+
+> Para humanos: ver [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No monorepo tool; each side runs independently.
 
