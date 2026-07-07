@@ -33,13 +33,6 @@ const emit = defineEmits(['update:form', 'update:activeStep', 'update:submitted'
 
 const localForm = ref({ ...props.form })
 watch(
-  () => props.form,
-  (val) => {
-    localForm.value = { ...val }
-  },
-  { deep: true },
-)
-watch(
   localForm,
   (val) => {
     emit('update:form', { ...val })
@@ -47,10 +40,19 @@ watch(
   { deep: true },
 )
 
+const maxAnio = computed(() => new Date().getFullYear() + 1)
+
 const filteredModelos = computed(() => {
   if (!localForm.value.marca_id) return []
   return props.modelos.filter((m) => m.marca === localForm.value.marca_id)
 })
+
+watch(
+  () => localForm.value.marca_id,
+  () => {
+    localForm.value.modelo_id = null
+  },
+)
 
 function validateStep(step) {
   const f = localForm.value
@@ -81,7 +83,12 @@ function label(id, list) {
       {{ errorMessage }}
     </Message>
 
-    <Stepper :value="activeStep" :linear="isCreating" class="flex-1 flex flex-col min-h-0">
+    <Stepper
+      :value="activeStep"
+      :linear="isCreating"
+      @update:value="!isCreating && $emit('update:activeStep', $event)"
+      class="flex-1 flex flex-col min-h-0"
+    >
       <div class="flex gap-4 flex-1 min-h-0">
         <StepList class="flex-col w-44 shrink-0 border-r border-card-border pr-4">
           <Step :value="1">Identificación</Step>
@@ -201,7 +208,7 @@ function label(id, list) {
                   class="w-full"
                   :useGrouping="false"
                   :min="1900"
-                  :max="2099"
+                  :max="maxAnio"
                   :class="{ 'p-invalid': submitted && !localForm.anio }"
                 />
                 <small v-if="submitted && !localForm.anio" class="text-xs text-red-500">
@@ -316,6 +323,10 @@ function label(id, list) {
                 <span class="text-sm font-medium font-mono">{{ localForm.vin }}</span>
                 <span class="text-muted-color text-sm">Placa</span>
                 <span class="text-sm font-medium">{{ localForm.placa || '—' }}</span>
+                <span class="text-muted-color text-sm">Color de placa</span>
+                <span class="text-sm font-medium">{{
+                  label(localForm.color_placa_id, coloresPlaca) || '—'
+                }}</span>
                 <span class="text-muted-color text-sm">Placa INTT</span>
                 <span class="text-sm font-medium">{{ localForm.placa_intt || '—' }}</span>
                 <span class="text-muted-color text-sm">Serial del motor</span>

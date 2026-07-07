@@ -147,6 +147,21 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
         if check_duplicate(Vehiculo, "vin", payload["vin"], exclude_id=vehiculo_id):
             raise HttpError(409, "Ya existe un vehículo activo con ese VIN")
 
+    placa = payload.get("placa", v.placa)
+    color_placa = payload.get("color_placa_id", v.color_placa_id)
+    if placa and color_placa:
+        changed_placa = "placa" in payload and payload["placa"] != v.placa
+        changed_color = "color_placa_id" in payload and payload["color_placa_id"] != v.color_placa_id
+        if changed_placa or changed_color:
+            if check_duplicate_composite(
+                Vehiculo,
+                {"placa": placa, "color_placa_id": color_placa},
+                exclude_id=vehiculo_id,
+            ):
+                raise HttpError(
+                    409, "Ya existe un vehículo activo con esa placa para el mismo color de placa"
+                )
+
     for attr, value in payload.items():
         setattr(v, attr, value)
     v.save()

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { placaSeverity, estatusSeverity } from '@/utils/vehiculo'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
@@ -32,6 +33,13 @@ const editActiveStep = ref(1)
 const editErrorMessage = ref('')
 const editSaving = ref(false)
 const editIsCreating = computed(() => false)
+const editFormSnapshot = ref(null)
+const showConfirmClose = ref(false)
+
+const editFormModificado = computed(() => {
+  if (!editFormSnapshot.value) return false
+  return JSON.stringify(editForm.value) !== JSON.stringify(editFormSnapshot.value)
+})
 
 // Catalogs loaded for edit dialog
 const marcas = ref([])
@@ -43,6 +51,7 @@ const estatusVehiculo = ref([])
 const estados = ref([])
 const gerencias = ref([])
 const centrosServicio = ref([])
+const catalogosCargados = ref(false)
 
 function initialEditForm() {
   return {
@@ -64,27 +73,6 @@ function initialEditForm() {
     unidad_usuaria_id: null,
     emplazamiento_id: null,
   }
-}
-
-function placaSeverity(nombre) {
-  const map = {
-    Amarilla: 'warn',
-    Verde: 'success',
-    Azul: 'info',
-    Blanca: 'secondary',
-    Roja: 'danger',
-    Plateada: 'contrast',
-  }
-  return map[nombre] || 'info'
-}
-
-function estatusSeverity(nombre) {
-  const map = {
-    Operativo: 'success',
-    'En taller': 'warn',
-    'Fuera de servicio': 'danger',
-  }
-  return map[nombre] || 'info'
 }
 
 async function loadVehiculo() {
@@ -116,55 +104,118 @@ async function loadCatalogos() {
       .then((r) => {
         marcas.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar marcas',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/modelos/')
       .then((r) => {
         modelos.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar modelos',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/tipos-vehiculo/')
       .then((r) => {
         tiposVehiculo.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar tipos de vehículo',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/colores/')
       .then((r) => {
         colores.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar colores',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/colores-placa/')
       .then((r) => {
         coloresPlaca.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar colores de placa',
+          life: 4000,
+        })
+      }),
     api
       .get('/catalogos/estatus-vehiculo/')
       .then((r) => {
         estatusVehiculo.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar estatus de vehículo',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/estados/')
       .then((r) => {
         estados.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar estados',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/gerencias/')
       .then((r) => {
         gerencias.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar gerencias',
+          life: 4000,
+        })
+      }),
     api
       .get('/organizacion/centros-servicio/')
       .then((r) => {
         centrosServicio.value = r.data
       })
-      .catch(() => {}),
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar centros de servicio',
+          life: 4000,
+        })
+      }),
   ]
   await Promise.allSettled(calls)
 }
@@ -173,11 +224,18 @@ function volver() {
   router.push({ name: 'vehiculos' })
 }
 
-function abrirEdicion() {
+async function ensureCatalogos() {
+  if (catalogosCargados.value) return
+  await loadCatalogos()
+  catalogosCargados.value = true
+}
+
+async function abrirEdicion() {
   if (!vehiculo.value) return
   editErrorMessage.value = ''
   editActiveStep.value = 1
   editSubmitted.value = false
+  editSaving.value = false
   const v = vehiculo.value
   editForm.value = {
     numero_economico: v.numero_economico,
@@ -198,7 +256,33 @@ function abrirEdicion() {
     unidad_usuaria_id: v.unidad_usuaria ?? null,
     emplazamiento_id: v.emplazamiento,
   }
+  editFormSnapshot.value = JSON.parse(JSON.stringify(editForm.value))
+  await ensureCatalogos()
   showEditDialog.value = true
+}
+
+function onCancelarEdicion() {
+  if (editFormModificado.value) {
+    showConfirmClose.value = true
+  } else {
+    showEditDialog.value = false
+  }
+}
+
+function cerrarDialogEditar() {
+  showConfirmClose.value = false
+  showEditDialog.value = false
+  editFormSnapshot.value = null
+}
+
+function onDialogEditarClose(val) {
+  if (val) return
+  if (!showEditDialog.value) return
+  if (editFormModificado.value) {
+    showConfirmClose.value = true
+  } else {
+    showEditDialog.value = false
+  }
 }
 
 async function actualizarVehiculo() {
@@ -320,9 +404,7 @@ async function activar() {
   }
 }
 
-onMounted(async () => {
-  await Promise.all([loadVehiculo(), loadCatalogos()])
-})
+onMounted(loadVehiculo)
 watch(() => route.params.id, loadVehiculo)
 </script>
 
@@ -520,8 +602,18 @@ watch(() => route.params.id, loadVehiculo)
       @confirm="activar"
     />
 
+    <ConfirmDialog
+      v-model:visible="showConfirmClose"
+      header="Descartar cambios"
+      message="Tienes cambios sin guardar. ¿Estás seguro de descartarlos?"
+      confirmLabel="Descartar"
+      confirmSeverity="danger"
+      @confirm="cerrarDialogEditar"
+    />
+
     <Dialog
-      v-model:visible="showEditDialog"
+      :visible="showEditDialog"
+      @update:visible="onDialogEditarClose"
       header="Editar vehículo"
       :modal="true"
       :style="{ width: '780px', height: '620px' }"
@@ -545,7 +637,7 @@ watch(() => route.params.id, loadVehiculo)
         :gerencias="gerencias"
         :centros-servicio="centrosServicio"
         @save="actualizarVehiculo"
-        @cancel="showEditDialog = false"
+        @cancel="onCancelarEdicion"
       />
     </Dialog>
   </div>

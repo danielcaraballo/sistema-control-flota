@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { placaSeverity, estatusSeverity } from '@/utils/vehiculo'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
@@ -13,6 +14,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
 
@@ -40,6 +42,14 @@ const submitted = ref(false)
 const errorMessage = ref('')
 const activeStep = ref(1)
 const filters = ref({ global: { value: null, matchMode: 'contains' } })
+const catalogosCargados = ref(false)
+const showConfirmClose = ref(false)
+const formSnapshot = ref(null)
+
+const formModificado = computed(() => {
+  if (!formSnapshot.value) return false
+  return JSON.stringify(form.value) !== JSON.stringify(formSnapshot.value)
+})
 
 const initialForm = () => ({
   numero_economico: '',
@@ -64,27 +74,6 @@ const initialForm = () => ({
 const form = ref(initialForm())
 
 const isCreating = computed(() => !editingVehiculo.value)
-
-function placaSeverity(nombre) {
-  const map = {
-    Amarilla: 'warn',
-    Verde: 'success',
-    Azul: 'info',
-    Blanca: 'secondary',
-    Roja: 'danger',
-    Plateada: 'contrast',
-  }
-  return map[nombre] || 'info'
-}
-
-function estatusSeverity(nombre) {
-  const map = {
-    Operativo: 'success',
-    'En taller': 'warn',
-    'Fuera de servicio': 'danger',
-  }
-  return map[nombre] || 'info'
-}
 
 async function loadCatalogos() {
   const calls = [
@@ -227,12 +216,21 @@ async function loadVehiculos() {
   }
 }
 
-function openNew() {
+async function ensureCatalogos() {
+  if (catalogosCargados.value) return
+  await loadCatalogos()
+  catalogosCargados.value = true
+}
+
+async function openNew() {
   editingVehiculo.value = null
   errorMessage.value = ''
   activeStep.value = 1
+  saving.value = false
   form.value = initialForm()
+  formSnapshot.value = JSON.parse(JSON.stringify(form.value))
   submitted.value = false
+  await ensureCatalogos()
   showDialog.value = true
 }
 
@@ -259,7 +257,9 @@ async function openEdit(vehiculo) {
     unidad_usuaria_id: vehiculo.unidad_usuaria ?? null,
     emplazamiento_id: vehiculo.emplazamiento,
   }
+  formSnapshot.value = JSON.parse(JSON.stringify(form.value))
   submitted.value = false
+  await ensureCatalogos()
   showDialog.value = true
 }
 
@@ -331,8 +331,32 @@ async function loadVehiculoForEdit(id) {
   }
 }
 
+function onCancelarClick() {
+  if (formModificado.value) {
+    showConfirmClose.value = true
+  } else {
+    showDialog.value = false
+  }
+}
+
+function cerrarDialog() {
+  showConfirmClose.value = false
+  showDialog.value = false
+  formSnapshot.value = null
+}
+
+function onDialogClose(val) {
+  if (val) return
+  if (!showDialog.value) return
+  if (formModificado.value) {
+    showConfirmClose.value = true
+  } else {
+    showDialog.value = false
+  }
+}
+
 onMounted(async () => {
-  await Promise.all([loadVehiculos(), loadCatalogos()])
+  await loadVehiculos()
   if (route.query.editar) {
     await loadVehiculoForEdit(route.query.editar)
   }
@@ -449,7 +473,8 @@ onMounted(async () => {
     </div>
 
     <Dialog
-      v-model:visible="showDialog"
+      :visible="showDialog"
+      @update:visible="onDialogClose"
       :header="isCreating ? 'Nuevo vehículo' : 'Editar vehículo'"
       :modal="true"
       :style="{ width: '780px', height: '620px' }"
@@ -473,9 +498,18 @@ onMounted(async () => {
         :gerencias="gerencias"
         :centros-servicio="centrosServicio"
         @save="saveVehiculo"
-        @cancel="showDialog = false"
+        @cancel="onCancelarClick"
       />
     </Dialog>
+
+    <ConfirmDialog
+      v-model:visible="showConfirmClose"
+      header="Descartar cambios"
+      message="Tienes cambios sin guardar. ¿Estás seguro de descartarlos?"
+      confirmLabel="Descartar"
+      confirmSeverity="danger"
+      @confirm="cerrarDialog"
+    />
   </div>
 </template>
 
