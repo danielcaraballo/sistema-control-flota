@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { rolLabel, ROL_ANALISTA, ROL_NACIONAL } from '@/utils/roles'
+import { rolLabel, ROL_NACIONAL } from '@/utils/roles'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import UserDropdown from '@/components/UserDropdown.vue'
@@ -54,7 +54,7 @@ const menuSections = computed(() => {
     { label: 'Vehículos', icon: 'pi pi-truck', routeName: 'vehiculos', path: '/vehiculos' },
     { label: 'Taller', icon: 'pi pi-wrench', routeName: 'taller', path: '/taller' },
   ]
-  if (auth.tieneRol(ROL_ANALISTA)) {
+  if (auth.tieneRol(ROL_NACIONAL)) {
     mainItems.push({
       label: 'Reportes',
       icon: 'pi pi-chart-bar',

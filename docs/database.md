@@ -273,4 +273,4 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | Generar Diagnóstico (Taller) | 🚧 | 🚧 | ❌ | 🚧 |
 | Cotizar / Aprobar OS | 🚧 | 🚧 | 🚧 | ❌ |
 | Dashboard | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton |
-| Reportes | 🚧 | ❌ | ❌ | ❌ |
+| Reportes | ✅ | ❌ | ❌ | ❌ |

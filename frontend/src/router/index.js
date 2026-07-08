@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ROL_NACIONAL, ROL_ANALISTA } from '@/utils/roles'
+import { ROL_NACIONAL } from '@/utils/roles'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,7 +57,7 @@ const router = createRouter({
           path: 'reportes',
           name: 'reportes',
           component: () => import('../views/ReportesView.vue'),
-          meta: { rolMinimo: ROL_ANALISTA },
+          meta: { rolMinimo: ROL_NACIONAL },
         },
       ],
     },
