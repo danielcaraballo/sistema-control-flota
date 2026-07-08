@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
-import { ROLES, ESTATAL_ROLES, rolLabel, rolSeverity } from '@/utils/roles'
+import { ROLES, ESTATAL_ROLES, ROL_NACIONAL, rolLabel, rolSeverity } from '@/utils/roles'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
@@ -367,7 +367,7 @@ onMounted(() => {
               <InputText v-model="filters.global.value" placeholder="Buscar usuarios..." />
             </IconField>
             <Button
-              v-if="auth.tieneRol('nacional')"
+              v-if="auth.tieneRol(ROL_NACIONAL)"
               label="Agregar usuario"
               icon="pi pi-plus"
               @click="openNew"
@@ -403,7 +403,7 @@ onMounted(() => {
             />
           </template>
         </Column>
-        <Column v-if="auth.tieneRol('nacional')" header="Acciones" style="width: 10rem">
+        <Column v-if="auth.tieneRol(ROL_NACIONAL)" header="Acciones" style="width: 10rem">
           <template #body="{ data }">
             <Button
               icon="pi pi-pencil"

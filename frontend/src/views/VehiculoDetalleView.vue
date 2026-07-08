@@ -4,6 +4,7 @@ import { placaSeverity, estatusSeverity } from '@/utils/vehiculo'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
+import { ROL_NACIONAL } from '@/utils/roles'
 import api from '@/services/api'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -443,7 +444,7 @@ watch(() => route.params.id, loadVehiculo)
         icon="pi pi-truck"
       />
       <div v-else class="flex-1" />
-      <div v-if="auth.tieneRol('nacional')" class="flex gap-2 shrink-0">
+      <div v-if="auth.tieneRol(ROL_NACIONAL)" class="flex gap-2 shrink-0">
         <Button label="Editar" icon="pi pi-pencil" severity="secondary" @click="abrirEdicion" />
         <Button
           v-if="vehiculo?.estatus_activo"

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.7.0 — CentroDeServicio vinculado a Estado, TipoUso vinculado a Vehiculo, reportes solo Nacional (2026-07-08)
+
+- `CentroDeServicio` ahora tiene FK a `Estado` (no-nullable, on_delete=RESTRICT). CRUD frontend incluye dropdown de Estado.
+- `TipoUso` ahora es FK nullable en `Vehiculo`. Se agregó dropdown en step 2 del stepper y display en detalle.
+- Reportes cambiado de `ROL_ANALISTA` a `ROL_NACIONAL` (router + sidebar).
+- Dashboard callback ahora incluye KPIs de vehículos (`total_vehiculos`, `vehiculos_activos`).
+- Reemplazado string literal `'nacional'` por constante `ROL_NACIONAL` en `VehiculosView.vue`.
+- NFR-02 en docs marcado con 🚧 para restricción de texto libre en taller.
+- 113 tests, lint 0 warnings.
+
 ## v0.6.2 — Fix import dinámico inefectivo en api.js (2026-07-05)
 
 - Reemplaza `import()` dinámico por import estático en `api.js` para eliminar
