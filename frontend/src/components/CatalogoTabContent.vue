@@ -80,6 +80,9 @@ function buildPayload() {
   } else if (key === 'tiposFalla') {
     if (form.value.descripcion) payload.descripcion = form.value.descripcion
     if (form.value.sistema_afectado) payload.sistema_afectado_id = form.value.sistema_afectado
+  } else if (key === 'centrosServicio') {
+    if (form.value.nombre) payload.nombre = form.value.nombre
+    if (form.value.estado) payload.estado_id = form.value.estado
   } else {
     if (form.value[props.config.field]) payload[props.config.field] = form.value[props.config.field]
   }
@@ -242,6 +245,12 @@ onMounted(loadItems)
         header="Sistema Afectado"
         sortable
       />
+      <Column
+        v-if="config.key === 'centrosServicio'"
+        field="estado_nombre"
+        header="Estado"
+        sortable
+      />
       <Column :field="config.field" :header="config.label" sortable />
 
       <Column field="estatus_activo" header="Activo" sortable style="width: 7rem">
@@ -318,6 +327,18 @@ onMounted(loadItems)
             optionLabel="nombre"
             optionValue="id"
             placeholder="Seleccionar sistema"
+            class="w-full"
+          />
+        </div>
+
+        <div v-if="config.key === 'centrosServicio'" class="flex flex-col gap-1.5">
+          <label class="text-sm font-semibold">Estado</label>
+          <Dropdown
+            v-model="form.estado"
+            :options="fkCatalogs.estados"
+            optionLabel="nombre"
+            optionValue="id"
+            placeholder="Seleccionar estado"
             class="w-full"
           />
         </div>

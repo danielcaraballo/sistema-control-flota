@@ -34,6 +34,9 @@ class GerenciaUpdate(Schema):
 
 
 class CentroDeServicioSchema(ModelSchema):
+    estado: int
+    estado_nombre: str | None = None
+
     class Meta:
         model = CentroDeServicio
         fields = ["id", "nombre", "estatus_activo"]
@@ -41,8 +44,10 @@ class CentroDeServicioSchema(ModelSchema):
 
 class CentroDeServicioCreate(Schema):
     nombre: str
+    estado_id: int
 
 
 class CentroDeServicioUpdate(Schema):
     nombre: str | None = None
+    estado_id: int | None = None
     estatus_activo: bool | None = None

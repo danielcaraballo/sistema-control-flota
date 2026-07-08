@@ -17,6 +17,17 @@ from .schemas import (
 
 router = Router()
 
+
+def _build_centro_servicio(cs):
+    return CentroDeServicioSchema(
+        id=cs.id,
+        nombre=cs.nombre,
+        estatus_activo=cs.estatus_activo,
+        estado=cs.estado_id,
+        estado_nombre=cs.estado.nombre,
+    )
+
+
 CONFIGS = [
     CrudConfig(
         prefix="estados",
@@ -42,6 +53,8 @@ CONFIGS = [
         create_schema=CentroDeServicioCreate,
         update_schema=CentroDeServicioUpdate,
         display_name="centro de servicio",
+        select_related=["estado"],
+        response_builder=_build_centro_servicio,
     ),
 ]
 

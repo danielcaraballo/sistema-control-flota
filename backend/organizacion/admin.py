@@ -20,6 +20,6 @@ class GerenciaAdmin(ModelAdmin):
 
 @admin.register(CentroDeServicio)
 class CentroDeServicioAdmin(ModelAdmin):
-    list_display = ["nombre", "estatus_activo"]
-    search_fields = ["nombre"]
-    list_filter = ["estatus_activo"]
+    list_display = ["nombre", "estado", "estatus_activo"]
+    search_fields = ["nombre", "estado__nombre"]
+    list_filter = ["estado", "estatus_activo"]

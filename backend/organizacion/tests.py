@@ -426,7 +426,8 @@ class TestGerenciaCRUD(TestCase):
 class TestCentroDeServicioCRUD(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.cs = CentroDeServicio.objects.create(nombre="Test Centro", estatus_activo=True)
+        cls.estado = Estado.objects.create(nombre="Test Estado CS", estatus_activo=True)
+        cls.cs = CentroDeServicio.objects.create(nombre="Test Centro", estado=cls.estado, estatus_activo=True)
         cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",
@@ -445,13 +446,13 @@ class TestCentroDeServicioCRUD(TestCase):
         self.assertIn("Test Centro", nombres)
 
     def test_list_centros_servicio_only_active(self):
-        CentroDeServicio.objects.create(nombre="Inactivo", estatus_activo=False)
+        CentroDeServicio.objects.create(nombre="Inactivo", estado=self.estado, estatus_activo=False)
         response = client.get("/organizacion/centros-servicio/", headers=self.headers)
         nombres = [c["nombre"] for c in response.json()]
         self.assertNotIn("Inactivo", nombres)
 
     def test_list_centros_servicio_incluir_inactivos(self):
-        CentroDeServicio.objects.create(nombre="Inactivo", estatus_activo=False)
+        CentroDeServicio.objects.create(nombre="Inactivo", estado=self.estado, estatus_activo=False)
         response = client.get(
             "/organizacion/centros-servicio/?incluir_inactivos=true", headers=self.headers
         )
@@ -462,6 +463,7 @@ class TestCentroDeServicioCRUD(TestCase):
         response = client.get(f"/organizacion/centros-servicio/{self.cs.id}", headers=self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["nombre"], "Test Centro")
+        self.assertEqual(response.json()["estado_nombre"], "Test Estado CS")
 
     def test_get_centro_servicio_not_found(self):
         response = client.get("/organizacion/centros-servicio/99999", headers=self.headers)
@@ -471,16 +473,17 @@ class TestCentroDeServicioCRUD(TestCase):
         response = client.post(
             "/organizacion/centros-servicio/",
             headers=self.headers,
-            json={"nombre": "Nuevo Centro"},
+            json={"nombre": "Nuevo Centro", "estado_id": self.estado.id},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["nombre"], "Nuevo Centro")
+        self.assertEqual(response.json()["estado_nombre"], "Test Estado CS")
 
     def test_create_centro_servicio_duplicate(self):
         response = client.post(
             "/organizacion/centros-servicio/",
             headers=self.headers,
-            json={"nombre": "Test Centro"},
+            json={"nombre": "Test Centro", "estado_id": self.estado.id},
         )
         self.assertEqual(response.status_code, 409)
 
@@ -518,7 +521,7 @@ class TestCentroDeServicioCRUD(TestCase):
         response = client.post(
             "/organizacion/centros-servicio/",
             headers=headers,
-            json={"nombre": "No Permitido"},
+            json={"nombre": "No Permitido", "estado_id": self.estado.id},
         )
         self.assertEqual(response.status_code, 403)
 

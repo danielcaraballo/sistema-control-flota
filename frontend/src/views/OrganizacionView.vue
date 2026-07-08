@@ -1,9 +1,28 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
+import { useToast } from 'primevue/usetoast'
 import PageHeader from '@/components/PageHeader.vue'
 import CatalogoTabContent from '@/components/CatalogoTabContent.vue'
+import api from '@/services/api'
+
+const toast = useToast()
+const estados = ref([])
+
+async function loadEstados() {
+  try {
+    const { data } = await api.get('/organizacion/estados/?incluir_inactivos=true')
+    estados.value = data
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudieron cargar los estados',
+      life: 5000,
+    })
+  }
+}
 
 const CATALOGOS = [
   {
@@ -33,6 +52,8 @@ const CATALOGOS = [
 ]
 
 const activeIndex = ref(0)
+
+onMounted(loadEstados)
 </script>
 
 <template>
@@ -50,7 +71,7 @@ const activeIndex = ref(0)
             <i :class="cat.icon + ' mr-2'" />
             {{ cat.label }}
           </template>
-          <CatalogoTabContent :config="cat" />
+          <CatalogoTabContent :config="cat" :fk-catalogs="{ estados }" />
         </TabPanel>
       </TabView>
     </div>
