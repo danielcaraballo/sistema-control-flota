@@ -4,6 +4,7 @@ from django.db.models import Count
 
 from organizacion.models import Estado, Gerencia
 from usuarios.models import Usuario
+from vehiculos.models import Vehiculo
 
 
 def dashboard_callback(request, context):
@@ -12,10 +13,15 @@ def dashboard_callback(request, context):
     total_estados = Estado.objects.filter(estatus_activo=True).count()
     total_gerencias = Gerencia.objects.filter(estatus_activo=True).count()
 
+    total_vehiculos = Vehiculo.objects.count()
+    vehiculos_activos = Vehiculo.objects.filter(estatus_activo=True).count()
+
     context["total_usuarios"] = total_usuarios
     context["usuarios_activos"] = usuarios_activos
     context["total_estados"] = total_estados
     context["total_gerencias"] = total_gerencias
+    context["total_vehiculos"] = total_vehiculos
+    context["vehiculos_activos"] = vehiculos_activos
 
     rol_data = Usuario.objects.values("rol").annotate(count=Count("id")).order_by("rol")
     rol_labels = dict(Usuario.Rol.choices)

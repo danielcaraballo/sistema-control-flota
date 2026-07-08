@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { placaSeverity, estatusSeverity } from '@/utils/vehiculo'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
+import { ROL_NACIONAL } from '@/utils/roles'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 import Button from 'primevue/button'
@@ -216,7 +217,7 @@ async function loadCatalogos() {
 async function loadVehiculos() {
   loading.value = true
   try {
-    const params = auth.tieneRol('nacional') ? '?incluir_inactivos=true' : ''
+    const params = auth.tieneRol(ROL_NACIONAL) ? '?incluir_inactivos=true' : ''
     const { data } = await api.get('/vehiculos/' + params)
     vehiculos.value = data
   } catch (err) {
@@ -421,7 +422,7 @@ onMounted(async () => {
               <InputText v-model="filters.global.value" placeholder="Buscar vehículos..." />
             </IconField>
             <Button
-              v-if="auth.tieneRol('nacional')"
+              v-if="auth.tieneRol(ROL_NACIONAL)"
               label="Agregar vehículo"
               icon="pi pi-plus"
               @click="openNew"

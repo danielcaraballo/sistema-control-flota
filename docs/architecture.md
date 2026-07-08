@@ -78,7 +78,7 @@ Documentación interactiva de la API: `/api/docs` (Swagger UI, generado por Djan
 
 - **NFR-01 — Disponibilidad y Tolerancia a Fallos (Offline-First):** 🚧 Planificado (no implementado). La interfaz del mecánico en tablet debe ser una PWA capaz de registrar diagnósticos sin conectividad, almacenando en IndexedDB y sincronizando automáticamente. `vite-plugin-pwa` está en dependencias pero aún no hay lógica offline (Service Worker, sincronización diferida, caché de catálogos).
 
-- **NFR-02 — Integridad y Veracidad de Datos:** El sistema implementa `unique=True` en `numero_economico`, `vin` y `numero_unidad` para impedir duplicidades a nivel nacional. La combinación `placa + color_placa` utiliza `UniqueConstraint` condicional. Los formularios del taller deben restringir la entrada de texto libre para fallas comunes, garantizando data estructurada.
+- **NFR-02 — Integridad y Veracidad de Datos:** El sistema implementa `unique=True` en `numero_economico`, `vin` y `numero_unidad` para impedir duplicidades a nivel nacional. La combinación `placa + color_placa` utiliza `UniqueConstraint` condicional. 🚧 Los formularios del taller deben restringir la entrada de texto libre para fallas comunes, garantizando data estructurada.
 
 - **NFR-03 — Rendimiento y Velocidad de Respuesta:**
     - Los endpoints críticos de la API deben responder en menos de 400ms bajo condiciones normales de red.
