@@ -2,7 +2,8 @@ import base64
 from io import BytesIO
 
 import qrcode
-from ninja import Router
+from django.db.models import Q
+from ninja import Field, Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 
@@ -16,7 +17,13 @@ from utils.api_helpers import (
 )
 
 from .models import Vehiculo
-from .schemas import VehiculoCreate, VehiculoSchema, VehiculoUpdate
+from .schemas import (
+    VehiculoCreate,
+    VehiculoListItemSchema,
+    VehiculoListResponse,
+    VehiculoSchema,
+    VehiculoUpdate,
+)
 
 router = Router()
 
@@ -34,12 +41,25 @@ SELECT_RELATED = [
     "tipo_uso",
 ]
 
+SORT_FIELD_MAP = {
+    "id": "id",
+    "numero_economico": "numero_economico",
+    "placa": "placa",
+    "anio": "anio",
+    "vin": "vin",
+    "estatus_activo": "estatus_activo",
+    "marca_nombre": "marca__nombre",
+    "estatus_nombre": "estatus__nombre",
+    "estado_nombre": "estado__nombre",
+    "gerencia_nombre": "gerencia__nombre",
+}
 
-def _build_vehiculo_schema(v):
+
+def _build_vehiculo_schema(v, include_qr=True):
     def _name_or_none(related):
         return related.nombre if related else None
 
-    return VehiculoSchema(
+    kw = dict(
         id=v.id,
         numero_economico=v.numero_economico,
         numero_unidad=v.numero_unidad,
@@ -48,7 +68,6 @@ def _build_vehiculo_schema(v):
         placa=v.placa,
         placa_intt=v.placa_intt,
         serial_motor=v.serial_motor,
-        codigo_qr=v.codigo_qr,
         estatus_activo=v.estatus_activo,
         gerencia=v.gerencia_id,
         gerencia_nombre=v.gerencia.nombre,
@@ -73,6 +92,9 @@ def _build_vehiculo_schema(v):
         tipo_uso=v.tipo_uso_id,
         tipo_uso_nombre=_name_or_none(v.tipo_uso),
     )
+    if include_qr:
+        kw["codigo_qr"] = v.codigo_qr
+    return kw
 
 
 def _generate_qr(request, vehicle_id):
@@ -87,15 +109,53 @@ def _generate_qr(request, vehicle_id):
 # ─── CRUD ────────────────────────────────────────────────────────────────
 
 
-@router.get("/", response=list[VehiculoSchema], auth=JWTAuth())
+@router.get("/", response=VehiculoListResponse, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.MECANICO)
-def list_vehiculos(request):
+def list_vehiculos(
+    request,
+    limit: int = Field(default=50, ge=1, le=100),
+    offset: int = Field(default=0, ge=0),
+    search: str | None = None,
+    sort_by: str = "id",
+    sort_order: str = "asc",
+    estado_id: int | None = None,
+    estatus_id: int | None = None,
+    gerencia_id: int | None = None,
+):
     qs = Vehiculo.objects.select_related(*SELECT_RELATED)
     user = request.auth
     if user.estado_id:
         qs = qs.filter(estado_id=user.estado_id)
     qs = filter_activos(qs, request)
-    return [_build_vehiculo_schema(v) for v in qs]
+    if search:
+        qs = qs.filter(
+            Q(numero_economico__icontains=search)
+            | Q(vin__icontains=search)
+            | Q(placa__icontains=search)
+            | Q(placa_intt__icontains=search)
+            | Q(serial_motor__icontains=search)
+            | Q(numero_unidad__icontains=search)
+        )
+    if estado_id:
+        qs = qs.filter(estado_id=estado_id)
+    if estatus_id:
+        qs = qs.filter(estatus_id=estatus_id)
+    if gerencia_id:
+        qs = qs.filter(gerencia_id=gerencia_id)
+
+    sort_field = SORT_FIELD_MAP.get(sort_by)
+    if sort_field:
+        if sort_order == "desc":
+            sort_field = f"-{sort_field}"
+        qs = qs.order_by(sort_field)
+
+    count = qs.count()
+    items = [
+        VehiculoListItemSchema(**d)
+        for d in (_build_vehiculo_schema(v, include_qr=False) for v in qs[offset : offset + limit])
+    ]
+
+    return VehiculoListResponse(items=items, count=count)
 
 
 @router.get("/{vehiculo_id}", response=VehiculoSchema, auth=JWTAuth())
@@ -154,7 +214,9 @@ def update_vehiculo(request, vehiculo_id: int, data: VehiculoUpdate):
     color_placa = payload.get("color_placa_id", v.color_placa_id)
     if placa and color_placa:
         changed_placa = "placa" in payload and payload["placa"] != v.placa
-        changed_color = "color_placa_id" in payload and payload["color_placa_id"] != v.color_placa_id
+        changed_color = (
+            "color_placa_id" in payload and payload["color_placa_id"] != v.color_placa_id
+        )
         if changed_placa or changed_color:
             if check_duplicate_composite(
                 Vehiculo,

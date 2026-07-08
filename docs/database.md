@@ -215,6 +215,11 @@ erDiagram
 - `unique=True` en `numero_economico`, `vin` y `numero_unidad` — identificadores únicos a nivel nacional, incluso para registros inactivos.
 - `UniqueConstraint(placa, color_placa, condition=Q(estatus_activo=True))` — una placa no puede repetirse en el mismo color entre activos.
 
+**Índices de performance (migración 0005):**
+- `(estatus_activo, estado_id)` — filtro combinado más común (usuarios estadales solo ven su estado + activos)
+- `(estatus_id)` — filtro por estatus del vehículo
+- `(gerencia_id)` — filtro por gerencia propietaria
+
 Los catálogos y organización usan el mismo patrón: toda `UNIQUE` es condicional `WHERE estatus_activo = 1`, permitiendo reciclar nombres/valores de registros soft-deleteados sin violar integridad.
 
 ### Catálogos (9 modelos)

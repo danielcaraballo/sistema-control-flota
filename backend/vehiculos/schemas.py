@@ -45,6 +45,45 @@ class VehiculoSchema(ModelSchema):
         ]
 
 
+class VehiculoListItemSchema(ModelSchema):
+    gerencia: int
+    gerencia_nombre: str | None = None
+    unidad_usuaria: int | None = None
+    unidad_usuaria_nombre: str | None = None
+    categoria: int
+    categoria_nombre: str | None = None
+    marca: int
+    marca_nombre: str | None = None
+    modelo: int
+    modelo_nombre: str | None = None
+    estado: int
+    estado_nombre: str | None = None
+    emplazamiento: int
+    emplazamiento_nombre: str | None = None
+    estatus: int
+    estatus_nombre: str | None = None
+    color: int | None = None
+    color_nombre: str | None = None
+    color_placa: int | None = None
+    color_placa_nombre: str | None = None
+    tipo_uso: int | None = None
+    tipo_uso_nombre: str | None = None
+
+    class Meta:
+        model = Vehiculo
+        fields = [
+            "id",
+            "numero_economico",
+            "numero_unidad",
+            "anio",
+            "vin",
+            "placa",
+            "placa_intt",
+            "serial_motor",
+            "estatus_activo",
+        ]
+
+
 class VehiculoCreate(Schema):
     numero_economico: str
     numero_unidad: str | None = None
@@ -64,6 +103,11 @@ class VehiculoCreate(Schema):
     tipo_uso_id: int | None = None
     placa_intt: str = ""
     serial_motor: str = ""
+
+
+class VehiculoListResponse(Schema):
+    items: list[VehiculoListItemSchema]
+    count: int
 
 
 class VehiculoUpdate(Schema):

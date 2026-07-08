@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.8.0 — Paginación server-side + índices para escalar a 10k vehículos (2026-07-08)
+
+- Backend: `GET /vehiculos/` ahora usa paginación manual (`limit`/`offset`) + filtros server-side (`search`, `estado_id`, `estatus_id`, `gerencia_id`).
+- Backend: Migración 0005 agrega índices compuestos `(estatus_activo, estado_id)`, `(estatus_id)`, `(gerencia_id)`.
+- Frontend: DataTable convertido a `lazy` mode — solo carga la página actual desde el servidor.
+- Frontend: Búsqueda con debounce de 350ms + filtros rápidos por Estado y Estatus.
+- 18 tests, lint 0 warnings.
+
 ## v0.7.0 — CentroDeServicio vinculado a Estado, TipoUso vinculado a Vehiculo, reportes solo Nacional (2026-07-08)
 
 - `CentroDeServicio` ahora tiene FK a `Estado` (no-nullable, on_delete=RESTRICT). CRUD frontend incluye dropdown de Estado.

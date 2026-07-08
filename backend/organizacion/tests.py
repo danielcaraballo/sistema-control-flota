@@ -427,7 +427,9 @@ class TestCentroDeServicioCRUD(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.estado = Estado.objects.create(nombre="Test Estado CS", estatus_activo=True)
-        cls.cs = CentroDeServicio.objects.create(nombre="Test Centro", estado=cls.estado, estatus_activo=True)
+        cls.cs = CentroDeServicio.objects.create(
+            nombre="Test Centro", estado=cls.estado, estatus_activo=True
+        )
         cls.user = Usuario.objects.create_user(
             username="admin",
             email="admin@test.com",

@@ -1,7 +1,15 @@
 from django.test import TestCase
 from ninja.testing import TestClient
 
-from catalogos.models import Color, ColorPlaca, EstatusVehiculo, Marca, Modelo, TipoUso, TipoVehiculo
+from catalogos.models import (
+    Color,
+    ColorPlaca,
+    EstatusVehiculo,
+    Marca,
+    Modelo,
+    TipoUso,
+    TipoVehiculo,
+)
 from config.api import api
 from organizacion.models import CentroDeServicio, Estado, Gerencia
 from usuarios.models import Usuario
@@ -13,10 +21,19 @@ from .models import Vehiculo
 client = TestClient(api)
 
 
+def _paginated_items(response):
+    return response.json()["items"]
+
+
+def _paginated_count(response):
+    return response.json()["count"]
+
+
 class TestVehiculoCRUD(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.estado = Estado.objects.create(nombre="Test Estado")
+        cls.estado2 = Estado.objects.create(nombre="Otro Estado")
         cls.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
         cls.centro = CentroDeServicio.objects.create(nombre="Test Centro", estado=cls.estado)
         cls.marca = Marca.objects.create(nombre="Test Marca")
@@ -60,13 +77,16 @@ class TestVehiculoCRUD(TestCase):
         base.update(kwargs)
         return base
 
-    def test_list_vehiculos(self):
+    def test_list_vehiculos_paginated(self):
         Vehiculo.objects.create(**self._valid_payload())
-        response = client.get("/vehiculos/", headers=self.headers)
+        response = client.get("/vehiculos/?limit=10&offset=0", headers=self.headers)
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json(), list)
-        nums = [v["numero_economico"] for v in response.json()]
-        self.assertIn("VEH-001", nums)
+        data = response.json()
+        self.assertIn("items", data)
+        self.assertIn("count", data)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["items"]), 1)
+        self.assertEqual(data["items"][0]["numero_economico"], "VEH-001")
 
     def test_list_vehiculos_only_active(self):
         Vehiculo.objects.create(**self._valid_payload())
@@ -79,8 +99,9 @@ class TestVehiculoCRUD(TestCase):
                 estatus_activo=False,
             )
         )
-        response = client.get("/vehiculos/", headers=self.headers)
-        nums = [v["numero_economico"] for v in response.json()]
+        response = client.get("/vehiculos/?limit=50&offset=0", headers=self.headers)
+        items = _paginated_items(response)
+        nums = [v["numero_economico"] for v in items]
         self.assertIn("VEH-001", nums)
         self.assertNotIn("VEH-002", nums)
 
@@ -94,9 +115,91 @@ class TestVehiculoCRUD(TestCase):
                 estatus_activo=False,
             )
         )
-        response = client.get("/vehiculos/?incluir_inactivos=true", headers=self.headers)
-        nums = [v["numero_economico"] for v in response.json()]
+        response = client.get(
+            "/vehiculos/?incluir_inactivos=true&limit=50&offset=0", headers=self.headers
+        )
+        items = _paginated_items(response)
+        nums = [v["numero_economico"] for v in items]
         self.assertIn("VEH-002", nums)
+
+    def test_list_vehiculos_search(self):
+        Vehiculo.objects.create(**self._valid_payload())
+        Vehiculo.objects.create(
+            **self._valid_payload(
+                numero_economico="TOYOTA-001",
+                numero_unidad="UN-002",
+                vin="2HGCM82633A123457",
+                placa="XYZ-998",
+            )
+        )
+        response = client.get("/vehiculos/?search=toyota&limit=50&offset=0", headers=self.headers)
+        items = _paginated_items(response)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["numero_economico"], "TOYOTA-001")
+
+    def test_list_vehiculos_search_placa(self):
+        Vehiculo.objects.create(**self._valid_payload())
+        response = client.get("/vehiculos/?search=ABC-123&limit=50&offset=0", headers=self.headers)
+        items = _paginated_items(response)
+        self.assertEqual(len(items), 1)
+
+    def test_list_vehiculos_sort_asc(self):
+        Vehiculo.objects.create(
+            **self._valid_payload(
+                numero_economico="B-002",
+                numero_unidad="UN-002",
+                vin="2HGCM82633A123456",
+                placa="PLA-002",
+            )
+        )
+        Vehiculo.objects.create(
+            **self._valid_payload(
+                numero_economico="A-001",
+                numero_unidad="UN-003",
+                vin="3HGCM82633A123457",
+                placa="PLA-001",
+                color_placa_id=None,
+            )
+        )
+        response = client.get(
+            "/vehiculos/?sort_by=numero_economico&sort_order=asc&limit=50&offset=0",
+            headers=self.headers,
+        )
+        items = _paginated_items(response)
+        self.assertEqual(items[0]["numero_economico"], "A-001")
+        self.assertEqual(items[1]["numero_economico"], "B-002")
+
+    def test_list_vehiculos_sort_desc(self):
+        Vehiculo.objects.create(
+            **self._valid_payload(
+                numero_economico="A-001",
+                numero_unidad="UN-004",
+                vin="2HGCM82633A123456",
+                placa="PLA-003",
+            )
+        )
+        Vehiculo.objects.create(
+            **self._valid_payload(
+                numero_economico="B-002",
+                numero_unidad="UN-005",
+                vin="3HGCM82633A123457",
+                placa="PLA-004",
+                color_placa_id=None,
+            )
+        )
+        response = client.get(
+            "/vehiculos/?sort_by=numero_economico&sort_order=desc&limit=50&offset=0",
+            headers=self.headers,
+        )
+        items = _paginated_items(response)
+        self.assertEqual(items[0]["numero_economico"], "B-002")
+        self.assertEqual(items[1]["numero_economico"], "A-001")
+
+    def test_list_vehiculos_empty(self):
+        response = client.get("/vehiculos/?limit=50&offset=0", headers=self.headers)
+        data = response.json()
+        self.assertEqual(data["count"], 0)
+        self.assertEqual(data["items"], [])
 
     def test_get_vehiculo(self):
         v = Vehiculo.objects.create(**self._valid_payload())
@@ -212,9 +315,9 @@ class TestVehiculoCRUD(TestCase):
         token = login_resp.json()["access"]
         headers = {"Authorization": f"Bearer {token}"}
 
-        response = client.get("/vehiculos/", headers=headers)
+        response = client.get("/vehiculos/?limit=10&offset=0", headers=headers)
         self.assertEqual(response.status_code, 200)
 
     def test_unauthorized_access(self):
-        response = client.get("/vehiculos/")
+        response = client.get("/vehiculos/?limit=10&offset=0")
         self.assertEqual(response.status_code, 401)

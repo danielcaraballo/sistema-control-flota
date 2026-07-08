@@ -15,6 +15,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
+import Select from 'primevue/select'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
@@ -43,10 +44,20 @@ const editingVehiculo = ref(null)
 const submitted = ref(false)
 const errorMessage = ref('')
 const activeStep = ref(1)
-const filters = ref({ global: { value: null, matchMode: 'contains' } })
 const catalogosCargados = ref(false)
 const showConfirmClose = ref(false)
 const formSnapshot = ref(null)
+
+// Server-side pagination state
+const totalRecords = ref(0)
+const first = ref(0)
+const rows = ref(25)
+const searchQuery = ref('')
+const searchDebounce = ref(null)
+const filterEstadoId = ref(null)
+const filterEstatusId = ref(null)
+const sortField = ref('numero_economico')
+const sortOrder = ref(1)
 
 const formModificado = computed(() => {
   if (!formSnapshot.value) return false
@@ -85,131 +96,61 @@ async function loadCatalogos() {
       .then((r) => {
         marcas.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar marcas',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/modelos/')
       .then((r) => {
         modelos.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar modelos',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/tipos-vehiculo/')
       .then((r) => {
         tiposVehiculo.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar tipos de vehículo',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/colores/')
       .then((r) => {
         colores.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar colores',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/colores-placa/')
       .then((r) => {
         coloresPlaca.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar colores de placa',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/tipos-uso/')
       .then((r) => {
         tiposUso.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar tipos de uso',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/catalogos/estatus-vehiculo/')
       .then((r) => {
         estatusVehiculo.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar estatus de vehículo',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/organizacion/estados/')
       .then((r) => {
         estados.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar estados',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/organizacion/gerencias/')
       .then((r) => {
         gerencias.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar gerencias',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
     api
       .get('/organizacion/centros-servicio/')
       .then((r) => {
         centrosServicio.value = r.data
       })
-      .catch(() => {
-        toast.add({
-          severity: 'warn',
-          summary: 'Catálogo',
-          detail: 'Error al cargar centros de servicio',
-          life: 4000,
-        })
-      }),
+      .catch(() => {}),
   ]
   await Promise.allSettled(calls)
 }
@@ -217,9 +158,19 @@ async function loadCatalogos() {
 async function loadVehiculos() {
   loading.value = true
   try {
-    const params = auth.tieneRol(ROL_NACIONAL) ? '?incluir_inactivos=true' : ''
-    const { data } = await api.get('/vehiculos/' + params)
-    vehiculos.value = data
+    const params = new URLSearchParams()
+    params.set('limit', String(rows.value))
+    params.set('offset', String(first.value))
+    params.set('sort_by', sortField.value)
+    params.set('sort_order', sortOrder.value === 1 ? 'asc' : 'desc')
+    if (searchQuery.value) params.set('search', searchQuery.value)
+    if (filterEstadoId.value) params.set('estado_id', String(filterEstadoId.value))
+    if (filterEstatusId.value) params.set('estatus_id', String(filterEstatusId.value))
+    if (auth.tieneRol(ROL_NACIONAL)) params.set('incluir_inactivos', 'true')
+
+    const { data } = await api.get('/vehiculos/?' + params.toString())
+    vehiculos.value = data.items
+    totalRecords.value = data.count
   } catch (err) {
     toast.add({
       severity: 'error',
@@ -230,6 +181,41 @@ async function loadVehiculos() {
   } finally {
     loading.value = false
   }
+}
+
+function onPage(event) {
+  first.value = event.first
+  rows.value = event.rows
+  loadVehiculos()
+}
+
+function onSort(event) {
+  sortField.value = event.sortField
+  sortOrder.value = event.sortOrder
+  first.value = 0
+  loadVehiculos()
+}
+
+function onSearchInput(value) {
+  if (searchDebounce.value) clearTimeout(searchDebounce.value)
+  searchDebounce.value = setTimeout(() => {
+    searchQuery.value = value
+    first.value = 0
+    loadVehiculos()
+  }, 350)
+}
+
+function onFilterChange() {
+  first.value = 0
+  loadVehiculos()
+}
+
+function limpiarFiltros() {
+  searchQuery.value = ''
+  filterEstadoId.value = null
+  filterEstatusId.value = null
+  first.value = 0
+  loadVehiculos()
 }
 
 async function ensureCatalogos() {
@@ -373,8 +359,26 @@ function onDialogClose(val) {
   }
 }
 
+async function loadCatalogoFiltros() {
+  const calls = [
+    api
+      .get('/catalogos/estatus-vehiculo/')
+      .then((r) => {
+        estatusVehiculo.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/organizacion/estados/')
+      .then((r) => {
+        estados.value = r.data
+      })
+      .catch(() => {}),
+  ]
+  await Promise.allSettled(calls)
+}
+
 onMounted(async () => {
-  await loadVehiculos()
+  await Promise.all([loadVehiculos(), loadCatalogoFiltros()])
   if (route.query.editar) {
     await loadVehiculoForEdit(route.query.editar)
   }
@@ -392,35 +396,59 @@ onMounted(async () => {
     <div class="border border-card-border rounded-md bg-card">
       <DataTable
         :value="vehiculos"
-        v-model:filters="filters"
-        :globalFilterFields="[
-          'numero_economico',
-          'marca_nombre',
-          'modelo_nombre',
-          'placa',
-          'color_placa_nombre',
-          'anio',
-          'vin',
-          'estado_nombre',
-          'gerencia_nombre',
-          'estatus_nombre',
-        ]"
+        lazy
+        :totalRecords="totalRecords"
+        :first="first"
+        :rows="rows"
         :loading="loading"
+        :rowsPerPageOptions="[10, 25, 50]"
         scrollable
         stripedRows
         paginator
-        :rows="10"
-        :rowsPerPageOptions="[10, 25, 50]"
-        sortField="numero_economico"
-        :sortOrder="1"
+        @page="onPage"
+        @sort="onSort"
         @row-click="verDetalle($event.data)"
       >
         <template #header>
           <div class="flex justify-between items-center gap-2 flex-wrap">
-            <IconField>
-              <InputIcon class="pi pi-search" />
-              <InputText v-model="filters.global.value" placeholder="Buscar vehículos..." />
-            </IconField>
+            <div class="flex items-center gap-2 flex-wrap">
+              <IconField>
+                <InputIcon class="pi pi-search" />
+                <InputText
+                  :modelValue="searchQuery"
+                  @update:modelValue="onSearchInput"
+                  placeholder="Buscar vehículos..."
+                />
+              </IconField>
+              <Select
+                v-model="filterEstadoId"
+                :options="estados"
+                optionValue="id"
+                optionLabel="nombre"
+                placeholder="Estado"
+                class="w-40"
+                clearable
+                @update:modelValue="onFilterChange"
+              />
+              <Select
+                v-model="filterEstatusId"
+                :options="estatusVehiculo"
+                optionValue="id"
+                optionLabel="nombre"
+                placeholder="Estatus"
+                class="w-40"
+                clearable
+                @update:modelValue="onFilterChange"
+              />
+              <Button
+                v-if="searchQuery || filterEstadoId || filterEstatusId"
+                icon="pi pi-times"
+                severity="secondary"
+                variant="text"
+                @click="limpiarFiltros"
+                v-tooltip.top="'Limpiar filtros'"
+              />
+            </div>
             <Button
               v-if="auth.tieneRol(ROL_NACIONAL)"
               label="Agregar vehículo"
