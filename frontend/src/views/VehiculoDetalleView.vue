@@ -47,6 +47,7 @@ const modelos = ref([])
 const tiposVehiculo = ref([])
 const colores = ref([])
 const coloresPlaca = ref([])
+const tiposUso = ref([])
 const estatusVehiculo = ref([])
 const estados = ref([])
 const gerencias = ref([])
@@ -67,6 +68,7 @@ function initialEditForm() {
     modelo_id: null,
     anio: null,
     color_id: null,
+    tipo_uso_id: null,
     estatus_id: null,
     estado_id: null,
     gerencia_id: null,
@@ -165,6 +167,19 @@ async function loadCatalogos() {
         })
       }),
     api
+      .get('/catalogos/tipos-uso/')
+      .then((r) => {
+        tiposUso.value = r.data
+      })
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar tipos de uso',
+          life: 4000,
+        })
+      }),
+    api
       .get('/catalogos/estatus-vehiculo/')
       .then((r) => {
         estatusVehiculo.value = r.data
@@ -250,6 +265,7 @@ async function abrirEdicion() {
     modelo_id: v.modelo,
     anio: v.anio,
     color_id: v.color ?? null,
+    tipo_uso_id: v.tipo_uso ?? null,
     estatus_id: v.estatus,
     estado_id: v.estado,
     gerencia_id: v.gerencia,
@@ -304,6 +320,7 @@ async function actualizarVehiculo() {
     modelo_id: editForm.value.modelo_id,
     anio: editForm.value.anio,
     color_id: editForm.value.color_id,
+    tipo_uso_id: editForm.value.tipo_uso_id || null,
     estatus_id: editForm.value.estatus_id,
     estado_id: editForm.value.estado_id,
     gerencia_id: editForm.value.gerencia_id,
@@ -543,6 +560,8 @@ watch(() => route.params.id, loadVehiculo)
               <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5 text-sm">
                 <span class="text-muted-color">Categoría</span>
                 <span class="font-medium col-span-2">{{ vehiculo.categoria_nombre }}</span>
+                <span class="text-muted-color">Tipo de uso</span>
+                <span class="font-medium col-span-2">{{ vehiculo.tipo_uso_nombre || '—' }}</span>
                 <span class="text-muted-color">Marca</span>
                 <span class="font-medium col-span-2">{{ vehiculo.marca_nombre }}</span>
                 <span class="text-muted-color">Modelo</span>
@@ -632,6 +651,7 @@ watch(() => route.params.id, loadVehiculo)
         :tipos-vehiculo="tiposVehiculo"
         :colores="colores"
         :colores-placa="coloresPlaca"
+        :tipos-uso="tiposUso"
         :estatus-vehiculo="estatusVehiculo"
         :estados="estados"
         :gerencias="gerencias"

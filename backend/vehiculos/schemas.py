@@ -26,6 +26,8 @@ class VehiculoSchema(ModelSchema):
     color_nombre: str | None = None
     color_placa: int | None = None
     color_placa_nombre: str | None = None
+    tipo_uso: int | None = None
+    tipo_uso_nombre: str | None = None
 
     class Meta:
         model = Vehiculo
@@ -59,6 +61,7 @@ class VehiculoCreate(Schema):
     placa: str | None = None
     color_placa_id: int | None = None
     color_id: int | None = None
+    tipo_uso_id: int | None = None
     placa_intt: str = ""
     serial_motor: str = ""
 
@@ -80,5 +83,6 @@ class VehiculoUpdate(Schema):
     placa: str | None = None
     color_placa_id: int | None = None
     color_id: int | None = None
+    tipo_uso_id: int | None = None
     placa_intt: str | None = None
     serial_motor: str | None = None

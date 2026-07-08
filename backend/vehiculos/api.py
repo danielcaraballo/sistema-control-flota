@@ -31,6 +31,7 @@ SELECT_RELATED = [
     "estatus",
     "color",
     "color_placa",
+    "tipo_uso",
 ]
 
 
@@ -69,6 +70,8 @@ def _build_vehiculo_schema(v):
         color_nombre=_name_or_none(v.color),
         color_placa=v.color_placa_id,
         color_placa_nombre=_name_or_none(v.color_placa),
+        tipo_uso=v.tipo_uso_id,
+        tipo_uso_nombre=_name_or_none(v.tipo_uso),
     )
 
 

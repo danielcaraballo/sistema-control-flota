@@ -8,6 +8,7 @@ erDiagram
     ESTADO ||--o{ VEHICULO : ""
     GERENCIA ||--o{ VEHICULO : posee
     GERENCIA ||--o{ VEHICULO : "unidad usuaria"
+    ESTADO ||--o{ CENTRO_DE_SERVICIO : ""
     CENTRO_DE_SERVICIO ||--o{ VEHICULO : emplazamiento
     TIPO_VEHICULO ||--o{ VEHICULO : clasifica
     MARCA ||--o{ MODELO : ""
@@ -16,6 +17,7 @@ erDiagram
     COLOR ||--o{ VEHICULO : ""
     ESTATUS_VEHICULO ||--o{ VEHICULO : ""
     COLOR_PLACA ||--o{ VEHICULO : ""
+    TIPO_USO ||--o{ VEHICULO : ""
     SISTEMA_AFECTADO ||--o{ TIPO_FALLA : ""
 
     ESTADO {
@@ -33,6 +35,7 @@ erDiagram
     CENTRO_DE_SERVICIO {
         int id PK
         string nombre "UK (activos)"
+        int estado_id FK
         bool estatus_activo
     }
 
@@ -119,6 +122,7 @@ erDiagram
         int modelo_id FK
         int anio
         int color_id FK
+        int tipo_uso_id FK
         int estatus_id FK
         int estado_id FK
         int gerencia_id FK
@@ -164,7 +168,7 @@ erDiagram
 |---|---|---|---|
 | `Estado` | organizacion | `id`, `nombre` (UK), `estatus_activo` | Entidad independiente (sin FK a Gerencia) |
 | `Gerencia` | organizacion | `id`, `nombre` (UK), `estatus_activo` | Entidad independiente (sin FK a Estado) |
-| `CentroDeServicio` | organizacion | `id`, `nombre` (UK), `estatus_activo` | Entidad independiente |
+| `CentroDeServicio` | organizacion | `id`, `nombre` (UK), `estado_id` (FK), `estatus_activo` | Vinculado a Estado |
 
 ### Usuario
 
@@ -198,6 +202,7 @@ erDiagram
 | `modelo` | FK(Modelo) | RESTRICT | on_delete=RESTRICT |
 | `categoria` | FK(TipoVehiculo) | RESTRICT | Tipo/categoría. on_delete=RESTRICT |
 | `color` | FK(Color) | NULL, BLANK | on_delete=RESTRICT |
+| `tipo_uso` | FK(TipoUso) | NULL, BLANK | on_delete=RESTRICT |
 | `estatus` | FK(EstatusVehiculo) | RESTRICT | Estatus operativo. on_delete=RESTRICT |
 | `estado` | FK(Estado) | RESTRICT | Estado donde opera. on_delete=RESTRICT |
 | `gerencia` | FK(Gerencia) | RESTRICT | Gerencia propietaria. on_delete=RESTRICT |
@@ -221,7 +226,7 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | `Marca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `Modelo` | catalogos | `id`, `nombre`, `marca_id`, `estatus_activo` | Marca (on_delete=CASCADE) | `(nombre, marca)` |
 | `TipoVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
-| `TipoUso` | catalogos | `id`, `nombre`, `estatus_activo` | — (huérfano, sin FK) | `nombre` |
+| `TipoUso` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `Color` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `SistemaAfectado` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `EstatusVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |

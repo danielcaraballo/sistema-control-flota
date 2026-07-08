@@ -1,7 +1,7 @@
 from django.test import TestCase
 from ninja.testing import TestClient
 
-from catalogos.models import Color, ColorPlaca, EstatusVehiculo, Marca, Modelo, TipoVehiculo
+from catalogos.models import Color, ColorPlaca, EstatusVehiculo, Marca, Modelo, TipoUso, TipoVehiculo
 from config.api import api
 from organizacion.models import CentroDeServicio, Estado, Gerencia
 from usuarios.models import Usuario
@@ -18,13 +18,14 @@ class TestVehiculoCRUD(TestCase):
     def setUpTestData(cls):
         cls.estado = Estado.objects.create(nombre="Test Estado")
         cls.gerencia = Gerencia.objects.create(nombre="Test Gerencia")
-        cls.centro = CentroDeServicio.objects.create(nombre="Test Centro")
+        cls.centro = CentroDeServicio.objects.create(nombre="Test Centro", estado=cls.estado)
         cls.marca = Marca.objects.create(nombre="Test Marca")
         cls.modelo = Modelo.objects.create(nombre="Test Modelo", marca=cls.marca)
         cls.categoria = TipoVehiculo.objects.create(nombre="Test Categoria")
         cls.color = Color.objects.create(nombre="Test Color")
         cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
         cls.estatus_v = EstatusVehiculo.objects.create(nombre="Test Estatus")
+        cls.tipo_uso = TipoUso.objects.create(nombre="Test TipoUso")
 
         cls.admin = Usuario.objects.create_user(
             username="admin",
@@ -52,6 +53,7 @@ class TestVehiculoCRUD(TestCase):
             "placa": "ABC-123",
             "color_placa_id": self.color_placa.id,
             "color_id": self.color.id,
+            "tipo_uso_id": self.tipo_uso.id,
             "placa_intt": "INTT-001",
             "serial_motor": "MOTOR-001",
         }
@@ -124,6 +126,8 @@ class TestVehiculoCRUD(TestCase):
         self.assertEqual(data["estatus_nombre"], "Test Estatus")
         self.assertEqual(data["color_nombre"], "Test Color")
         self.assertEqual(data["color_placa_nombre"], "Test Color Placa")
+        self.assertEqual(data["tipo_uso"], self.tipo_uso.id)
+        self.assertEqual(data["tipo_uso_nombre"], "Test TipoUso")
         self.assertEqual(data["numero_unidad"], "UN-001")
         self.assertEqual(data["placa_intt"], "INTT-001")
         self.assertEqual(data["serial_motor"], "MOTOR-001")

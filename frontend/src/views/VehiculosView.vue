@@ -29,6 +29,7 @@ const modelos = ref([])
 const tiposVehiculo = ref([])
 const colores = ref([])
 const coloresPlaca = ref([])
+const tiposUso = ref([])
 const estatusVehiculo = ref([])
 const estados = ref([])
 const gerencias = ref([])
@@ -64,6 +65,7 @@ const initialForm = () => ({
   modelo_id: null,
   anio: null,
   color_id: null,
+  tipo_uso_id: null,
   estatus_id: null,
   estado_id: null,
   gerencia_id: null,
@@ -139,6 +141,19 @@ async function loadCatalogos() {
           severity: 'warn',
           summary: 'Catálogo',
           detail: 'Error al cargar colores de placa',
+          life: 4000,
+        })
+      }),
+    api
+      .get('/catalogos/tipos-uso/')
+      .then((r) => {
+        tiposUso.value = r.data
+      })
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar tipos de uso',
           life: 4000,
         })
       }),
@@ -251,6 +266,7 @@ async function openEdit(vehiculo) {
     modelo_id: vehiculo.modelo,
     anio: vehiculo.anio,
     color_id: vehiculo.color ?? null,
+    tipo_uso_id: vehiculo.tipo_uso ?? null,
     estatus_id: vehiculo.estatus,
     estado_id: vehiculo.estado,
     gerencia_id: vehiculo.gerencia,
@@ -281,6 +297,7 @@ async function saveVehiculo() {
     modelo_id: form.value.modelo_id,
     anio: form.value.anio,
     color_id: form.value.color_id,
+    tipo_uso_id: form.value.tipo_uso_id || null,
     estatus_id: form.value.estatus_id,
     estado_id: form.value.estado_id,
     gerencia_id: form.value.gerencia_id,
@@ -493,6 +510,7 @@ onMounted(async () => {
         :tipos-vehiculo="tiposVehiculo"
         :colores="colores"
         :colores-placa="coloresPlaca"
+        :tipos-uso="tiposUso"
         :estatus-vehiculo="estatusVehiculo"
         :estados="estados"
         :gerencias="gerencias"

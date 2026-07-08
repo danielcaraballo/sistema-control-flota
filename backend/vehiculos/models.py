@@ -49,6 +49,13 @@ class Vehiculo(models.Model):
     color = models.ForeignKey(
         "catalogos.Color", on_delete=models.RESTRICT, null=True, blank=True, verbose_name="Color"
     )
+    tipo_uso = models.ForeignKey(
+        "catalogos.TipoUso",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        verbose_name="Tipo de uso",
+    )
     codigo_qr = models.TextField(blank=True, verbose_name="Código QR")
     estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
 

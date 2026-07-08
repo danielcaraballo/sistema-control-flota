@@ -21,6 +21,7 @@ const props = defineProps({
   marcas: { type: Array, default: () => [] },
   modelos: { type: Array, default: () => [] },
   tiposVehiculo: { type: Array, default: () => [] },
+  tiposUso: { type: Array, default: () => [] },
   colores: { type: Array, default: () => [] },
   coloresPlaca: { type: Array, default: () => [] },
   estatusVehiculo: { type: Array, default: () => [] },
@@ -169,6 +170,18 @@ function label(id, list) {
                 <small v-if="submitted && !localForm.categoria_id" class="text-xs text-red-500">
                   La categoría es requerida
                 </small>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold">Tipo de uso</label>
+                <Dropdown
+                  v-model="localForm.tipo_uso_id"
+                  :options="tiposUso"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Seleccionar"
+                  class="w-full"
+                  showClear
+                />
               </div>
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-semibold">Marca</label>
@@ -342,6 +355,10 @@ function label(id, list) {
                 <span class="text-muted-color text-sm">Categoría</span>
                 <span class="text-sm font-medium">{{
                   label(localForm.categoria_id, tiposVehiculo)
+                }}</span>
+                <span class="text-muted-color text-sm">Tipo de uso</span>
+                <span class="text-sm font-medium">{{
+                  label(localForm.tipo_uso_id, tiposUso) || '—'
                 }}</span>
                 <span class="text-muted-color text-sm">Marca</span>
                 <span class="text-sm font-medium">{{ label(localForm.marca_id, marcas) }}</span>
