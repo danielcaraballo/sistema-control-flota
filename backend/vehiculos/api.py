@@ -39,6 +39,8 @@ SELECT_RELATED = [
     "color",
     "color_placa",
     "tipo_uso",
+    "clase",
+    "tipo_combustible",
 ]
 
 SORT_FIELD_MAP = {
@@ -52,6 +54,8 @@ SORT_FIELD_MAP = {
     "estatus_nombre": "estatus__nombre",
     "estado_nombre": "estado__nombre",
     "gerencia_nombre": "gerencia__nombre",
+    "clase_nombre": "clase__nombre",
+    "tipo_combustible_nombre": "tipo_combustible__nombre",
 }
 
 
@@ -91,6 +95,10 @@ def _build_vehiculo_schema(v, include_qr=True):
         color_placa_nombre=_name_or_none(v.color_placa),
         tipo_uso=v.tipo_uso_id,
         tipo_uso_nombre=_name_or_none(v.tipo_uso),
+        clase=v.clase_id,
+        clase_nombre=v.clase.nombre,
+        tipo_combustible=v.tipo_combustible_id,
+        tipo_combustible_nombre=v.tipo_combustible.nombre,
     )
     if include_qr:
         kw["codigo_qr"] = v.codigo_qr

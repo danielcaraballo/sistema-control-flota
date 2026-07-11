@@ -2,11 +2,13 @@ from django.test import TestCase
 from ninja.testing import TestClient
 
 from catalogos.models import (
+    ClaseVehiculo,
     Color,
     ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
+    TipoCombustible,
     TipoUso,
     TipoVehiculo,
 )
@@ -43,6 +45,8 @@ class TestVehiculoCRUD(TestCase):
         cls.color_placa = ColorPlaca.objects.create(nombre="Test Color Placa")
         cls.estatus_v = EstatusVehiculo.objects.create(nombre="Test Estatus")
         cls.tipo_uso = TipoUso.objects.create(nombre="Test TipoUso")
+        cls.clase = ClaseVehiculo.objects.create(nombre="Test Clase")
+        cls.tipo_combustible = TipoCombustible.objects.create(nombre="Test Combustible")
 
         cls.admin = Usuario.objects.create_user(
             username="admin",
@@ -73,6 +77,8 @@ class TestVehiculoCRUD(TestCase):
             "tipo_uso_id": self.tipo_uso.id,
             "placa_intt": "INTT-001",
             "serial_motor": "MOTOR-001",
+            "clase_id": self.clase.id,
+            "tipo_combustible_id": self.tipo_combustible.id,
         }
         base.update(kwargs)
         return base

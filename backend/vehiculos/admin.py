@@ -15,6 +15,8 @@ class VehiculoAdmin(ModelAdmin):
         "anio",
         "vin",
         "placa",
+        "clase",
+        "tipo_combustible",
         "estatus",
         "estatus_activo",
     ]

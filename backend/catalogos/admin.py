@@ -2,12 +2,14 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 
 from .models import (
+    ClaseVehiculo,
     Color,
     ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
+    TipoCombustible,
     TipoFalla,
     TipoUso,
     TipoVehiculo,
@@ -65,6 +67,20 @@ class TipoFallaAdmin(ModelAdmin):
 
 @admin.register(EstatusVehiculo)
 class EstatusVehiculoAdmin(ModelAdmin):
+    list_display = ["nombre", "estatus_activo"]
+    search_fields = ["nombre"]
+    list_filter = ["estatus_activo"]
+
+
+@admin.register(ClaseVehiculo)
+class ClaseVehiculoAdmin(ModelAdmin):
+    list_display = ["nombre", "estatus_activo"]
+    search_fields = ["nombre"]
+    list_filter = ["estatus_activo"]
+
+
+@admin.register(TipoCombustible)
+class TipoCombustibleAdmin(ModelAdmin):
     list_display = ["nombre", "estatus_activo"]
     search_fields = ["nombre"]
     list_filter = ["estatus_activo"]

@@ -1,12 +1,14 @@
 from ninja import ModelSchema, Schema
 
 from .models import (
+    ClaseVehiculo,
     Color,
     ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
+    TipoCombustible,
     TipoFalla,
     TipoUso,
     TipoVehiculo,
@@ -132,6 +134,34 @@ class EstatusVehiculoCreate(Schema):
 
 
 class EstatusVehiculoUpdate(Schema):
+    nombre: str | None = None
+
+
+class ClaseVehiculoSchema(ModelSchema):
+    class Meta:
+        model = ClaseVehiculo
+        fields = ["id", "nombre", "estatus_activo"]
+
+
+class ClaseVehiculoCreate(Schema):
+    nombre: str
+
+
+class ClaseVehiculoUpdate(Schema):
+    nombre: str | None = None
+
+
+class TipoCombustibleSchema(ModelSchema):
+    class Meta:
+        model = TipoCombustible
+        fields = ["id", "nombre", "estatus_activo"]
+
+
+class TipoCombustibleCreate(Schema):
+    nombre: str
+
+
+class TipoCombustibleUpdate(Schema):
     nombre: str | None = None
 
 

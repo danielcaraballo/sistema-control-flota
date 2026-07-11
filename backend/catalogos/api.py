@@ -3,17 +3,22 @@ from ninja import Router
 from utils.crud_factory import CrudConfig, register_crud
 
 from .models import (
+    ClaseVehiculo,
     Color,
     ColorPlaca,
     EstatusVehiculo,
     Marca,
     Modelo,
     SistemaAfectado,
+    TipoCombustible,
     TipoFalla,
     TipoUso,
     TipoVehiculo,
 )
 from .schemas import (
+    ClaseVehiculoCreate,
+    ClaseVehiculoSchema,
+    ClaseVehiculoUpdate,
     ColorCreate,
     ColorPlacaCreate,
     ColorPlacaSchema,
@@ -32,6 +37,9 @@ from .schemas import (
     SistemaAfectadoCreate,
     SistemaAfectadoSchema,
     SistemaAfectadoUpdate,
+    TipoCombustibleCreate,
+    TipoCombustibleSchema,
+    TipoCombustibleUpdate,
     TipoFallaCreate,
     TipoFallaSchema,
     TipoFallaUpdate,
@@ -152,6 +160,24 @@ CONFIGS = [
         create_schema=EstatusVehiculoCreate,
         update_schema=EstatusVehiculoUpdate,
         display_name="estatus de vehículo",
+    ),
+    CrudConfig(
+        prefix="clases-vehiculo",
+        model=ClaseVehiculo,
+        read_schema=ClaseVehiculoSchema,
+        create_schema=ClaseVehiculoCreate,
+        update_schema=ClaseVehiculoUpdate,
+        display_name="clase de vehículo",
+        article="una",
+    ),
+    CrudConfig(
+        prefix="tipos-combustible",
+        model=TipoCombustible,
+        read_schema=TipoCombustibleSchema,
+        create_schema=TipoCombustibleCreate,
+        update_schema=TipoCombustibleUpdate,
+        display_name="tipo de combustible",
+        article="un",
     ),
     CrudConfig(
         prefix="colores-placa",

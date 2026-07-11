@@ -28,6 +28,10 @@ class VehiculoSchema(ModelSchema):
     color_placa_nombre: str | None = None
     tipo_uso: int | None = None
     tipo_uso_nombre: str | None = None
+    clase: int
+    clase_nombre: str | None = None
+    tipo_combustible: int
+    tipo_combustible_nombre: str | None = None
 
     class Meta:
         model = Vehiculo
@@ -68,6 +72,10 @@ class VehiculoListItemSchema(ModelSchema):
     color_placa_nombre: str | None = None
     tipo_uso: int | None = None
     tipo_uso_nombre: str | None = None
+    clase: int
+    clase_nombre: str | None = None
+    tipo_combustible: int
+    tipo_combustible_nombre: str | None = None
 
     class Meta:
         model = Vehiculo
@@ -103,6 +111,8 @@ class VehiculoCreate(Schema):
     tipo_uso_id: int | None = None
     placa_intt: str = ""
     serial_motor: str = ""
+    clase_id: int
+    tipo_combustible_id: int
 
 
 class VehiculoListResponse(Schema):
@@ -130,3 +140,5 @@ class VehiculoUpdate(Schema):
     tipo_uso_id: int | None = None
     placa_intt: str | None = None
     serial_motor: str | None = None
+    clase_id: int | None = None
+    tipo_combustible_id: int | None = None

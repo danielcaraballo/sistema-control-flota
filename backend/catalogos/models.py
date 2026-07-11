@@ -163,6 +163,46 @@ class ColorPlaca(models.Model):
         return self.nombre
 
 
+class ClaseVehiculo(models.Model):
+    nombre = models.CharField(max_length=50, verbose_name="Nombre")
+    estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
+
+    class Meta:
+        verbose_name = "Clase de vehículo"
+        verbose_name_plural = "Clases de vehículo"
+        ordering = ["nombre"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["nombre"],
+                condition=Q(estatus_activo=True),
+                name="unique_active_clasevehiculo_nombre",
+            ),
+        ]
+
+    def __str__(self):
+        return self.nombre
+
+
+class TipoCombustible(models.Model):
+    nombre = models.CharField(max_length=50, verbose_name="Nombre")
+    estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
+
+    class Meta:
+        verbose_name = "Tipo de combustible"
+        verbose_name_plural = "Tipos de combustible"
+        ordering = ["nombre"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["nombre"],
+                condition=Q(estatus_activo=True),
+                name="unique_active_tipocombustible_nombre",
+            ),
+        ]
+
+    def __str__(self):
+        return self.nombre
+
+
 class TipoFalla(models.Model):
     descripcion = models.CharField(max_length=200, verbose_name="Descripción")
     sistema_afectado = models.ForeignKey(

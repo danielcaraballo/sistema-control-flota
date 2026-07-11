@@ -18,6 +18,8 @@ erDiagram
     ESTATUS_VEHICULO ||--o{ VEHICULO : ""
     COLOR_PLACA ||--o{ VEHICULO : ""
     TIPO_USO ||--o{ VEHICULO : ""
+    CLASE_VEHICULO ||--o{ VEHICULO : clasifica
+    TIPO_COMBUSTIBLE ||--o{ VEHICULO : ""
     SISTEMA_AFECTADO ||--o{ TIPO_FALLA : ""
 
     ESTADO {
@@ -108,6 +110,18 @@ erDiagram
         bool estatus_activo
     }
 
+    CLASE_VEHICULO {
+        int id PK
+        string nombre "UK (activos)"
+        bool estatus_activo
+    }
+
+    TIPO_COMBUSTIBLE {
+        int id PK
+        string nombre "UK (activos)"
+        bool estatus_activo
+    }
+
     VEHICULO {
         int id PK
         string numero_economico UK
@@ -123,6 +137,8 @@ erDiagram
         int anio
         int color_id FK
         int tipo_uso_id FK
+        int clase_id FK
+        int tipo_combustible_id FK
         int estatus_id FK
         int estado_id FK
         int gerencia_id FK
@@ -203,6 +219,8 @@ erDiagram
 | `categoria` | FK(TipoVehiculo) | RESTRICT | Tipo/categoría. on_delete=RESTRICT |
 | `color` | FK(Color) | NULL, BLANK | on_delete=RESTRICT |
 | `tipo_uso` | FK(TipoUso) | NULL, BLANK | on_delete=RESTRICT |
+| `clase` | FK(ClaseVehiculo) | RESTRICT | Clase del vehículo. on_delete=RESTRICT |
+| `tipo_combustible` | FK(TipoCombustible) | RESTRICT | Tipo de combustible. on_delete=RESTRICT |
 | `estatus` | FK(EstatusVehiculo) | RESTRICT | Estatus operativo. on_delete=RESTRICT |
 | `estado` | FK(Estado) | RESTRICT | Estado donde opera. on_delete=RESTRICT |
 | `gerencia` | FK(Gerencia) | RESTRICT | Gerencia propietaria. on_delete=RESTRICT |
@@ -222,7 +240,7 @@ erDiagram
 
 Los catálogos y organización usan el mismo patrón: toda `UNIQUE` es condicional `WHERE estatus_activo = 1`, permitiendo reciclar nombres/valores de registros soft-deleteados sin violar integridad.
 
-### Catálogos (9 modelos)
+### Catálogos (11 modelos)
 
 Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `UniqueConstraint` con `condition=Q(estatus_activo=True)`. Esto permite reciclar nombres de registros soft-deleteados.
 
@@ -237,6 +255,8 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | `EstatusVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `ColorPlaca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `TipoFalla` | catalogos | `id`, `descripcion`, `sistema_afectado_id` (null=True), `estatus_activo` | SistemaAfectado (on_delete=RESTRICT, null=True) | `descripcion` |
+| `ClaseVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `TipoCombustible` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 
 ## Reglas de Negocio
 
@@ -262,6 +282,8 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | `EstatusVehiculo` | ✅ Implementado | catalogos |
 | `ColorPlaca` | ✅ Implementado | catalogos |
 | `TipoFalla` | ✅ Implementado | catalogos |
+| `ClaseVehiculo` | ✅ Implementado | catalogos |
+| `TipoCombustible` | ✅ Implementado | catalogos |
 | `Vehiculo` | ✅ Implementado | vehiculos |
 | `OrdenServicio` | 🚧 Planificado | — |
 | `DetalleOrden` | 🚧 Planificado | — |
