@@ -44,7 +44,7 @@ def reverse_migrate_sistema_afectado(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("catalogos", "0002_seed_data"),
+        ("catalogos", "0001_initial"),
     ]
 
     operations = [

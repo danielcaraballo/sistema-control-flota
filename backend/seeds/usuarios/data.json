@@ -1,0 +1,47 @@
+{
+  "usuarios": [
+    {
+      "username": "root",
+      "password": "root",
+      "email": "root@scf.local",
+      "first_name": "Super",
+      "last_name": "Admin",
+      "rol": "nacional",
+      "is_staff": true,
+      "is_superuser": true
+    },
+    {
+      "username": "nacional",
+      "password": "nacional",
+      "email": "nacional@scf.local",
+      "first_name": "Usuario",
+      "last_name": "Nacional",
+      "rol": "nacional"
+    },
+    {
+      "username": "estatal",
+      "password": "estatal",
+      "email": "estatal@scf.local",
+      "first_name": "Usuario",
+      "last_name": "Estatal",
+      "rol": "estatal",
+      "estado_id": 1
+    },
+    {
+      "username": "analista",
+      "password": "analista",
+      "email": "analista@scf.local",
+      "first_name": "Usuario",
+      "last_name": "Analista",
+      "rol": "analista"
+    },
+    {
+      "username": "mecanico",
+      "password": "mecanico",
+      "email": "mecanico@scf.local",
+      "first_name": "Usuario",
+      "last_name": "Mecanico",
+      "rol": "mecanico"
+    }
+  ]
+}

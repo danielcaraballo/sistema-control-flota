@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalogos', '0007_seed_catalog_data'),
+        ('catalogos', '0006_alter_modelo_unique_together_alter_color_nombre_and_more'),
     ]
 
     operations = [

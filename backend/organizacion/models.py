@@ -43,7 +43,7 @@ class Gerencia(models.Model):
 
 
 class CentroDeServicio(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre")
+    nombre = models.CharField(max_length=200, verbose_name="Nombre")
     estado = models.ForeignKey(Estado, on_delete=models.RESTRICT, verbose_name="Estado")
     estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
 

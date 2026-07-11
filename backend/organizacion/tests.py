@@ -33,7 +33,7 @@ class TestOrganizacionAPI(TestCase):
         data = response.json()
         self.assertIsInstance(data, list)
         self.assertNotEqual(len(data), 0)
-        self.assertIn("Lara", [e["nombre"] for e in data])
+        self.assertIn("Test Estado", [e["nombre"] for e in data])
 
     def test_list_estados_only_active(self):
         Estado.objects.create(nombre="Inactivo", estatus_activo=False)

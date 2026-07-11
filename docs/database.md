@@ -184,7 +184,7 @@ erDiagram
 |---|---|---|---|
 | `Estado` | organizacion | `id`, `nombre` (UK), `estatus_activo` | Entidad independiente (sin FK a Gerencia) |
 | `Gerencia` | organizacion | `id`, `nombre` (UK), `estatus_activo` | Entidad independiente (sin FK a Estado) |
-| `CentroDeServicio` | organizacion | `id`, `nombre` (UK), `estado_id` (FK), `estatus_activo` | Vinculado a Estado |
+| `CentroDeServicio` | organizacion | `id`, `nombre` (UK, max_length=200), `estado_id` (FK), `estatus_activo` | Vinculado a Estado |
 
 ### Usuario
 
