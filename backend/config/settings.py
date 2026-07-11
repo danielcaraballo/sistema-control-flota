@@ -207,6 +207,16 @@ UNFOLD = {
                         "icon": "palette",
                         "link": reverse_lazy("admin:catalogos_colorplaca_changelist"),
                     },
+                    {
+                        "title": "Clases de Vehículo",
+                        "icon": "category",
+                        "link": reverse_lazy("admin:catalogos_clasevehiculo_changelist"),
+                    },
+                    {
+                        "title": "Tipos de Combustible",
+                        "icon": "local_gas_station",
+                        "link": reverse_lazy("admin:catalogos_tipocombustible_changelist"),
+                    },
                 ],
             },
         ],
