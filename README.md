@@ -35,7 +35,14 @@ cd backend
 cp .env.example .env
 uv sync
 uv run python manage.py migrate
+uv run python manage.py createsuperuser
 uv run python manage.py runserver
+
+# Población de datos: para usar el sistema necesitas cargar datos de
+# referencia (catálogos, organización). Puedes hacerlo de tres formas:
+#   1. Cargar fixtures externos: uv run python manage.py loaddata fixtures/*.json
+#   2. Admin de Django:          navegar a /admin/ y crear los registros
+#   3. Frontend/API:             una vez logueado, usar el módulo Catálogos
 
 # ── Frontend (otra terminal) ──
 cd frontend
@@ -118,6 +125,7 @@ uv run python manage.py migrate        # Aplicar migraciones
 uv run python manage.py makemigrations # Crear migraciones
 uv run ruff check .                    # Linting
 uv run ruff format .                   # Formateo
+uv run python manage.py loaddata fixtures/*.json  # Cargar datos desde fixtures
 
 # Frontend
 npm run dev                            # Servidor de desarrollo
