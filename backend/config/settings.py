@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "ninja",
     "ninja_jwt",
-    "seeds",
     "organizacion",
     "usuarios",
     "catalogos",

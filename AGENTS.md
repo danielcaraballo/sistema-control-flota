@@ -10,7 +10,7 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 |---|---|
 | Backend dev | `uv run python manage.py runserver` |
 | Backend test | `uv run python manage.py test` (all apps) |
-| Backend seed | `uv run python manage.py seed_data` (carga datos de referencia desde `seeds/*/data.json`) |
+| Backend shell | `uv run python manage.py shell` |
 | Backend lint | `uv run ruff check .` |
 | Backend format | `uv run ruff format .` |
 | Frontend dev | `npm run dev` |
@@ -24,7 +24,6 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 - **Tests**: `TestClient(api)` from `ninja.testing` + `django.test.TestCase`. Create user + login in `setUp`, reuse token via headers.
 - **Soft-delete**: Every model has `estatus_activo = BooleanField(default=True)`. GET endpoints filter `.filter(estatus_activo=True)` by default; pass `?incluir_inactivos=true` to override.
 - **Migrations**: `makemigrations` + `migrate` as usual. Ruff ignores `*/migrations/*`.
-- **Seed data**: `backend/seeds/` contains reference data in JSON files separated by app (`catalogos/data.json`, `organizacion/data.json`, `usuarios/data.json`). Load via `python manage.py seed_data`. To customize data, edit the JSON files and re-run the command. The management command is idempotent (`update_or_create` by natural keys).
 - **Roles hierarchy**: `MECANICO < ANALISTA < ESTATAL < NACIONAL`. Defined in `usuarios/roles.py`. The `acotar_por_estado()` helper exists but is unused; vehiculos uses inline filtering instead.
 - **Deps**: `uv sync` (not pip). Config in `backend/pyproject.toml`.
 - **Apps**: `config` (settings/urls/api root), `usuarios` (User model + auth), `organizacion` (Estado, Gerencia, CentroDeServicio), `catalogos` (Marca, Modelo, TipoVehiculo, TipoUso, Color, SistemaAfectado, EstatusVehiculo, ColorPlaca, TipoFalla), `vehiculos` (Vehiculo CRUD with QR code generation), `dashboard` (Unfold dashboard callback with KPIs/charts).
@@ -46,7 +45,6 @@ Cada vez que se crea un nuevo modelo de catálogo (o cualquier modelo que deba a
    ```
    El `reverse_lazy` sigue el patrón `admin:{app_label}_{modelo}_changelist` (minúsculas).
 5. **Opcional — CRUD API:** Si el modelo necesita endpoints REST, agregar schemas en `schemas.py`, un `CrudConfig` en `api.py` (usando `register_crud` de `utils/crud_factory.py`) e importar el router en `config/api.py`.
-6. **Seed data (opcional):** Agregar valores por defecto en `backend/seeds/<app>/data.json` y cargarlos con `python manage.py seed_data`.
 
 ## Frontend conventions
 

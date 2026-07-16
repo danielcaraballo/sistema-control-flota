@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.0 — Eliminación de seed data del proyecto (2026-07-16)
+
+- Eliminado `backend/seeds/` por completo (management command, loaders, JSONs).
+- El proyecto ya no incluye datos precargados. Para poblar la BD se usa `createsuperuser`, el admin de Django, la API REST, o `loaddata` con fixtures externos.
+- `AGENTS.md`: removidas todas las referencias a seed_data.
+
 ## v0.8.0 — Paginación server-side + índices para escalar a 10k vehículos (2026-07-08)
 
 - Backend: `GET /vehiculos/` ahora usa paginación manual (`limit`/`offset`) + filtros server-side (`search`, `estado_id`, `estatus_id`, `gerencia_id`).

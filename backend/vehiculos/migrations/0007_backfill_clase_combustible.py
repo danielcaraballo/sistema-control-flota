@@ -7,8 +7,8 @@ def backfill_clase_combustible(apps, schema_editor):
     TipoCombustible = apps.get_model("catalogos", "TipoCombustible")
     Vehiculo = apps.get_model("vehiculos", "Vehiculo")
 
-    clase_default = ClaseVehiculo.objects.filter(nombre__iexact="Liviano").first()
-    combustible_default = TipoCombustible.objects.filter(nombre__iexact="Gasolina").first()
+    clase_default = ClaseVehiculo.objects.first()
+    combustible_default = TipoCombustible.objects.first()
 
     if not clase_default or not combustible_default:
         return

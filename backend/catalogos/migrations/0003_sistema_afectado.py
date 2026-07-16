@@ -2,19 +2,6 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-TIPOS_SISTEMA = [
-    "Motor",
-    "Frenos",
-    "Eléctrico",
-    "Hidráulico",
-    "Transmisión",
-    "Suspensión",
-    "Dirección",
-    "Carrocería",
-    "Otro",
-]
-
-
 def migrate_sistema_afectado(apps, schema_editor):
     SistemaAfectado = apps.get_model("catalogos", "SistemaAfectado")
     TipoFalla = apps.get_model("catalogos", "TipoFalla")
