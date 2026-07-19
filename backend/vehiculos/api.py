@@ -105,13 +105,17 @@ def _build_vehiculo_schema(v, include_qr=True):
     return kw
 
 
-def _generate_qr(request, vehicle_id):
-    content = request.build_absolute_uri(f"/vehiculos/{vehicle_id}")
-    img = qrcode.make(content)
+def _make_qr_data_uri(url: str) -> str:
+    img = qrcode.make(url)
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     qr_b64 = base64.b64encode(buffer.getvalue()).decode()
     return f"data:image/png;base64,{qr_b64}"
+
+
+def _generate_qr(request, vehicle_id):
+    url = request.build_absolute_uri(f"/vehiculos/{vehicle_id}")
+    return _make_qr_data_uri(url)
 
 
 # ─── CRUD ────────────────────────────────────────────────────────────────
@@ -250,3 +254,12 @@ def deactivate_vehiculo(request, vehiculo_id: int):
     v.estatus_activo = False
     v.save()
     return 204, None
+
+
+@router.post("/{vehiculo_id}/regenerar-qr", response=VehiculoSchema, auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.NACIONAL)
+def regenerar_qr(request, vehiculo_id: int):
+    v = get_object_or_404(Vehiculo.objects.select_related(*SELECT_RELATED), vehiculo_id)
+    v.codigo_qr = _generate_qr(request, v.id)
+    v.save(update_fields=["codigo_qr"])
+    return _build_vehiculo_schema(v)

@@ -1,3 +1,5 @@
+import base64
+
 from django.test import TestCase
 from ninja.testing import TestClient
 
@@ -323,6 +325,42 @@ class TestVehiculoCRUD(TestCase):
 
         response = client.get("/vehiculos/?limit=10&offset=0", headers=headers)
         self.assertEqual(response.status_code, 200)
+
+    def test_regenerar_qr(self):
+        v = Vehiculo.objects.create(**self._valid_payload())
+        v.codigo_qr = ""
+        v.save(update_fields=["codigo_qr"])
+
+        response = client.post(f"/vehiculos/{v.id}/regenerar-qr", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["codigo_qr"].startswith("data:image/png;base64,"))
+
+        # Verify it's a valid PNG
+        raw = base64.b64decode(data["codigo_qr"].removeprefix("data:image/png;base64,"))
+        self.assertTrue(raw.startswith(b"\x89PNG"))
+
+    def test_regenerar_qr_not_found(self):
+        response = client.post("/vehiculos/99999/regenerar-qr", headers=self.headers)
+        self.assertEqual(response.status_code, 404)
+
+    def test_regenerar_qr_unauthorized(self):
+        v = Vehiculo.objects.create(**self._valid_payload())
+        mecanico = Usuario.objects.create_user(
+            username="mec",
+            email="mec@test.com",
+            password="pass123",
+            rol=Usuario.Rol.MECANICO,
+        )
+        login_resp = client.post(
+            "/auth/login",
+            json={"username": "mec", "password": "pass123"},
+        )
+        token = login_resp.json()["access"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        response = client.post(f"/vehiculos/{v.id}/regenerar-qr", headers=headers)
+        self.assertEqual(response.status_code, 403)
 
     def test_unauthorized_access(self):
         response = client.get("/vehiculos/?limit=10&offset=0")

@@ -25,6 +25,7 @@ const loading = ref(true)
 const notFound = ref(false)
 const showDeactivateDialog = ref(false)
 const showActivateDialog = ref(false)
+const regenerandoQR = ref(false)
 
 // Edit dialog state
 const showEditDialog = ref(false)
@@ -432,6 +433,30 @@ function imprimirQR() {
   setTimeout(() => win.print(), 300)
 }
 
+async function regenerarQR() {
+  if (!vehiculo.value?.id) return
+  regenerandoQR.value = true
+  try {
+    const { data } = await api.post(`/vehiculos/${vehiculo.value.id}/regenerar-qr`)
+    vehiculo.value.codigo_qr = data.codigo_qr
+    toast.add({
+      severity: 'success',
+      summary: 'QR regenerado',
+      detail: 'Código QR actualizado correctamente',
+      life: 3000,
+    })
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.response?.data?.detail || 'Error al regenerar QR',
+      life: 4000,
+    })
+  } finally {
+    regenerandoQR.value = false
+  }
+}
+
 function confirmDesactivar() {
   showDeactivateDialog.value = true
 }
@@ -665,6 +690,15 @@ watch(() => route.params.id, loadVehiculo)
               size="small"
               v-tooltip.top="'Imprimir QR'"
               @click="imprimirQR"
+            />
+            <Button
+              icon="pi pi-refresh"
+              text
+              size="small"
+              :loading="regenerandoQR"
+              v-tooltip.top="'Regenerar QR'"
+              v-if="auth.tieneRol(ROL_NACIONAL)"
+              @click="regenerarQR"
             />
           </div>
         </div>

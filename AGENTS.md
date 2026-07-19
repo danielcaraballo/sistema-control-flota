@@ -15,6 +15,7 @@ Monorepo: `backend/` (Django 5.2 + Ninja) + `frontend/` (Vue 3.5 + Vite). No mon
 | Backend format | `uv run ruff format .` |
 | Frontend dev | `npm run dev` |
 | Frontend lint | `npx eslint .` (flat config, Prettier integrated as rule) |
+| Backend backfill QR | `uv run python manage.py backfill_qr` |
 | Frontend format | `npx prettier --write .` |
 
 ## Backend conventions

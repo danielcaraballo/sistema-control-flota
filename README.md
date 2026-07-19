@@ -126,6 +126,7 @@ uv run python manage.py makemigrations # Crear migraciones
 uv run ruff check .                    # Linting
 uv run ruff format .                   # Formateo
 uv run python manage.py loaddata fixtures/*.json  # Cargar datos desde fixtures
+uv run python manage.py backfill_qr               # Generar QR para vehículos sin código QR
 
 # Frontend
 npm run dev                            # Servidor de desarrollo
