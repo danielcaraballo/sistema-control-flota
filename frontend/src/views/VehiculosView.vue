@@ -45,7 +45,7 @@ const showDialog = ref(false)
 const editingVehiculo = ref(null)
 const submitted = ref(false)
 const errorMessage = ref('')
-const activeStep = ref(1)
+const activeIndex = ref(0)
 const catalogosCargados = ref(false)
 const showConfirmClose = ref(false)
 const formSnapshot = ref(null)
@@ -243,7 +243,7 @@ async function ensureCatalogos() {
 async function openNew() {
   editingVehiculo.value = null
   errorMessage.value = ''
-  activeStep.value = 1
+  activeIndex.value = 0
   saving.value = false
   form.value = initialForm()
   formSnapshot.value = JSON.parse(JSON.stringify(form.value))
@@ -255,7 +255,7 @@ async function openNew() {
 async function openEdit(vehiculo) {
   editingVehiculo.value = vehiculo
   errorMessage.value = ''
-  activeStep.value = 1
+  activeIndex.value = 0
   form.value = {
     numero_economico: vehiculo.numero_economico,
     vin: vehiculo.vin,
@@ -543,12 +543,12 @@ onMounted(async () => {
       @update:visible="onDialogClose"
       :header="isCreating ? 'Nuevo vehículo' : 'Editar vehículo'"
       :modal="true"
-      :style="{ width: '780px', height: '620px' }"
+      :style="{ width: '780px' }"
       :closable="true"
       :draggable="false"
     >
       <VehiculoFormStepper
-        v-model:active-step="activeStep"
+        v-model:active-index="activeIndex"
         v-model:submitted="submitted"
         v-model:form="form"
         :error-message="errorMessage"
@@ -569,6 +569,18 @@ onMounted(async () => {
         @save="saveVehiculo"
         @cancel="onCancelarClick"
       />
+      <template #footer>
+        <div class="flex justify-end w-full gap-2">
+          <Button label="Cancelar" severity="secondary" @click="onCancelarClick" />
+          <Button
+            :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
+            icon="pi pi-check"
+            :loading="saving"
+            :disabled="saving"
+            @click="saveVehiculo"
+          />
+        </div>
+      </template>
     </Dialog>
 
     <ConfirmDialog

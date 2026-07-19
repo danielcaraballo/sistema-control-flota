@@ -30,7 +30,7 @@ const showActivateDialog = ref(false)
 const showEditDialog = ref(false)
 const editForm = ref(initialEditForm())
 const editSubmitted = ref(false)
-const editActiveStep = ref(1)
+const editActiveIndex = ref(0)
 const editErrorMessage = ref('')
 const editSaving = ref(false)
 const editIsCreating = computed(() => false)
@@ -279,7 +279,7 @@ async function ensureCatalogos() {
 async function abrirEdicion() {
   if (!vehiculo.value) return
   editErrorMessage.value = ''
-  editActiveStep.value = 1
+  editActiveIndex.value = 0
   editSubmitted.value = false
   editSaving.value = false
   const v = vehiculo.value
@@ -674,12 +674,12 @@ watch(() => route.params.id, loadVehiculo)
       @update:visible="onDialogEditarClose"
       header="Editar vehículo"
       :modal="true"
-      :style="{ width: '780px', height: '620px' }"
+      :style="{ width: '780px' }"
       :closable="true"
       :draggable="false"
     >
       <VehiculoFormStepper
-        v-model:active-step="editActiveStep"
+        v-model:active-index="editActiveIndex"
         v-model:submitted="editSubmitted"
         v-model:form="editForm"
         :error-message="editErrorMessage"
@@ -700,6 +700,18 @@ watch(() => route.params.id, loadVehiculo)
         @save="actualizarVehiculo"
         @cancel="onCancelarEdicion"
       />
+      <template #footer>
+        <div class="flex justify-end w-full gap-2">
+          <Button label="Cancelar" severity="secondary" @click="onCancelarEdicion" />
+          <Button
+            label="Guardar cambios"
+            icon="pi pi-check"
+            :loading="editSaving"
+            :disabled="editSaving"
+            @click="actualizarVehiculo"
+          />
+        </div>
+      </template>
     </Dialog>
   </div>
 </template>
