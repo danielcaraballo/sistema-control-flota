@@ -537,9 +537,6 @@ onMounted(async () => {
         </template>
 
         <Column field="numero_economico" header="N° Económico" sortable />
-        <Column field="marca_nombre" header="Marca / Modelo" sortable>
-          <template #body="{ data }"> {{ data.marca_nombre }} {{ data.modelo_nombre }} </template>
-        </Column>
         <Column field="placa" header="Placa" sortable>
           <template #body="{ data }">
             <div class="flex items-center gap-2">
@@ -553,27 +550,16 @@ onMounted(async () => {
             </div>
           </template>
         </Column>
-        <Column field="anio" header="Año" sortable />
-        <Column field="vin" header="Serial carrocería" sortable>
-          <template #body="{ data }">
-            <span class="font-mono text-xs">{{ data.vin?.substring(0, 11) }}...</span>
-          </template>
+        <Column field="marca_nombre" header="Marca / Modelo" sortable>
+          <template #body="{ data }"> {{ data.marca_nombre }} {{ data.modelo_nombre }} </template>
         </Column>
+        <Column field="anio" header="Año" sortable />
         <Column field="estatus_nombre" header="Estatus" sortable>
           <template #body="{ data }">
             <Tag :value="data.estatus_nombre" :severity="estatusSeverity(data.estatus_nombre)" />
           </template>
         </Column>
         <Column field="estado_nombre" header="Estado" sortable />
-        <Column field="gerencia_nombre" header="Gerencia" sortable />
-        <Column field="estatus_activo" header="Activo" sortable>
-          <template #body="{ data }">
-            <Tag
-              :value="data.estatus_activo ? 'Activo' : 'Inactivo'"
-              :severity="data.estatus_activo ? 'success' : 'danger'"
-            />
-          </template>
-        </Column>
       </DataTable>
     </div>
 
