@@ -53,6 +53,8 @@ const estatusVehiculo = ref([])
 const estados = ref([])
 const gerencias = ref([])
 const centrosServicio = ref([])
+const clasesVehiculo = ref([])
+const tiposCombustible = ref([])
 const catalogosCargados = ref(false)
 
 function initialEditForm() {
@@ -75,6 +77,8 @@ function initialEditForm() {
     gerencia_id: null,
     unidad_usuaria_id: null,
     emplazamiento_id: null,
+    clase_id: null,
+    tipo_combustible_id: null,
   }
 }
 
@@ -232,6 +236,32 @@ async function loadCatalogos() {
           life: 4000,
         })
       }),
+    api
+      .get('/catalogos/clases-vehiculo/')
+      .then((r) => {
+        clasesVehiculo.value = r.data
+      })
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar clases de vehículo',
+          life: 4000,
+        })
+      }),
+    api
+      .get('/catalogos/tipos-combustible/')
+      .then((r) => {
+        tiposCombustible.value = r.data
+      })
+      .catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: 'Catálogo',
+          detail: 'Error al cargar tipos de combustible',
+          life: 4000,
+        })
+      }),
   ]
   await Promise.allSettled(calls)
 }
@@ -272,6 +302,8 @@ async function abrirEdicion() {
     gerencia_id: v.gerencia,
     unidad_usuaria_id: v.unidad_usuaria ?? null,
     emplazamiento_id: v.emplazamiento,
+    clase_id: v.clase,
+    tipo_combustible_id: v.tipo_combustible,
   }
   editFormSnapshot.value = JSON.parse(JSON.stringify(editForm.value))
   await ensureCatalogos()
@@ -327,6 +359,8 @@ async function actualizarVehiculo() {
     gerencia_id: editForm.value.gerencia_id,
     unidad_usuaria_id: editForm.value.unidad_usuaria_id || null,
     emplazamiento_id: editForm.value.emplazamiento_id,
+    clase_id: editForm.value.clase_id,
+    tipo_combustible_id: editForm.value.tipo_combustible_id,
   }
 
   try {
@@ -561,6 +595,10 @@ watch(() => route.params.id, loadVehiculo)
               <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5 text-sm">
                 <span class="text-muted-color">Categoría</span>
                 <span class="font-medium col-span-2">{{ vehiculo.categoria_nombre }}</span>
+                <span class="text-muted-color">Clase</span>
+                <span class="font-medium col-span-2">{{ vehiculo.clase_nombre }}</span>
+                <span class="text-muted-color">Tipo de combustible</span>
+                <span class="font-medium col-span-2">{{ vehiculo.tipo_combustible_nombre }}</span>
                 <span class="text-muted-color">Tipo de uso</span>
                 <span class="font-medium col-span-2">{{ vehiculo.tipo_uso_nombre || '—' }}</span>
                 <span class="text-muted-color">Marca</span>
@@ -657,6 +695,8 @@ watch(() => route.params.id, loadVehiculo)
         :estados="estados"
         :gerencias="gerencias"
         :centros-servicio="centrosServicio"
+        :clases-vehiculo="clasesVehiculo"
+        :tipos-combustible="tiposCombustible"
         @save="actualizarVehiculo"
         @cancel="onCancelarEdicion"
       />

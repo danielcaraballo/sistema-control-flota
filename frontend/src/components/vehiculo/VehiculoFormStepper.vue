@@ -28,6 +28,8 @@ const props = defineProps({
   estados: { type: Array, default: () => [] },
   gerencias: { type: Array, default: () => [] },
   centrosServicio: { type: Array, default: () => [] },
+  clasesVehiculo: { type: Array, default: () => [] },
+  tiposCombustible: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['update:form', 'update:activeStep', 'update:submitted', 'save', 'cancel'])
@@ -58,7 +60,16 @@ watch(
 function validateStep(step) {
   const f = localForm.value
   if (step === 1) return f.numero_economico && f.vin
-  if (step === 2) return f.categoria_id && f.marca_id && f.modelo_id && f.anio && f.estatus_id
+  if (step === 2)
+    return (
+      f.categoria_id &&
+      f.clase_id &&
+      f.tipo_combustible_id &&
+      f.marca_id &&
+      f.modelo_id &&
+      f.anio &&
+      f.estatus_id
+    )
   if (step === 3) return f.estado_id && f.gerencia_id && f.emplazamiento_id
   return true
 }
@@ -182,6 +193,39 @@ function label(id, list) {
                   class="w-full"
                   showClear
                 />
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold">Clase</label>
+                <Dropdown
+                  v-model="localForm.clase_id"
+                  :options="clasesVehiculo"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Seleccionar"
+                  class="w-full"
+                  :class="{ 'p-invalid': submitted && !localForm.clase_id }"
+                />
+                <small v-if="submitted && !localForm.clase_id" class="text-xs text-red-500">
+                  La clase es requerida
+                </small>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold">Tipo de combustible</label>
+                <Dropdown
+                  v-model="localForm.tipo_combustible_id"
+                  :options="tiposCombustible"
+                  optionLabel="nombre"
+                  optionValue="id"
+                  placeholder="Seleccionar"
+                  class="w-full"
+                  :class="{ 'p-invalid': submitted && !localForm.tipo_combustible_id }"
+                />
+                <small
+                  v-if="submitted && !localForm.tipo_combustible_id"
+                  class="text-xs text-red-500"
+                >
+                  El tipo de combustible es requerido
+                </small>
               </div>
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-semibold">Marca</label>
@@ -355,6 +399,14 @@ function label(id, list) {
                 <span class="text-muted-color text-sm">Categoría</span>
                 <span class="text-sm font-medium">{{
                   label(localForm.categoria_id, tiposVehiculo)
+                }}</span>
+                <span class="text-muted-color text-sm">Clase</span>
+                <span class="text-sm font-medium">{{
+                  label(localForm.clase_id, clasesVehiculo)
+                }}</span>
+                <span class="text-muted-color text-sm">Tipo de combustible</span>
+                <span class="text-sm font-medium">{{
+                  label(localForm.tipo_combustible_id, tiposCombustible)
                 }}</span>
                 <span class="text-muted-color text-sm">Tipo de uso</span>
                 <span class="text-sm font-medium">{{

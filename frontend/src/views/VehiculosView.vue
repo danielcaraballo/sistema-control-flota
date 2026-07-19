@@ -36,6 +36,8 @@ const estatusVehiculo = ref([])
 const estados = ref([])
 const gerencias = ref([])
 const centrosServicio = ref([])
+const clasesVehiculo = ref([])
+const tiposCombustible = ref([])
 
 const loading = ref(true)
 const saving = ref(false)
@@ -83,6 +85,8 @@ const initialForm = () => ({
   gerencia_id: null,
   unidad_usuaria_id: null,
   emplazamiento_id: null,
+  clase_id: null,
+  tipo_combustible_id: null,
 })
 
 const form = ref(initialForm())
@@ -149,6 +153,18 @@ async function loadCatalogos() {
       .get('/organizacion/centros-servicio/')
       .then((r) => {
         centrosServicio.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/clases-vehiculo/')
+      .then((r) => {
+        clasesVehiculo.value = r.data
+      })
+      .catch(() => {}),
+    api
+      .get('/catalogos/tipos-combustible/')
+      .then((r) => {
+        tiposCombustible.value = r.data
       })
       .catch(() => {}),
   ]
@@ -259,6 +275,8 @@ async function openEdit(vehiculo) {
     gerencia_id: vehiculo.gerencia,
     unidad_usuaria_id: vehiculo.unidad_usuaria ?? null,
     emplazamiento_id: vehiculo.emplazamiento,
+    clase_id: vehiculo.clase,
+    tipo_combustible_id: vehiculo.tipo_combustible,
   }
   formSnapshot.value = JSON.parse(JSON.stringify(form.value))
   submitted.value = false
@@ -290,6 +308,8 @@ async function saveVehiculo() {
     gerencia_id: form.value.gerencia_id,
     unidad_usuaria_id: form.value.unidad_usuaria_id || null,
     emplazamiento_id: form.value.emplazamiento_id,
+    clase_id: form.value.clase_id,
+    tipo_combustible_id: form.value.tipo_combustible_id,
   }
 
   try {
@@ -544,6 +564,8 @@ onMounted(async () => {
         :estados="estados"
         :gerencias="gerencias"
         :centros-servicio="centrosServicio"
+        :clases-vehiculo="clasesVehiculo"
+        :tipos-combustible="tiposCombustible"
         @save="saveVehiculo"
         @cancel="onCancelarClick"
       />
