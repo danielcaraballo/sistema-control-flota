@@ -489,7 +489,7 @@ watch(() => route.params.id, loadVehiculo)
 </script>
 
 <template>
-  <div class="w-full max-w-[900px]">
+  <div class="w-full">
     <div class="flex items-center gap-3 mb-6">
       <Button
         icon="pi pi-arrow-left"
@@ -498,16 +498,18 @@ watch(() => route.params.id, loadVehiculo)
         rounded
         @click="volver"
         v-tooltip.top="'Volver al listado'"
+        aria-label="Volver al listado"
       />
-      <PageHeader
-        v-if="vehiculo"
-        :title="`${vehiculo.numero_economico} — ${vehiculo.marca_nombre} ${vehiculo.modelo_nombre}`"
-        subtitle="Ficha técnica del vehículo"
-        icon="pi pi-truck"
-      />
+      <div v-if="vehiculo" class="flex-1 min-w-0">
+        <PageHeader
+          :title="`${vehiculo.numero_economico} — ${vehiculo.marca_nombre} ${vehiculo.modelo_nombre}`"
+          subtitle="Ficha técnica del vehículo"
+          icon="pi pi-truck"
+        />
+      </div>
       <div v-else class="flex-1" />
       <div v-if="auth.tieneRol(ROL_NACIONAL)" class="flex gap-2 shrink-0">
-        <Button label="Editar" icon="pi pi-pencil" severity="secondary" @click="abrirEdicion" />
+        <Button label="Editar" icon="pi pi-pencil" @click="abrirEdicion" />
         <Button
           v-if="vehiculo?.estatus_activo"
           label="Desactivar"
@@ -529,7 +531,7 @@ watch(() => route.params.id, loadVehiculo)
       <div class="border border-card-border rounded-md bg-card p-6 space-y-4">
         <Skeleton width="60%" height="1.5rem" />
         <Skeleton width="40%" height="1rem" />
-        <div class="grid grid-cols-2 gap-4 mt-6">
+        <div class="grid grid-cols-3 gap-4 mt-6">
           <Skeleton v-for="n in 8" :key="n" height="1rem" />
         </div>
       </div>
@@ -555,117 +557,115 @@ watch(() => route.params.id, loadVehiculo)
     </template>
 
     <template v-else-if="vehiculo">
-      <div class="border border-card-border rounded-md bg-card overflow-hidden">
-        <div class="flex flex-col md:flex-row gap-6 p-6">
-          <div class="shrink-0 flex flex-col items-center gap-2">
-            <img
-              v-if="vehiculo.codigo_qr"
-              :src="vehiculo.codigo_qr"
-              alt="QR del vehículo"
-              class="w-44 h-44 border border-card-border rounded-md"
-            />
-            <span class="text-xs text-muted-color">Código QR</span>
-            <div v-if="vehiculo.codigo_qr" class="flex gap-1">
-              <Button
-                icon="pi pi-download"
-                text
-                size="small"
-                v-tooltip.top="'Descargar QR'"
-                @click="descargarQR"
-              />
-              <Button
-                icon="pi pi-print"
-                text
-                size="small"
-                v-tooltip.top="'Imprimir QR'"
-                @click="imprimirQR"
-              />
+      <div class="border border-card-border rounded-md bg-card p-6 flex flex-col md:flex-row gap-6">
+        <div class="flex-1 min-w-0 space-y-6">
+          <div>
+            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+              <i class="pi pi-id-card text-primary" /> Identificación
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+              <span class="text-muted-color">N° Económico</span>
+              <span class="font-medium col-span-2">{{ vehiculo.numero_economico }}</span>
+              <span class="text-muted-color">Serial de carrocería</span>
+              <span class="font-medium font-mono col-span-2">{{ vehiculo.vin }}</span>
+              <span class="text-muted-color">Placa</span>
+              <span class="font-medium col-span-2">
+                <div class="flex items-center gap-2">
+                  <span>{{ vehiculo.placa || '—' }}</span>
+                  <Tag
+                    v-if="vehiculo.color_placa_nombre"
+                    :value="vehiculo.color_placa_nombre"
+                    :severity="placaSeverity(vehiculo.color_placa_nombre)"
+                    class="!text-xs"
+                  />
+                </div>
+              </span>
+              <span class="text-muted-color">Placa INTT</span>
+              <span class="font-medium col-span-2">{{ vehiculo.placa_intt || '—' }}</span>
+              <span class="text-muted-color">Serial del motor</span>
+              <span class="font-medium col-span-2">{{ vehiculo.serial_motor || '—' }}</span>
+              <span class="text-muted-color">N° Unidad</span>
+              <span class="font-medium col-span-2">{{ vehiculo.numero_unidad || '—' }}</span>
             </div>
           </div>
 
-          <div class="flex-1 min-w-0 space-y-6">
-            <div>
-              <h2 class="text-sm font-semibold text-color flex items-center gap-2 mb-3">
-                <i class="pi pi-id-card text-primary" /> Identificación
-              </h2>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5 text-sm">
-                <span class="text-muted-color">N° Económico</span>
-                <span class="font-medium col-span-2">{{ vehiculo.numero_economico }}</span>
-                <span class="text-muted-color">Serial de carrocería</span>
-                <span class="font-medium font-mono col-span-2">{{ vehiculo.vin }}</span>
-                <span class="text-muted-color">Placa</span>
-                <span class="font-medium col-span-2">
-                  <div class="flex items-center gap-2">
-                    <span>{{ vehiculo.placa || '—' }}</span>
-                    <Tag
-                      v-if="vehiculo.color_placa_nombre"
-                      :value="vehiculo.color_placa_nombre"
-                      :severity="placaSeverity(vehiculo.color_placa_nombre)"
-                      class="!text-xs"
-                    />
-                  </div>
-                </span>
-                <span class="text-muted-color">Placa INTT</span>
-                <span class="font-medium col-span-2">{{ vehiculo.placa_intt || '—' }}</span>
-                <span class="text-muted-color">Serial del motor</span>
-                <span class="font-medium col-span-2">{{ vehiculo.serial_motor || '—' }}</span>
-                <span class="text-muted-color">N° Unidad</span>
-                <span class="font-medium col-span-2">{{ vehiculo.numero_unidad || '—' }}</span>
-              </div>
+          <hr class="border-card-border" />
+
+          <div>
+            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+              <i class="pi pi-cog text-primary" /> Características
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+              <span class="text-muted-color">Categoría</span>
+              <span class="font-medium col-span-2">{{ vehiculo.categoria_nombre }}</span>
+              <span class="text-muted-color">Clase</span>
+              <span class="font-medium col-span-2">{{ vehiculo.clase_nombre }}</span>
+              <span class="text-muted-color">Tipo de combustible</span>
+              <span class="font-medium col-span-2">{{ vehiculo.tipo_combustible_nombre }}</span>
+              <span class="text-muted-color">Tipo de uso</span>
+              <span class="font-medium col-span-2">{{ vehiculo.tipo_uso_nombre || '—' }}</span>
+              <span class="text-muted-color">Marca</span>
+              <span class="font-medium col-span-2">{{ vehiculo.marca_nombre }}</span>
+              <span class="text-muted-color">Modelo</span>
+              <span class="font-medium col-span-2">{{ vehiculo.modelo_nombre }}</span>
+              <span class="text-muted-color">Año</span>
+              <span class="font-medium col-span-2">{{ vehiculo.anio }}</span>
+              <span class="text-muted-color">Color</span>
+              <span class="font-medium col-span-2">{{ vehiculo.color_nombre || '—' }}</span>
+              <span class="text-muted-color">Estatus</span>
+              <span class="font-medium col-span-2">
+                <Tag
+                  :value="vehiculo.estatus_nombre"
+                  :severity="estatusSeverity(vehiculo.estatus_nombre)"
+                />
+              </span>
             </div>
+          </div>
 
-            <hr class="border-card-border" />
+          <hr class="border-card-border" />
 
-            <div>
-              <h2 class="text-sm font-semibold text-color flex items-center gap-2 mb-3">
-                <i class="pi pi-cog text-primary" /> Características
-              </h2>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5 text-sm">
-                <span class="text-muted-color">Categoría</span>
-                <span class="font-medium col-span-2">{{ vehiculo.categoria_nombre }}</span>
-                <span class="text-muted-color">Clase</span>
-                <span class="font-medium col-span-2">{{ vehiculo.clase_nombre }}</span>
-                <span class="text-muted-color">Tipo de combustible</span>
-                <span class="font-medium col-span-2">{{ vehiculo.tipo_combustible_nombre }}</span>
-                <span class="text-muted-color">Tipo de uso</span>
-                <span class="font-medium col-span-2">{{ vehiculo.tipo_uso_nombre || '—' }}</span>
-                <span class="text-muted-color">Marca</span>
-                <span class="font-medium col-span-2">{{ vehiculo.marca_nombre }}</span>
-                <span class="text-muted-color">Modelo</span>
-                <span class="font-medium col-span-2">{{ vehiculo.modelo_nombre }}</span>
-                <span class="text-muted-color">Año</span>
-                <span class="font-medium col-span-2">{{ vehiculo.anio }}</span>
-                <span class="text-muted-color">Color</span>
-                <span class="font-medium col-span-2">{{ vehiculo.color_nombre || '—' }}</span>
-                <span class="text-muted-color">Estatus</span>
-                <span class="font-medium col-span-2">
-                  <Tag
-                    :value="vehiculo.estatus_nombre"
-                    :severity="estatusSeverity(vehiculo.estatus_nombre)"
-                  />
-                </span>
-              </div>
+          <div>
+            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+              <i class="pi pi-map-marker text-primary" /> Asignación
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+              <span class="text-muted-color">Estado</span>
+              <span class="font-medium col-span-2">{{ vehiculo.estado_nombre }}</span>
+              <span class="text-muted-color">Gerencia</span>
+              <span class="font-medium col-span-2">{{ vehiculo.gerencia_nombre }}</span>
+              <span class="text-muted-color">Unidad usuaria</span>
+              <span class="font-medium col-span-2">{{
+                vehiculo.unidad_usuaria_nombre || '—'
+              }}</span>
+              <span class="text-muted-color">Emplazamiento</span>
+              <span class="font-medium col-span-2">{{ vehiculo.emplazamiento_nombre }}</span>
             </div>
+          </div>
+        </div>
 
-            <hr class="border-card-border" />
-
-            <div>
-              <h2 class="text-sm font-semibold text-color flex items-center gap-2 mb-3">
-                <i class="pi pi-map-marker text-primary" /> Asignación
-              </h2>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2.5 text-sm">
-                <span class="text-muted-color">Estado</span>
-                <span class="font-medium col-span-2">{{ vehiculo.estado_nombre }}</span>
-                <span class="text-muted-color">Gerencia</span>
-                <span class="font-medium col-span-2">{{ vehiculo.gerencia_nombre }}</span>
-                <span class="text-muted-color">Unidad usuaria</span>
-                <span class="font-medium col-span-2">{{
-                  vehiculo.unidad_usuaria_nombre || '—'
-                }}</span>
-                <span class="text-muted-color">Emplazamiento</span>
-                <span class="font-medium col-span-2">{{ vehiculo.emplazamiento_nombre }}</span>
-              </div>
-            </div>
+        <div class="shrink-0 flex flex-col items-center gap-2">
+          <img
+            v-if="vehiculo.codigo_qr"
+            :src="vehiculo.codigo_qr"
+            alt="QR del vehículo"
+            class="w-52 h-52 border border-card-border rounded-md"
+          />
+          <span class="text-sm text-muted-color">Código QR</span>
+          <div v-if="vehiculo.codigo_qr" class="flex gap-1">
+            <Button
+              icon="pi pi-download"
+              text
+              size="small"
+              v-tooltip.top="'Descargar QR'"
+              @click="descargarQR"
+            />
+            <Button
+              icon="pi pi-print"
+              text
+              size="small"
+              v-tooltip.top="'Imprimir QR'"
+              @click="imprimirQR"
+            />
           </div>
         </div>
       </div>
