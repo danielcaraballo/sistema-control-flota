@@ -13,6 +13,7 @@ import Dialog from 'primevue/dialog'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
+import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
@@ -571,7 +572,7 @@ onMounted(async () => {
       @update:visible="onDialogClose"
       :header="isCreating ? 'Nuevo vehículo' : 'Editar vehículo'"
       :modal="true"
-      :style="{ width: '780px', height: '600px' }"
+      :style="{ width: '780px', height: '580px' }"
       :closable="true"
       :draggable="false"
       :pt="{ content: { class: 'overflow-hidden' } }"
@@ -580,7 +581,6 @@ onMounted(async () => {
         v-model:active-index="activeIndex"
         v-model:submitted="submitted"
         v-model:form="form"
-        :error-message="errorMessage"
         :is-creating="isCreating"
         :saving="saving"
         :marcas="marcas"
@@ -599,15 +599,20 @@ onMounted(async () => {
         @cancel="onCancelarClick"
       />
       <template #footer>
-        <div class="flex justify-end w-full gap-2">
-          <Button label="Cancelar" severity="secondary" @click="onCancelarClick" />
-          <Button
-            :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
-            icon="pi pi-check"
-            :loading="saving"
-            :disabled="saving"
-            @click="saveVehiculo"
-          />
+        <div class="flex flex-col w-full gap-2">
+          <Message v-if="errorMessage" severity="error" :closable="false" class="!text-xs">
+            {{ errorMessage }}
+          </Message>
+          <div class="flex justify-end w-full gap-2">
+            <Button label="Cancelar" severity="secondary" @click="onCancelarClick" />
+            <Button
+              :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
+              icon="pi pi-check"
+              :loading="saving"
+              :disabled="saving"
+              @click="saveVehiculo"
+            />
+          </div>
         </div>
       </template>
     </Dialog>

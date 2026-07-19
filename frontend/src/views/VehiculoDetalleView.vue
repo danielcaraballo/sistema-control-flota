@@ -702,7 +702,7 @@ watch(() => route.params.id, loadVehiculo)
       @update:visible="onDialogEditarClose"
       header="Editar vehículo"
       :modal="true"
-      :style="{ width: '780px', height: '600px' }"
+      :style="{ width: '780px', height: '580px' }"
       :closable="true"
       :draggable="false"
       :pt="{ content: { class: 'overflow-hidden' } }"
@@ -711,7 +711,6 @@ watch(() => route.params.id, loadVehiculo)
         v-model:active-index="editActiveIndex"
         v-model:submitted="editSubmitted"
         v-model:form="editForm"
-        :error-message="editErrorMessage"
         :is-creating="editIsCreating"
         :saving="editSaving"
         :marcas="marcas"
@@ -730,15 +729,20 @@ watch(() => route.params.id, loadVehiculo)
         @cancel="onCancelarEdicion"
       />
       <template #footer>
-        <div class="flex justify-end w-full gap-2">
-          <Button label="Cancelar" severity="secondary" @click="onCancelarEdicion" />
-          <Button
-            label="Guardar cambios"
-            icon="pi pi-check"
-            :loading="editSaving"
-            :disabled="editSaving"
-            @click="actualizarVehiculo"
-          />
+        <div class="flex flex-col w-full gap-2">
+          <Message v-if="editErrorMessage" severity="error" :closable="false" class="!text-xs">
+            {{ editErrorMessage }}
+          </Message>
+          <div class="flex justify-end w-full gap-2">
+            <Button label="Cancelar" severity="secondary" @click="onCancelarEdicion" />
+            <Button
+              label="Guardar cambios"
+              icon="pi pi-check"
+              :loading="editSaving"
+              :disabled="editSaving"
+              @click="actualizarVehiculo"
+            />
+          </div>
         </div>
       </template>
     </Dialog>

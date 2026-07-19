@@ -5,13 +5,11 @@ import TabPanel from 'primevue/tabpanel'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Dropdown from 'primevue/dropdown'
-import Message from 'primevue/message'
 
 const props = defineProps({
   form: { type: Object, required: true },
   submitted: { type: Boolean, default: false },
   activeIndex: { type: Number, default: 0 },
-  errorMessage: { type: String, default: '' },
   isCreating: { type: Boolean, default: true },
   saving: { type: Boolean, default: false },
   marcas: { type: Array, default: () => [] },
@@ -62,10 +60,6 @@ watch(
 
 <template>
   <div class="flex flex-col h-full overflow-hidden">
-    <Message v-if="errorMessage" severity="error" :closable="false" class="!mb-4 !text-xs shrink-0">
-      {{ errorMessage }}
-    </Message>
-
     <TabView
       :activeIndex="activeIndex"
       @update:activeIndex="$emit('update:activeIndex', $event)"
@@ -76,10 +70,13 @@ watch(
         panelContainer: { class: 'overflow-y-auto flex-1 min-h-0' },
       }"
     >
-      <TabPanel header="Identificación">
+      <TabPanel>
+        <template #header> <i class="pi pi-id-card mr-2" />Identificación </template>
         <div class="grid grid-cols-2 gap-x-4 gap-y-2">
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Número económico</label>
+            <label class="text-sm font-semibold"
+              >Número económico <span class="text-red-500">*</span></label
+            >
             <InputText
               v-model="localForm.numero_economico"
               class="w-full"
@@ -90,7 +87,9 @@ watch(
             </small>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Serial de carrocería</label>
+            <label class="text-sm font-semibold"
+              >Serial de carrocería <span class="text-red-500">*</span></label
+            >
             <InputText
               v-model="localForm.vin"
               class="w-full"
@@ -134,10 +133,13 @@ watch(
         </div>
       </TabPanel>
 
-      <TabPanel header="Características">
+      <TabPanel>
+        <template #header> <i class="pi pi-cog mr-2" />Características </template>
         <div class="grid grid-cols-2 gap-x-4 gap-y-2">
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Categoría</label>
+            <label class="text-sm font-semibold"
+              >Categoría <span class="text-red-500">*</span></label
+            >
             <Dropdown
               v-model="localForm.categoria_id"
               :options="tiposVehiculo"
@@ -164,7 +166,7 @@ watch(
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Clase</label>
+            <label class="text-sm font-semibold">Clase <span class="text-red-500">*</span></label>
             <Dropdown
               v-model="localForm.clase_id"
               :options="clasesVehiculo"
@@ -179,7 +181,9 @@ watch(
             </small>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Tipo de combustible</label>
+            <label class="text-sm font-semibold"
+              >Tipo de combustible <span class="text-red-500">*</span></label
+            >
             <Dropdown
               v-model="localForm.tipo_combustible_id"
               :options="tiposCombustible"
@@ -194,7 +198,7 @@ watch(
             </small>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Marca</label>
+            <label class="text-sm font-semibold">Marca <span class="text-red-500">*</span></label>
             <Dropdown
               v-model="localForm.marca_id"
               :options="marcas"
@@ -209,7 +213,7 @@ watch(
             </small>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Modelo</label>
+            <label class="text-sm font-semibold">Modelo <span class="text-red-500">*</span></label>
             <Dropdown
               v-model="localForm.modelo_id"
               :options="filteredModelos"
@@ -226,7 +230,7 @@ watch(
           </div>
           <div class="col-span-2 grid grid-cols-3 gap-x-4">
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-semibold">Año</label>
+              <label class="text-sm font-semibold">Año <span class="text-red-500">*</span></label>
               <InputNumber
                 v-model="localForm.anio"
                 class="w-full"
@@ -252,7 +256,9 @@ watch(
               />
             </div>
             <div class="flex flex-col gap-1">
-              <label class="text-sm font-semibold">Estatus</label>
+              <label class="text-sm font-semibold"
+                >Estatus <span class="text-red-500">*</span></label
+              >
               <Dropdown
                 v-model="localForm.estatus_id"
                 :options="estatusVehiculo"
@@ -270,10 +276,11 @@ watch(
         </div>
       </TabPanel>
 
-      <TabPanel header="Asignación">
+      <TabPanel>
+        <template #header> <i class="pi pi-map-marker mr-2" />Asignación </template>
         <div class="grid grid-cols-2 gap-x-4 gap-y-2">
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Estado</label>
+            <label class="text-sm font-semibold">Estado <span class="text-red-500">*</span></label>
             <Dropdown
               v-model="localForm.estado_id"
               :options="estados"
@@ -290,7 +297,9 @@ watch(
             </small>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Gerencia</label>
+            <label class="text-sm font-semibold"
+              >Gerencia <span class="text-red-500">*</span></label
+            >
             <Dropdown
               v-model="localForm.gerencia_id"
               :options="gerencias"
@@ -321,7 +330,9 @@ watch(
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Emplazamiento</label>
+            <label class="text-sm font-semibold"
+              >Emplazamiento <span class="text-red-500">*</span></label
+            >
             <Dropdown
               v-model="localForm.emplazamiento_id"
               :options="centrosServicio"
