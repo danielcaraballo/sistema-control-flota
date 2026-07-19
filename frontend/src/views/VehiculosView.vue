@@ -457,6 +457,16 @@ onMounted(async () => {
         @page="onPage"
         @sort="onSort"
         @row-click="verDetalle($event.data)"
+        :pt="{
+          bodyRow: ({ context }) => ({
+            tabindex: '0',
+            onKeydown: (event) => {
+              if (event.key === 'Enter' && vehiculos[context.index]) {
+                verDetalle(vehiculos[context.index])
+              }
+            },
+          }),
+        }"
       >
         <template #header>
           <div class="flex justify-between items-center gap-2 flex-wrap">
@@ -629,11 +639,20 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.p-datatable-tbody tr {
-  transition: background-color 0.15s ease;
+:deep(.p-datatable-tbody) tr {
+  transition:
+    background-color 0.15s ease,
+    filter 0.1s ease;
+  outline-offset: -2px;
 }
-.p-datatable-tbody tr:hover {
-  background-color: var(--p-card-hover);
+:deep(.p-datatable-tbody) tr:hover {
+  background-color: var(--p-content-hover-background);
   cursor: pointer;
+}
+:deep(.p-datatable-tbody) tr:active {
+  filter: brightness(0.92);
+}
+:deep(.p-datatable-tbody) tr:focus-visible {
+  outline: 2px solid var(--p-primary-color);
 }
 </style>
