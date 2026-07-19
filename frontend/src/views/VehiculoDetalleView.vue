@@ -334,11 +334,39 @@ function onDialogEditarClose(val) {
   }
 }
 
+function validarFormulario(f) {
+  const required = [
+    ['numero_economico', 'El número económico es requerido'],
+    ['vin', 'El serial de carrocería es requerido'],
+    ['categoria_id', 'La categoría es requerida'],
+    ['clase_id', 'La clase es requerida'],
+    ['tipo_combustible_id', 'El tipo de combustible es requerido'],
+    ['marca_id', 'La marca es requerida'],
+    ['modelo_id', 'El modelo es requerido'],
+    ['anio', 'El año es requerido'],
+    ['estatus_id', 'El estatus es requerido'],
+    ['estado_id', 'El estado es requerido'],
+    ['gerencia_id', 'La gerencia es requerida'],
+    ['emplazamiento_id', 'El emplazamiento es requerido'],
+  ]
+  for (const [field, msg] of required) {
+    if (!f[field]) return msg
+  }
+  return null
+}
+
 async function actualizarVehiculo() {
   if (!vehiculo.value) return
   editSubmitted.value = true
   editSaving.value = true
   editErrorMessage.value = ''
+
+  const error = validarFormulario(editForm.value)
+  if (error) {
+    editErrorMessage.value = error
+    editSaving.value = false
+    return
+  }
 
   const payload = {
     numero_economico: editForm.value.numero_economico,
@@ -674,9 +702,10 @@ watch(() => route.params.id, loadVehiculo)
       @update:visible="onDialogEditarClose"
       header="Editar vehículo"
       :modal="true"
-      :style="{ width: '780px' }"
+      :style="{ width: '780px', height: '600px' }"
       :closable="true"
       :draggable="false"
+      :pt="{ content: { class: 'overflow-hidden' } }"
     >
       <VehiculoFormStepper
         v-model:active-index="editActiveIndex"

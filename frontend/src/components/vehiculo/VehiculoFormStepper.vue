@@ -61,8 +61,8 @@ watch(
 </script>
 
 <template>
-  <div>
-    <Message v-if="errorMessage" severity="error" :closable="false" class="!mb-4 !text-xs">
+  <div class="flex flex-col h-full overflow-hidden">
+    <Message v-if="errorMessage" severity="error" :closable="false" class="!mb-4 !text-xs shrink-0">
       {{ errorMessage }}
     </Message>
 
@@ -70,10 +70,15 @@ watch(
       :activeIndex="activeIndex"
       @update:activeIndex="$emit('update:activeIndex', $event)"
       scrollable
+      class="flex-1 flex flex-col min-h-0"
+      :pt="{
+        root: { class: 'flex-1 flex flex-col min-h-0 overflow-hidden' },
+        panelContainer: { class: 'overflow-y-auto flex-1 min-h-0' },
+      }"
     >
       <TabPanel header="Identificación">
         <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-          <div class="flex flex-col gap-1 col-span-2">
+          <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold">Número económico</label>
             <InputText
               v-model="localForm.numero_economico"
@@ -84,7 +89,7 @@ watch(
               El número económico es requerido
             </small>
           </div>
-          <div class="flex flex-col gap-1 col-span-2">
+          <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold">Serial de carrocería</label>
             <InputText
               v-model="localForm.vin"
@@ -96,31 +101,33 @@ watch(
               El serial de carrocería es requerido
             </small>
           </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Placa</label>
-            <InputText v-model="localForm.placa" class="w-full" />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Color de placa</label>
-            <Dropdown
-              v-model="localForm.color_placa_id"
-              :options="coloresPlaca"
-              optionLabel="nombre"
-              optionValue="id"
-              placeholder="Seleccionar"
-              class="w-full"
-              showClear
-            />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Placa INTT</label>
-            <InputText v-model="localForm.placa_intt" class="w-full" />
+          <div class="col-span-2 grid grid-cols-3 gap-x-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Placa</label>
+              <InputText v-model="localForm.placa" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Color de placa</label>
+              <Dropdown
+                v-model="localForm.color_placa_id"
+                :options="coloresPlaca"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Seleccionar"
+                class="w-full"
+                showClear
+              />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Placa INTT</label>
+              <InputText v-model="localForm.placa_intt" class="w-full" />
+            </div>
           </div>
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold">Serial del motor</label>
             <InputText v-model="localForm.serial_motor" class="w-full" />
           </div>
-          <div class="flex flex-col gap-1 col-span-2">
+          <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold">N° Unidad</label>
             <InputText v-model="localForm.numero_unidad" class="w-full" />
           </div>
@@ -217,46 +224,48 @@ watch(
               El modelo es requerido
             </small>
           </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Año</label>
-            <InputNumber
-              v-model="localForm.anio"
-              class="w-full"
-              :useGrouping="false"
-              :min="1900"
-              :max="maxAnio"
-              :class="{ 'p-invalid': submitted && !localForm.anio }"
-            />
-            <small v-if="submitted && !localForm.anio" class="text-xs text-red-500">
-              El año es requerido
-            </small>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Color</label>
-            <Dropdown
-              v-model="localForm.color_id"
-              :options="colores"
-              optionLabel="nombre"
-              optionValue="id"
-              placeholder="Seleccionar"
-              class="w-full"
-              showClear
-            />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-sm font-semibold">Estatus</label>
-            <Dropdown
-              v-model="localForm.estatus_id"
-              :options="estatusVehiculo"
-              optionLabel="nombre"
-              optionValue="id"
-              placeholder="Seleccionar"
-              class="w-full"
-              :class="{ 'p-invalid': submitted && !localForm.estatus_id }"
-            />
-            <small v-if="submitted && !localForm.estatus_id" class="text-xs text-red-500">
-              El estatus es requerido
-            </small>
+          <div class="col-span-2 grid grid-cols-3 gap-x-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Año</label>
+              <InputNumber
+                v-model="localForm.anio"
+                class="w-full"
+                :useGrouping="false"
+                :min="1900"
+                :max="maxAnio"
+                :invalid="submitted && !localForm.anio"
+              />
+              <small v-if="submitted && !localForm.anio" class="text-xs text-red-500">
+                El año es requerido
+              </small>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Color</label>
+              <Dropdown
+                v-model="localForm.color_id"
+                :options="colores"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Seleccionar"
+                class="w-full"
+                showClear
+              />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-semibold">Estatus</label>
+              <Dropdown
+                v-model="localForm.estatus_id"
+                :options="estatusVehiculo"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Seleccionar"
+                class="w-full"
+                :class="{ 'p-invalid': submitted && !localForm.estatus_id }"
+              />
+              <small v-if="submitted && !localForm.estatus_id" class="text-xs text-red-500">
+                El estatus es requerido
+              </small>
+            </div>
           </div>
         </div>
       </TabPanel>
@@ -272,6 +281,8 @@ watch(
               optionValue="id"
               placeholder="Seleccionar"
               class="w-full"
+              panelClass="max-w-xs"
+              :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.estado_id }"
             />
             <small v-if="submitted && !localForm.estado_id" class="text-xs text-red-500">
@@ -287,6 +298,8 @@ watch(
               optionValue="id"
               placeholder="Seleccionar"
               class="w-full"
+              panelClass="max-w-xs"
+              :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.gerencia_id }"
             />
             <small v-if="submitted && !localForm.gerencia_id" class="text-xs text-red-500">
@@ -302,6 +315,8 @@ watch(
               optionValue="id"
               placeholder="Seleccionar"
               class="w-full"
+              panelClass="max-w-xs"
+              :pt="{ item: { class: 'truncate' } }"
               showClear
             />
           </div>
@@ -314,6 +329,8 @@ watch(
               optionValue="id"
               placeholder="Seleccionar"
               class="w-full"
+              panelClass="max-w-xs"
+              :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.emplazamiento_id }"
             />
             <small v-if="submitted && !localForm.emplazamiento_id" class="text-xs text-red-500">

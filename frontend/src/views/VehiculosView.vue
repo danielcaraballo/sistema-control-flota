@@ -284,10 +284,38 @@ async function openEdit(vehiculo) {
   showDialog.value = true
 }
 
+function validarFormulario(f) {
+  const required = [
+    ['numero_economico', 'El número económico es requerido'],
+    ['vin', 'El serial de carrocería es requerido'],
+    ['categoria_id', 'La categoría es requerida'],
+    ['clase_id', 'La clase es requerida'],
+    ['tipo_combustible_id', 'El tipo de combustible es requerido'],
+    ['marca_id', 'La marca es requerida'],
+    ['modelo_id', 'El modelo es requerido'],
+    ['anio', 'El año es requerido'],
+    ['estatus_id', 'El estatus es requerido'],
+    ['estado_id', 'El estado es requerido'],
+    ['gerencia_id', 'La gerencia es requerida'],
+    ['emplazamiento_id', 'El emplazamiento es requerido'],
+  ]
+  for (const [field, msg] of required) {
+    if (!f[field]) return msg
+  }
+  return null
+}
+
 async function saveVehiculo() {
   submitted.value = true
   saving.value = true
   errorMessage.value = ''
+
+  const error = validarFormulario(form.value)
+  if (error) {
+    errorMessage.value = error
+    saving.value = false
+    return
+  }
 
   const payload = {
     numero_economico: form.value.numero_economico,
@@ -543,9 +571,10 @@ onMounted(async () => {
       @update:visible="onDialogClose"
       :header="isCreating ? 'Nuevo vehículo' : 'Editar vehículo'"
       :modal="true"
-      :style="{ width: '780px' }"
+      :style="{ width: '780px', height: '600px' }"
       :closable="true"
       :draggable="false"
+      :pt="{ content: { class: 'overflow-hidden' } }"
     >
       <VehiculoFormStepper
         v-model:active-index="activeIndex"
