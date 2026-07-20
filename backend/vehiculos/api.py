@@ -65,6 +65,7 @@ def _build_vehiculo_schema(v, include_qr=True):
 
     kw = dict(
         id=v.id,
+        porcentaje_completado=v.porcentaje_completado,
         numero_economico=v.numero_economico,
         numero_unidad=v.numero_unidad,
         anio=v.anio,

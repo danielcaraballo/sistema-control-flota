@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.10.0 — Indicador de completitud de ficha técnica (2026-07-20)
+
+- Backend: `Vehiculo.porcentaje_completado` (`@property`) calcula qué % de los 20 campos están llenos.
+- API: campo incluido en `VehiculoSchema` y `VehiculoListItemSchema`.
+- Frontend: `Knob` de PrimeVue en la esquina superior derecha del detalle (rojo <50%, amarillo 50–79%, verde ≥80%).
+- Frontend: columna ordenable "Ficha" con Knob en la lista de vehículos con tooltip.
+- 121 tests, lint 0 warnings.
+
 ## v0.9.0 — Eliminación de seed data del proyecto (2026-07-16)
 
 - Eliminado `backend/seeds/` por completo (management command, loaders, JSONs).

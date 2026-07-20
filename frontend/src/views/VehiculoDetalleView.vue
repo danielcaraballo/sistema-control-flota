@@ -12,6 +12,7 @@ import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import CompletitudKnob from '@/components/CompletitudKnob.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
 
@@ -669,6 +670,8 @@ watch(() => route.params.id, loadVehiculo)
         </div>
 
         <div class="shrink-0 flex flex-col items-center gap-2">
+          <CompletitudKnob :value="vehiculo.porcentaje_completado" :size="120" />
+          <span class="text-sm text-muted-color -mt-2">Ficha completa</span>
           <img
             v-if="vehiculo.codigo_qr"
             :src="vehiculo.codigo_qr"

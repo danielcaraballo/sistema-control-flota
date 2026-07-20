@@ -6,6 +6,7 @@ from .models import Vehiculo
 
 
 class VehiculoSchema(ModelSchema):
+    porcentaje_completado: int
     gerencia: int
     gerencia_nombre: str | None = None
     unidad_usuaria: int | None = None
@@ -48,8 +49,15 @@ class VehiculoSchema(ModelSchema):
             "estatus_activo",
         ]
 
+    @staticmethod
+    def resolve_porcentaje_completado(obj):
+        if isinstance(obj, dict):
+            return obj.get("porcentaje_completado", 0)
+        return getattr(obj, "porcentaje_completado", 0)
+
 
 class VehiculoListItemSchema(ModelSchema):
+    porcentaje_completado: int
     gerencia: int
     gerencia_nombre: str | None = None
     unidad_usuaria: int | None = None
@@ -90,6 +98,12 @@ class VehiculoListItemSchema(ModelSchema):
             "serial_motor",
             "estatus_activo",
         ]
+
+    @staticmethod
+    def resolve_porcentaje_completado(obj):
+        if isinstance(obj, dict):
+            return obj.get("porcentaje_completado", 0)
+        return getattr(obj, "porcentaje_completado", 0)
 
 
 class VehiculoCreate(Schema):

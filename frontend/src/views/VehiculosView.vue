@@ -17,6 +17,7 @@ import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
+import CompletitudKnob from '@/components/CompletitudKnob.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import VehiculoFormStepper from '@/components/vehiculo/VehiculoFormStepper.vue'
@@ -560,6 +561,15 @@ onMounted(async () => {
           </template>
         </Column>
         <Column field="estado_nombre" header="Estado" sortable />
+        <Column field="porcentaje_completado" header="Ficha">
+          <template #body="{ data }">
+            <CompletitudKnob
+              :value="data.porcentaje_completado"
+              :size="60"
+              v-tooltip.top="`${data.porcentaje_completado ?? 0}% completo`"
+            />
+          </template>
+        </Column>
       </DataTable>
     </div>
 

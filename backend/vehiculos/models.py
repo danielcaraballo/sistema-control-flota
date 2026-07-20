@@ -83,3 +83,31 @@ class Vehiculo(models.Model):
 
     def __str__(self):
         return f"{self.numero_economico} - {self.marca} {self.modelo}"
+
+    @property
+    def porcentaje_completado(self):
+        contados = sum(
+            [
+                bool(self.numero_economico),
+                bool(self.vin),
+                bool(self.placa),
+                bool(self.color_placa_id),
+                bool(self.placa_intt),
+                bool(self.serial_motor),
+                bool(self.numero_unidad),
+                bool(self.categoria_id),
+                bool(self.clase_id),
+                bool(self.tipo_combustible_id),
+                bool(self.tipo_uso_id),
+                bool(self.marca_id),
+                bool(self.modelo_id),
+                bool(self.anio),
+                bool(self.color_id),
+                bool(self.estatus_id),
+                bool(self.estado_id),
+                bool(self.gerencia_id),
+                bool(self.unidad_usuaria_id),
+                bool(self.emplazamiento_id),
+            ]
+        )
+        return round(contados / 20 * 100)

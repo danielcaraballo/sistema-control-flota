@@ -228,6 +228,7 @@ erDiagram
 | `emplazamiento` | FK(CentroDeServicio) | RESTRICT | Centro de servicio. on_delete=RESTRICT |
 | `codigo_qr` | TextField | BLANK | QR en base64 (autogenerado). |
 | `estatus_activo` | BooleanField | Default: True | Soft-delete. |
+| `porcentaje_completado` | computed (`@property`) | — | 0–100 según cuántos de los 20 campos de la ficha están llenos. Se calcula en Python, no se almacena en DB. |
 
 **Constraints:**
 - `unique=True` en `numero_economico`, `vin` y `numero_unidad` — identificadores únicos a nivel nacional, incluso para registros inactivos.
