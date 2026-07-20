@@ -6,12 +6,18 @@ import { rolLabel, ROL_NACIONAL } from '@/utils/roles'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import UserDropdown from '@/components/UserDropdown.vue'
+import QrScannerModal from '@/components/QrScannerModal.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const userDropdownRef = ref()
 const dropdownOpen = ref(false)
+const showScanner = ref(false)
+
+function onScanned(vehicleId) {
+  router.push(`/vehiculos/${vehicleId}`)
+}
 
 const sidebarCollapsed = ref(false)
 const mobileOpen = ref(false)
@@ -180,6 +186,14 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
         />
         <span class="text-sm font-medium text-muted-color">Sistema de Control de Flota</span>
         <div class="flex-1" />
+        <Button
+          icon="pi pi-camera"
+          severity="secondary"
+          text
+          rounded
+          @click="showScanner = true"
+          v-tooltip.bottom="'Escanear QR'"
+        />
       </header>
 
       <main class="flex-1 p-6 md:p-8 bg-[var(--scf-page-bg)] overflow-y-auto">
@@ -187,4 +201,6 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
       </main>
     </div>
   </div>
+
+  <QrScannerModal v-model:visible="showScanner" @scan="onScanned" />
 </template>
