@@ -1,6 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { ROL_NACIONAL } from '@/utils/roles'
+import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
@@ -21,10 +23,12 @@ const props = defineProps({
 })
 
 const toast = useToast()
+const auth = useAuthStore()
 
 const items = ref([])
 const loading = ref(true)
 const filters = ref({ global: { value: null, matchMode: 'contains' } })
+const skeletonRows = computed(() => (loading.value ? [...Array(10)] : []))
 const showDialog = ref(false)
 const editingItem = ref(null)
 const submitted = ref(false)
@@ -192,30 +196,13 @@ onMounted(loadItems)
 
 <template>
   <div>
-    <div v-if="loading && items.length === 0" class="flex flex-col gap-3">
-      <div class="flex justify-between items-center">
-        <Skeleton width="7rem" height="2.5rem" borderRadius="8px" />
-        <Skeleton width="15rem" height="2.5rem" borderRadius="8px" />
-      </div>
-      <div class="border border-card-border rounded-md overflow-hidden">
-        <div
-          v-for="i in 10"
-          :key="i"
-          class="flex items-center gap-4 px-4 py-3.5 border-b border-card-border last:border-b-0"
-          :class="i % 2 === 0 ? 'bg-card-hover' : ''"
-        >
-          <Skeleton width="40%" height="1.25rem" borderRadius="6px" />
-          <Skeleton width="15%" height="1.25rem" borderRadius="6px" class="ml-auto" />
-          <Skeleton width="5rem" height="1.75rem" borderRadius="6px" />
-        </div>
-      </div>
-    </div>
     <DataTable
-      v-else
-      :value="items"
+      :value="loading ? skeletonRows : items"
       v-model:filters="filters"
       :globalFilterFields="[config.filterField]"
+      :loading="loading"
       scrollable
+      scrollHeight="flex"
       stripedRows
       paginator
       :rows="10"
@@ -227,7 +214,12 @@ onMounted(loadItems)
             <InputIcon class="pi pi-search" />
             <InputText v-model="filters.global.value" placeholder="Buscar..." />
           </IconField>
-          <Button label="Agregar" icon="pi pi-plus" @click="openNew" />
+          <Button
+            v-if="auth.tieneRol(ROL_NACIONAL)"
+            label="Agregar"
+            icon="pi pi-plus"
+            @click="openNew"
+          />
         </div>
       </template>
       <template #empty>
@@ -237,24 +229,46 @@ onMounted(loadItems)
         </div>
       </template>
 
-      <Column v-if="config.key === 'modelos'" field="marca_nombre" header="Marca" sortable />
+      <Column v-if="config.key === 'modelos'" field="marca_nombre" header="Marca" sortable>
+        <template #body="{ data }">
+          <Skeleton v-if="loading" width="50%" height="1.25rem" />
+          <template v-else>{{ data.marca_nombre }}</template>
+        </template>
+      </Column>
       <Column
         v-if="config.key === 'tiposFalla'"
         field="sistema_afectado_nombre"
         header="Sistema Afectado"
         sortable
-      />
+      >
+        <template #body="{ data }">
+          <Skeleton v-if="loading" width="50%" height="1.25rem" />
+          <template v-else>{{ data.sistema_afectado_nombre }}</template>
+        </template>
+      </Column>
       <Column
         v-if="config.key === 'centrosServicio'"
         field="estado_nombre"
         header="Estado"
         sortable
-      />
-      <Column :field="config.field" :header="config.label" sortable />
+      >
+        <template #body="{ data }">
+          <Skeleton v-if="loading" width="50%" height="1.25rem" />
+          <template v-else>{{ data.estado_nombre }}</template>
+        </template>
+      </Column>
+      <Column :field="config.field" :header="config.label" sortable>
+        <template #body="{ data }">
+          <Skeleton v-if="loading" width="55%" height="1.25rem" />
+          <template v-else>{{ data[config.field] }}</template>
+        </template>
+      </Column>
 
       <Column field="estatus_activo" header="Activo" sortable style="width: 7rem">
         <template #body="{ data }">
+          <Skeleton v-if="loading" width="5rem" height="1.5rem" borderRadius="6px" />
           <Tag
+            v-else
             :value="data.estatus_activo ? 'Activo' : 'Inactivo'"
             :severity="data.estatus_activo ? 'success' : 'danger'"
           />
@@ -263,32 +277,35 @@ onMounted(loadItems)
 
       <Column header="Acciones" style="width: 8rem">
         <template #body="{ data }">
-          <Button
-            icon="pi pi-pencil"
-            severity="secondary"
-            text
-            rounded
-            @click="openEdit(data)"
-            v-tooltip.top="'Editar'"
-          />
-          <Button
-            v-if="data.estatus_activo"
-            icon="pi pi-ban"
-            severity="danger"
-            text
-            rounded
-            @click="confirmDeactivate(data)"
-            v-tooltip.top="'Desactivar'"
-          />
-          <Button
-            v-if="!data.estatus_activo"
-            icon="pi pi-check-circle"
-            severity="success"
-            text
-            rounded
-            @click="confirmActivate(data)"
-            v-tooltip.top="'Reactivar'"
-          />
+          <Skeleton v-if="loading" width="6rem" height="1.5rem" borderRadius="6px" />
+          <template v-else>
+            <Button
+              icon="pi pi-pencil"
+              severity="secondary"
+              text
+              rounded
+              @click="openEdit(data)"
+              v-tooltip.top="'Editar'"
+            />
+            <Button
+              v-if="data.estatus_activo"
+              icon="pi pi-ban"
+              severity="danger"
+              text
+              rounded
+              @click="confirmDeactivate(data)"
+              v-tooltip.top="'Desactivar'"
+            />
+            <Button
+              v-if="!data.estatus_activo"
+              icon="pi pi-check-circle"
+              severity="success"
+              text
+              rounded
+              @click="confirmActivate(data)"
+              v-tooltip.top="'Reactivar'"
+            />
+          </template>
         </template>
       </Column>
     </DataTable>
@@ -374,3 +391,5 @@ onMounted(loadItems)
     />
   </div>
 </template>
+
+<style scoped></style>

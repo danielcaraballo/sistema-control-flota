@@ -36,6 +36,7 @@ const auth = useAuthStore()
 const usuarios = ref([])
 const estados = ref([])
 const loading = ref(true)
+const skeletonRows = computed(() => (loading.value ? [...Array(10)] : []))
 const showDialog = ref(false)
 const editingUser = ref(null)
 const submitted = ref(false)
@@ -342,7 +343,7 @@ onMounted(() => {
 
     <div class="border border-card-border rounded-md bg-card">
       <DataTable
-        :value="usuarios"
+        :value="loading ? skeletonRows : usuarios"
         v-model:filters="filters"
         :globalFilterFields="[
           'username',
@@ -354,6 +355,7 @@ onMounted(() => {
         ]"
         :loading="loading"
         scrollable
+        scrollHeight="flex"
         stripedRows
         paginator
         :rows="10"
@@ -365,7 +367,7 @@ onMounted(() => {
           <div class="flex justify-between items-center gap-2 flex-wrap">
             <IconField>
               <InputIcon class="pi pi-search" />
-              <InputText v-model="filters.global.value" placeholder="Buscar usuarios..." />
+              <InputText v-model="filters.global.value" placeholder="Buscar..." />
             </IconField>
             <Button
               v-if="auth.tieneRol(ROL_NACIONAL)"
@@ -375,41 +377,47 @@ onMounted(() => {
             />
           </div>
         </template>
-        <template #loading>
-          <div v-for="n in 8" :key="n" class="flex items-center gap-4 p-2">
-            <Skeleton width="10%" height="1rem" />
-            <Skeleton width="14%" height="1rem" />
-            <Skeleton width="18%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
-            <Skeleton width="12%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
-            <Skeleton width="12%" height="1rem" />
-          </div>
-        </template>
         <template #empty>
           <div class="flex flex-col items-center justify-center py-12 text-muted-color">
             <i class="pi pi-users text-4xl mb-3 opacity-40" />
-            <p class="text-sm font-medium">No hay usuarios registrados</p>
+            <p class="text-sm font-medium">No hay registros</p>
           </div>
         </template>
-        <Column field="username" header="Usuario" sortable />
-        <Column field="first_name" header="Nombre" sortable>
-          <template #body="{ data }"> {{ data.first_name }} {{ data.last_name }} </template>
+        <Column field="username" header="Usuario" sortable>
+          <template #body="{ data }">
+            <Skeleton v-if="loading" width="60%" height="1.25rem" />
+            <template v-else>{{ data.username }}</template>
+          </template>
         </Column>
-        <Column field="email" header="Correo" sortable />
+        <Column field="first_name" header="Nombre" sortable>
+          <template #body="{ data }">
+            <Skeleton v-if="loading" width="50%" height="1.25rem" />
+            <template v-else>{{ data.first_name }} {{ data.last_name }}</template>
+          </template>
+        </Column>
+        <Column field="email" header="Correo" sortable>
+          <template #body="{ data }">
+            <Skeleton v-if="loading" width="70%" height="1.25rem" />
+            <template v-else>{{ data.email }}</template>
+          </template>
+        </Column>
         <Column field="rol" header="Rol" sortable>
           <template #body="{ data }">
-            <Tag :value="rolLabel(data.rol)" :severity="rolSeverity(data.rol)" />
+            <Skeleton v-if="loading" width="5rem" height="1.5rem" borderRadius="6px" />
+            <Tag v-else :value="rolLabel(data.rol)" :severity="rolSeverity(data.rol)" />
           </template>
         </Column>
         <Column field="estado_nombre" header="Estado" sortable>
           <template #body="{ data }">
-            {{ data.estado_nombre || 'Nacional' }}
+            <Skeleton v-if="loading" width="55%" height="1.25rem" />
+            <template v-else>{{ data.estado_nombre || 'Nacional' }}</template>
           </template>
         </Column>
         <Column field="is_active" header="Activo" sortable>
           <template #body="{ data }">
+            <Skeleton v-if="loading" width="5rem" height="1.5rem" borderRadius="6px" />
             <Tag
+              v-else
               :value="data.is_active ? 'Activo' : 'Inactivo'"
               :severity="data.is_active ? 'success' : 'danger'"
             />
@@ -417,40 +425,43 @@ onMounted(() => {
         </Column>
         <Column v-if="auth.tieneRol(ROL_NACIONAL)" header="Acciones" style="width: 10rem">
           <template #body="{ data }">
-            <Button
-              icon="pi pi-pencil"
-              severity="secondary"
-              text
-              rounded
-              @click="openEdit(data)"
-              v-tooltip.top="'Editar'"
-            />
-            <Button
-              v-if="data.is_active"
-              icon="pi pi-ban"
-              severity="danger"
-              text
-              rounded
-              @click="confirmDeactivate(data)"
-              v-tooltip.top="'Desactivar'"
-            />
-            <Button
-              v-if="!data.is_active"
-              icon="pi pi-check-circle"
-              severity="success"
-              text
-              rounded
-              @click="confirmActivate(data)"
-              v-tooltip.top="'Reactivar'"
-            />
-            <Button
-              icon="pi pi-key"
-              severity="info"
-              text
-              rounded
-              @click="confirmResetPassword(data)"
-              v-tooltip.top="'Resetear contraseña'"
-            />
+            <Skeleton v-if="loading" width="8rem" height="1.5rem" borderRadius="6px" />
+            <template v-else>
+              <Button
+                icon="pi pi-pencil"
+                severity="secondary"
+                text
+                rounded
+                @click="openEdit(data)"
+                v-tooltip.top="'Editar'"
+              />
+              <Button
+                v-if="data.is_active"
+                icon="pi pi-ban"
+                severity="danger"
+                text
+                rounded
+                @click="confirmDeactivate(data)"
+                v-tooltip.top="'Desactivar'"
+              />
+              <Button
+                v-if="!data.is_active"
+                icon="pi pi-check-circle"
+                severity="success"
+                text
+                rounded
+                @click="confirmActivate(data)"
+                v-tooltip.top="'Reactivar'"
+              />
+              <Button
+                icon="pi pi-key"
+                severity="info"
+                text
+                rounded
+                @click="confirmResetPassword(data)"
+                v-tooltip.top="'Resetear contraseña'"
+              />
+            </template>
           </template>
         </Column>
       </DataTable>
@@ -801,3 +812,5 @@ onMounted(() => {
     />
   </div>
 </template>
+
+<style scoped></style>

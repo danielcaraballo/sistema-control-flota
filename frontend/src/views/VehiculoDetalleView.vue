@@ -554,11 +554,59 @@ watch(() => route.params.id, loadVehiculo)
     </div>
 
     <template v-if="loading">
-      <div class="border border-card-border rounded-md bg-card p-6 space-y-4">
-        <Skeleton width="60%" height="1.5rem" />
-        <Skeleton width="40%" height="1rem" />
-        <div class="grid grid-cols-3 gap-4 mt-6">
-          <Skeleton v-for="n in 8" :key="n" height="1rem" />
+      <!-- QR + header skeleton -->
+      <div class="flex flex-col lg:flex-row gap-6 mb-6">
+        <div class="w-full lg:w-72 shrink-0">
+          <div
+            class="border border-card-border rounded-md bg-card p-6 flex flex-col items-center gap-3"
+          >
+            <Skeleton shape="circle" size="8rem" />
+            <Skeleton width="60%" height="1rem" />
+          </div>
+        </div>
+        <div class="flex-1 space-y-6">
+          <!-- Identificación -->
+          <div class="border border-card-border rounded-md bg-card p-5 space-y-4">
+            <Skeleton width="40%" height="1.25rem" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <Skeleton width="30%" height="0.75rem" />
+                <Skeleton width="80%" height="1rem" />
+              </div>
+              <div class="space-y-1">
+                <Skeleton width="30%" height="0.75rem" />
+                <Skeleton width="60%" height="1rem" />
+              </div>
+              <div class="space-y-1">
+                <Skeleton width="30%" height="0.75rem" />
+                <Skeleton width="70%" height="1rem" />
+              </div>
+            </div>
+          </div>
+          <!-- Características -->
+          <div class="border border-card-border rounded-md bg-card p-5 space-y-4">
+            <Skeleton width="35%" height="1.25rem" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1" v-for="n in 4" :key="n">
+                <Skeleton width="40%" height="0.75rem" />
+                <Skeleton width="70%" height="1rem" />
+              </div>
+            </div>
+          </div>
+          <!-- Asignación -->
+          <div class="border border-card-border rounded-md bg-card p-5 space-y-4">
+            <Skeleton width="30%" height="1.25rem" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <Skeleton width="40%" height="0.75rem" />
+                <Skeleton width="75%" height="1rem" />
+              </div>
+              <div class="space-y-1">
+                <Skeleton width="40%" height="0.75rem" />
+                <Skeleton width="60%" height="1rem" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </template>

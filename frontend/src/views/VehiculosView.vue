@@ -43,6 +43,7 @@ const clasesVehiculo = ref([])
 const tiposCombustible = ref([])
 
 const loading = ref(true)
+const skeletonRows = computed(() => (loading.value ? [...Array(10)] : []))
 const saving = ref(false)
 const showDialog = ref(false)
 const editingVehiculo = ref(null)
@@ -56,7 +57,7 @@ const formSnapshot = ref(null)
 // Server-side pagination state
 const totalRecords = ref(0)
 const first = ref(0)
-const rows = ref(25)
+const rows = ref(10)
 const searchQuery = ref('')
 const searchDebounce = ref(null)
 const filterEstadoId = ref(null)
@@ -505,7 +506,44 @@ onMounted(async () => {
     />
 
     <div class="border border-card-border rounded-md bg-card">
+      <!-- Skeleton table during initial load -->
       <DataTable
+        v-if="loading && vehiculos.length === 0"
+        :value="skeletonRows"
+        scrollable
+        scrollHeight="flex"
+        stripedRows
+        :pt="{ pcPaginator: { class: 'opacity-0 pointer-events-none' } }"
+      >
+        <Column header="N° Económico">
+          <template #body><Skeleton width="80%" height="1.25rem" /></template>
+        </Column>
+        <Column header="Placa">
+          <template #body><Skeleton width="70%" height="1.25rem" /></template>
+        </Column>
+        <Column header="Marca / Modelo">
+          <template #body><Skeleton width="60%" height="1.25rem" /></template>
+        </Column>
+        <Column header="Año">
+          <template #body><Skeleton width="40%" height="1.25rem" /></template>
+        </Column>
+        <Column header="Estatus">
+          <template #body><Skeleton width="5rem" height="1.5rem" borderRadius="6px" /></template>
+        </Column>
+        <Column header="Estado">
+          <template #body><Skeleton width="65%" height="1.25rem" /></template>
+        </Column>
+        <Column header="Ficha">
+          <template #body>
+            <div class="flex justify-center">
+              <Skeleton shape="circle" size="2.5rem" />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+
+      <DataTable
+        v-else
         :value="vehiculos"
         lazy
         :totalRecords="totalRecords"
@@ -514,6 +552,7 @@ onMounted(async () => {
         :loading="loading"
         :rowsPerPageOptions="[10, 25, 50]"
         scrollable
+        scrollHeight="flex"
         stripedRows
         paginator
         @page="onPage"
@@ -528,6 +567,9 @@ onMounted(async () => {
               }
             },
           }),
+          pcPaginator: {
+            class: loading ? 'opacity-0 pointer-events-none' : '',
+          },
         }"
       >
         <template #header>
@@ -538,7 +580,7 @@ onMounted(async () => {
                 <InputText
                   :modelValue="searchQuery"
                   @update:modelValue="onSearchInput"
-                  placeholder="Buscar vehículos..."
+                  placeholder="Buscar..."
                 />
               </IconField>
               <Select
@@ -598,18 +640,7 @@ onMounted(async () => {
         <template #empty>
           <div class="flex flex-col items-center justify-center py-12 text-muted-color">
             <i class="pi pi-truck text-4xl mb-3 opacity-40" />
-            <p class="text-sm font-medium">No hay vehículos registrados</p>
-          </div>
-        </template>
-        <template #loading>
-          <div v-for="n in 8" :key="n" class="flex items-center gap-4 p-2">
-            <Skeleton width="12%" height="1rem" />
-            <Skeleton width="10%" height="1rem" />
-            <Skeleton width="16%" height="1rem" />
-            <Skeleton width="6%" height="1rem" />
-            <Skeleton width="10%" height="1rem" />
-            <Skeleton width="14%" height="1rem" />
-            <Skeleton width="5rem" height="1.75rem" borderRadius="6px" class="ml-auto" />
+            <p class="text-sm font-medium">No hay registros</p>
           </div>
         </template>
 
@@ -723,6 +754,9 @@ onMounted(async () => {
 }
 :deep(.p-datatable-tbody) tr:active {
   filter: brightness(0.92);
+}
+:deep(.p-datatable-tbody) tr:focus-visible {
+  outline: 2px solid var(--p-primary-color);
 }
 :deep(.p-datatable-tbody) tr:focus-visible {
   outline: 2px solid var(--p-primary-color);
