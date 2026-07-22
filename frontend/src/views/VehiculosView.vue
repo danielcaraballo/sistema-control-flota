@@ -630,7 +630,6 @@ onMounted(async () => {
                 ref="exportBtnRef"
                 label="Exportar"
                 icon="pi pi-download"
-                iconPos="right"
                 size="small"
                 :loading="exportando"
                 :disabled="exportando"
