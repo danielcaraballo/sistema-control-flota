@@ -16,7 +16,7 @@ const color = computed(() => {
   return '#ef4444'
 })
 
-const labelFontSize = computed(() => Math.max(13, Math.round(props.size * 0.28)) + 'px')
+const labelFontSize = computed(() => Math.max(11, Math.round(props.size * 0.28)) + 'px')
 
 const ariaLabel = computed(() => `${clamped.value}% completo`)
 </script>

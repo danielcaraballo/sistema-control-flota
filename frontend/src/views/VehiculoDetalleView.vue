@@ -534,21 +534,29 @@ watch(() => route.params.id, loadVehiculo)
         />
       </div>
       <div v-else class="flex-1" />
-      <div v-if="auth.tieneRol(ROL_NACIONAL)" class="flex gap-2 shrink-0">
-        <Button label="Editar" icon="pi pi-pencil" @click="abrirEdicion" />
-        <Button
-          v-if="vehiculo?.estatus_activo"
-          label="Desactivar"
-          icon="pi pi-ban"
-          severity="danger"
-          @click="confirmDesactivar"
-        />
-        <Button
-          v-else
-          label="Reactivar"
-          icon="pi pi-check-circle"
-          severity="success"
-          @click="confirmActivar"
+      <div v-if="auth.tieneRol(ROL_NACIONAL)" class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <Button label="Editar" icon="pi pi-pencil" @click="abrirEdicion" />
+          <Button
+            v-if="vehiculo?.estatus_activo"
+            label="Desactivar"
+            icon="pi pi-ban"
+            severity="danger"
+            @click="confirmDesactivar"
+          />
+          <Button
+            v-else
+            label="Reactivar"
+            icon="pi pi-check-circle"
+            severity="success"
+            @click="confirmActivar"
+          />
+        </div>
+        <CompletitudKnob
+          :value="vehiculo?.porcentaje_completado ?? 0"
+          :size="44"
+          :stroke-width="8"
+          v-tooltip.top="`${vehiculo?.porcentaje_completado ?? 0}% completo`"
         />
       </div>
     </div>
@@ -715,8 +723,6 @@ watch(() => route.params.id, loadVehiculo)
         </div>
 
         <div class="shrink-0 flex flex-col items-center gap-2">
-          <CompletitudKnob :value="vehiculo.porcentaje_completado" :size="120" />
-          <span class="text-sm text-muted-color -mt-2">Ficha completa</span>
           <img
             v-if="vehiculo.codigo_qr"
             :src="vehiculo.codigo_qr"

@@ -676,7 +676,8 @@ onMounted(async () => {
           <template #body="{ data }">
             <CompletitudKnob
               :value="data.porcentaje_completado"
-              :size="60"
+              :size="44"
+              :stroke-width="8"
               v-tooltip.top="`${data.porcentaje_completado ?? 0}% completo`"
             />
           </template>
