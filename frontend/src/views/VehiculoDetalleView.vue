@@ -21,6 +21,16 @@ const router = useRouter()
 const toast = useToast()
 const auth = useAuthStore()
 
+function copiar(texto) {
+  navigator.clipboard.writeText(texto)
+  toast.add({
+    severity: 'success',
+    summary: 'Copiado',
+    detail: 'Texto copiado al portapapeles',
+    life: 2000,
+  })
+}
+
 const vehiculo = ref(null)
 const loading = ref(true)
 const notFound = ref(false)
@@ -647,22 +657,50 @@ watch(() => route.params.id, loadVehiculo)
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm">
               <span class="text-muted-color">N° Económico</span>
-              <span class="font-medium col-span-2">{{ vehiculo.numero_economico }}</span>
+              <span class="font-medium font-mono col-span-2 flex items-center gap-1">
+                {{ vehiculo.numero_economico }}
+                <Button
+                  icon="pi pi-copy"
+                  text
+                  size="small"
+                  @click="copiar(vehiculo.numero_economico)"
+                  v-tooltip.top="'Copiar'"
+                />
+              </span>
               <span class="text-muted-color">Serial de carrocería</span>
-              <span class="font-medium font-mono col-span-2">{{ vehiculo.vin }}</span>
+              <span class="font-medium font-mono col-span-2 flex items-center gap-1">
+                {{ vehiculo.vin }}
+                <Button
+                  icon="pi pi-copy"
+                  text
+                  size="small"
+                  @click="copiar(vehiculo.vin)"
+                  v-tooltip.top="'Copiar'"
+                />
+              </span>
               <span class="text-muted-color">Placa</span>
-              <span class="font-medium col-span-2">
+              <span class="font-medium col-span-2 flex items-center gap-1">
                 <Tag
                   v-if="vehiculo.placa"
                   :value="vehiculo.placa"
                   :severity="placaSeverity(vehiculo.color_placa_nombre)"
                 />
                 <span v-else>—</span>
+                <Button
+                  v-if="vehiculo.placa"
+                  icon="pi pi-copy"
+                  text
+                  size="small"
+                  @click="copiar(vehiculo.placa)"
+                  v-tooltip.top="'Copiar'"
+                />
               </span>
               <span class="text-muted-color">Placa INTT</span>
               <span class="font-medium col-span-2">{{ vehiculo.placa_intt || '—' }}</span>
               <span class="text-muted-color">Serial del motor</span>
-              <span class="font-medium col-span-2">{{ vehiculo.serial_motor || '—' }}</span>
+              <span class="font-medium font-mono col-span-2">{{
+                vehiculo.serial_motor || '—'
+              }}</span>
               <span class="text-muted-color">N° Unidad</span>
               <span class="font-medium col-span-2">{{ vehiculo.numero_unidad || '—' }}</span>
             </div>
