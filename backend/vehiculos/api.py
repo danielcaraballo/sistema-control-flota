@@ -1,4 +1,5 @@
 import base64
+from datetime import date
 from io import BytesIO
 
 import qrcode
@@ -16,6 +17,7 @@ from utils.api_helpers import (
     get_object_or_404,
 )
 
+from .export_utils import build_export_qs, csv_response, xlsx_response
 from .models import Vehiculo
 from .schemas import (
     VehiculoCreate,
@@ -169,6 +171,26 @@ def list_vehiculos(
     ]
 
     return VehiculoListResponse(items=items, count=count)
+
+
+@router.get("/exportar", auth=JWTAuth())
+@requiere_rol_minimo(Usuario.Rol.MECANICO)
+def exportar_vehiculos(
+    request,
+    formato: str = Field(default="csv"),
+    search: str | None = None,
+    estado_id: int | None = None,
+    estatus_id: int | None = None,
+    gerencia_id: int | None = None,
+    incluir_inactivos: bool = False,
+):
+    if formato not in ("csv", "xlsx"):
+        raise HttpError(400, 'Formato inválido. Use "csv" o "xlsx".')
+    qs = build_export_qs(request, search, estado_id, estatus_id, gerencia_id, incluir_inactivos)
+    filename = f"vehiculos_{date.today()}"
+    if formato == "xlsx":
+        return xlsx_response(qs, filename)
+    return csv_response(qs, filename)
 
 
 @router.get("/{vehiculo_id}", response=VehiculoSchema, auth=JWTAuth())

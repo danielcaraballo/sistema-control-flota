@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { placaSeverity, estatusSeverity } from '@/utils/vehiculo'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
@@ -13,6 +13,7 @@ import Dialog from 'primevue/dialog'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
+import Menu from 'primevue/menu'
 import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import Skeleton from 'primevue/skeleton'
@@ -94,6 +95,20 @@ const initialForm = () => ({
 const form = ref(initialForm())
 
 const isCreating = computed(() => !editingVehiculo.value)
+
+const exportando = ref(false)
+const exportMenu = ref(null)
+const exportBtnRef = ref(null)
+const exportBtnWidth = ref(140)
+
+const exportMenuItems = [
+  { label: 'CSV', command: () => exportarVehiculos('csv') },
+  { label: 'XLSX', command: () => exportarVehiculos('xlsx') },
+]
+
+function toggleExportMenu(event) {
+  exportMenu.value.toggle(event)
+}
 
 async function loadCatalogos() {
   const calls = [
@@ -234,6 +249,49 @@ function limpiarFiltros() {
   filterEstatusId.value = null
   first.value = 0
   loadVehiculos()
+}
+
+async function exportarVehiculos(formato) {
+  if (exportando.value) return
+  exportando.value = true
+
+  const params = new URLSearchParams()
+  params.set('formato', formato)
+  if (searchQuery.value) params.set('search', searchQuery.value)
+  if (filterEstadoId.value) params.set('estado_id', String(filterEstadoId.value))
+  if (filterEstatusId.value) params.set('estatus_id', String(filterEstatusId.value))
+  if (auth.tieneRol(ROL_NACIONAL)) params.set('incluir_inactivos', 'true')
+
+  try {
+    const res = await api.get('/vehiculos/exportar?' + params.toString(), {
+      responseType: 'blob',
+    })
+    const blob = new Blob([res.data])
+    const filename = `vehiculos_${new Date().toISOString().slice(0, 10)}.${formato}`
+    const sizeKB = (blob.size / 1024).toFixed(1)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+
+    toast.add({
+      severity: 'success',
+      summary: 'Exportación completada',
+      detail: `${filename} — ${sizeKB} KB`,
+      life: 4000,
+    })
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudo exportar el inventario',
+      life: 4000,
+    })
+  } finally {
+    exportando.value = false
+  }
 }
 
 async function ensureCatalogos() {
@@ -429,6 +487,9 @@ async function loadCatalogoFiltros() {
 
 onMounted(async () => {
   await Promise.all([loadVehiculos(), loadCatalogoFiltros()])
+  nextTick(() => {
+    exportBtnWidth.value = exportBtnRef.value?.$el?.offsetWidth ?? 140
+  })
   if (route.query.editar) {
     await loadVehiculoForEdit(route.query.editar)
   }
@@ -509,12 +570,29 @@ onMounted(async () => {
                 v-tooltip.top="'Limpiar filtros'"
               />
             </div>
-            <Button
-              v-if="auth.tieneRol(ROL_NACIONAL)"
-              label="Agregar vehículo"
-              icon="pi pi-plus"
-              @click="openNew"
-            />
+            <div class="flex items-center gap-2">
+              <Button
+                v-if="auth.tieneRol(ROL_NACIONAL)"
+                label="Agregar vehículo"
+                icon="pi pi-plus"
+                @click="openNew"
+              />
+              <Button
+                ref="exportBtnRef"
+                label="Exportar"
+                icon="pi pi-download"
+                iconPos="right"
+                :loading="exportando"
+                :disabled="exportando"
+                @click="toggleExportMenu"
+              />
+              <Menu
+                ref="exportMenu"
+                :model="exportMenuItems"
+                :popup="true"
+                :pt="{ root: { style: `min-width: ${exportBtnWidth}px` } }"
+              />
+            </div>
           </div>
         </template>
         <template #empty>
