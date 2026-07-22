@@ -341,7 +341,7 @@ onMounted(() => {
   <div class="w-full">
     <PageHeader title="Usuarios" subtitle="Gestión de usuarios del sistema" icon="pi pi-users" />
 
-    <div class="border border-card-border rounded-md bg-card">
+    <div class="border border-card-border rounded-md bg-card px-4">
       <DataTable
         :value="loading ? skeletonRows : usuarios"
         v-model:filters="filters"
@@ -354,6 +354,7 @@ onMounted(() => {
           'estado_nombre',
         ]"
         :loading="loading"
+        size="small"
         scrollable
         scrollHeight="flex"
         stripedRows
@@ -367,12 +368,13 @@ onMounted(() => {
           <div class="flex justify-between items-center gap-2 flex-wrap">
             <IconField>
               <InputIcon class="pi pi-search" />
-              <InputText v-model="filters.global.value" placeholder="Buscar..." />
+              <InputText v-model="filters.global.value" placeholder="Buscar..." size="small" />
             </IconField>
             <Button
               v-if="auth.tieneRol(ROL_NACIONAL)"
               label="Agregar usuario"
               icon="pi pi-plus"
+              size="small"
               @click="openNew"
             />
           </div>
@@ -432,6 +434,7 @@ onMounted(() => {
                 severity="secondary"
                 text
                 rounded
+                size="small"
                 @click="openEdit(data)"
                 v-tooltip.top="'Editar'"
               />
@@ -441,6 +444,7 @@ onMounted(() => {
                 severity="danger"
                 text
                 rounded
+                size="small"
                 @click="confirmDeactivate(data)"
                 v-tooltip.top="'Desactivar'"
               />
@@ -450,6 +454,7 @@ onMounted(() => {
                 severity="success"
                 text
                 rounded
+                size="small"
                 @click="confirmActivate(data)"
                 v-tooltip.top="'Reactivar'"
               />
@@ -458,6 +463,7 @@ onMounted(() => {
                 severity="info"
                 text
                 rounded
+                size="small"
                 @click="confirmResetPassword(data)"
                 v-tooltip.top="'Resetear contraseña'"
               />

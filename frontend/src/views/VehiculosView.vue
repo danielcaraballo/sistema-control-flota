@@ -505,11 +505,12 @@ onMounted(async () => {
       icon="pi pi-truck"
     />
 
-    <div class="border border-card-border rounded-md bg-card">
+    <div class="border border-card-border rounded-md bg-card px-4">
       <!-- Skeleton table during initial load -->
       <DataTable
         v-if="loading && vehiculos.length === 0"
         :value="skeletonRows"
+        size="small"
         scrollable
         scrollHeight="flex"
         stripedRows
@@ -551,6 +552,7 @@ onMounted(async () => {
         :rows="rows"
         :loading="loading"
         :rowsPerPageOptions="[10, 25, 50]"
+        size="small"
         scrollable
         scrollHeight="flex"
         stripedRows
@@ -581,6 +583,7 @@ onMounted(async () => {
                   :modelValue="searchQuery"
                   @update:modelValue="onSearchInput"
                   placeholder="Buscar..."
+                  size="small"
                 />
               </IconField>
               <Select
@@ -590,6 +593,7 @@ onMounted(async () => {
                 optionLabel="nombre"
                 placeholder="Estado"
                 class="w-40"
+                size="small"
                 clearable
                 @update:modelValue="onFilterChange"
               />
@@ -600,6 +604,7 @@ onMounted(async () => {
                 optionLabel="nombre"
                 placeholder="Estatus"
                 class="w-40"
+                size="small"
                 clearable
                 @update:modelValue="onFilterChange"
               />
@@ -608,6 +613,7 @@ onMounted(async () => {
                 icon="pi pi-times"
                 severity="secondary"
                 variant="text"
+                size="small"
                 @click="limpiarFiltros"
                 v-tooltip.top="'Limpiar filtros'"
               />
@@ -617,6 +623,7 @@ onMounted(async () => {
                 v-if="auth.tieneRol(ROL_NACIONAL)"
                 label="Agregar vehículo"
                 icon="pi pi-plus"
+                size="small"
                 @click="openNew"
               />
               <Button
@@ -624,6 +631,7 @@ onMounted(async () => {
                 label="Exportar"
                 icon="pi pi-download"
                 iconPos="right"
+                size="small"
                 :loading="exportando"
                 :disabled="exportando"
                 @click="toggleExportMenu"

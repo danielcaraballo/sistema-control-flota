@@ -195,12 +195,13 @@ onMounted(loadItems)
 </script>
 
 <template>
-  <div>
+  <div class="px-4">
     <DataTable
       :value="loading ? skeletonRows : items"
       v-model:filters="filters"
       :globalFilterFields="[config.filterField]"
       :loading="loading"
+      size="small"
       scrollable
       scrollHeight="flex"
       stripedRows
@@ -212,12 +213,13 @@ onMounted(loadItems)
         <div class="flex justify-between items-center gap-2 flex-wrap">
           <IconField>
             <InputIcon class="pi pi-search" />
-            <InputText v-model="filters.global.value" placeholder="Buscar..." />
+            <InputText v-model="filters.global.value" placeholder="Buscar..." size="small" />
           </IconField>
           <Button
             v-if="auth.tieneRol(ROL_NACIONAL)"
             label="Agregar"
             icon="pi pi-plus"
+            size="small"
             @click="openNew"
           />
         </div>
@@ -284,6 +286,7 @@ onMounted(loadItems)
               severity="secondary"
               text
               rounded
+              size="small"
               @click="openEdit(data)"
               v-tooltip.top="'Editar'"
             />
@@ -293,6 +296,7 @@ onMounted(loadItems)
               severity="danger"
               text
               rounded
+              size="small"
               @click="confirmDeactivate(data)"
               v-tooltip.top="'Desactivar'"
             />
@@ -302,6 +306,7 @@ onMounted(loadItems)
               severity="success"
               text
               rounded
+              size="small"
               @click="confirmActivate(data)"
               v-tooltip.top="'Reactivar'"
             />

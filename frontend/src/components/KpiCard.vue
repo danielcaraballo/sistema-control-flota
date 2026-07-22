@@ -15,20 +15,17 @@ defineProps({
   >
     <div class="p-3 flex items-center justify-between gap-3">
       <div class="flex flex-col gap-1 min-w-0">
-        <span class="text-[0.625rem] font-semibold text-muted-color uppercase tracking-wider">{{
+        <span class="text-xs font-semibold text-muted-color uppercase tracking-wider">{{
           title
         }}</span>
         <div class="flex items-baseline gap-1.5">
           <span class="text-xl font-bold leading-none text-[var(--p-text-color)]">{{ value }}</span>
           <div
             v-if="trend"
-            class="inline-flex items-center gap-0.5 text-[0.625rem] font-semibold whitespace-nowrap"
+            class="inline-flex items-center gap-0.5 text-xs font-semibold whitespace-nowrap"
             :class="trend === 'up' ? 'text-green-600' : 'text-red-600'"
           >
-            <i
-              :class="trend === 'up' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
-              class="text-[0.5rem]"
-            />
+            <i :class="trend === 'up' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" class="text-xs" />
             <span>{{ trendLabel }}</span>
           </div>
         </div>

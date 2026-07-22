@@ -634,10 +634,10 @@ watch(() => route.params.id, loadVehiculo)
       <div class="border border-card-border rounded-md bg-card p-6 flex flex-col md:flex-row gap-6">
         <div class="flex-1 min-w-0 space-y-6">
           <div>
-            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+            <h2 class="text-lg font-semibold text-color flex items-center gap-2 mb-3">
               <i class="pi pi-id-card text-[var(--p-primary-color)]" /> Identificación
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm">
               <span class="text-muted-color">N° Económico</span>
               <span class="font-medium col-span-2">{{ vehiculo.numero_economico }}</span>
               <span class="text-muted-color">Serial de carrocería</span>
@@ -666,10 +666,10 @@ watch(() => route.params.id, loadVehiculo)
           <hr class="border-card-border" />
 
           <div>
-            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+            <h2 class="text-lg font-semibold text-color flex items-center gap-2 mb-3">
               <i class="pi pi-cog text-[var(--p-primary-color)]" /> Características
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm">
               <span class="text-muted-color">Categoría</span>
               <span class="font-medium col-span-2">{{ vehiculo.categoria_nombre }}</span>
               <span class="text-muted-color">Clase</span>
@@ -699,10 +699,10 @@ watch(() => route.params.id, loadVehiculo)
           <hr class="border-card-border" />
 
           <div>
-            <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
+            <h2 class="text-lg font-semibold text-color flex items-center gap-2 mb-3">
               <i class="pi pi-map-marker text-[var(--p-primary-color)]" /> Asignación
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm">
               <span class="text-muted-color">Estado</span>
               <span class="font-medium col-span-2">{{ vehiculo.estado_nombre }}</span>
               <span class="text-muted-color">Gerencia</span>

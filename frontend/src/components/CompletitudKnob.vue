@@ -28,7 +28,8 @@ const ariaLabel = computed(() => `${clamped.value}% completo`)
     :rangeColor="'#d1d5db'"
     :size="size"
     :strokeWidth="strokeWidth"
-    :pt="{ label: { style: { fontSize: labelFontSize, fontWeight: 700 } } }"
+    class="font-bold"
+    :pt="{ label: { style: { fontSize: labelFontSize } } }"
     valueTemplate="{value}%"
     :aria-label="ariaLabel"
     readonly

@@ -4,6 +4,9 @@
 @custom-variant dark (&:where(.p-dark, .p-dark *));
 
 @theme {
+  --font-sans: 'Poppins', sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, SFMono-Regular, monospace;
   --color-card: var(--p-content-background);
   --color-card-hover: var(--p-content-hover-background);
   --color-card-border: var(--p-content-border-color);
