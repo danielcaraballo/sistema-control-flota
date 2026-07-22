@@ -655,15 +655,12 @@ onMounted(async () => {
         <Column field="numero_economico" header="N° Económico" sortable />
         <Column field="placa" header="Placa" sortable>
           <template #body="{ data }">
-            <div class="flex items-center gap-2">
-              <span>{{ data.placa || '—' }}</span>
-              <Tag
-                v-if="data.color_placa_nombre"
-                :value="data.color_placa_nombre"
-                :severity="placaSeverity(data.color_placa_nombre)"
-                class="!text-xs"
-              />
-            </div>
+            <Tag
+              v-if="data.placa"
+              :value="data.placa"
+              :severity="placaSeverity(data.color_placa_nombre)"
+            />
+            <span v-else>—</span>
           </template>
         </Column>
         <Column field="marca_nombre" header="Marca / Modelo" sortable>

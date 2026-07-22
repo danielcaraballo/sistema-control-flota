@@ -644,15 +644,12 @@ watch(() => route.params.id, loadVehiculo)
               <span class="font-medium font-mono col-span-2">{{ vehiculo.vin }}</span>
               <span class="text-muted-color">Placa</span>
               <span class="font-medium col-span-2">
-                <div class="flex items-center gap-2">
-                  <span>{{ vehiculo.placa || '—' }}</span>
-                  <Tag
-                    v-if="vehiculo.color_placa_nombre"
-                    :value="vehiculo.color_placa_nombre"
-                    :severity="placaSeverity(vehiculo.color_placa_nombre)"
-                    class="!text-xs"
-                  />
-                </div>
+                <Tag
+                  v-if="vehiculo.placa"
+                  :value="vehiculo.placa"
+                  :severity="placaSeverity(vehiculo.color_placa_nombre)"
+                />
+                <span v-else>—</span>
               </span>
               <span class="text-muted-color">Placa INTT</span>
               <span class="font-medium col-span-2">{{ vehiculo.placa_intt || '—' }}</span>
