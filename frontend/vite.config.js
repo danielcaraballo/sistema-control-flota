@@ -35,4 +35,30 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-vue',
+              test: /node_modules[\\/](vue|vue-router|pinia|axios)/,
+              priority: 20,
+            },
+            {
+              name: 'vendor-primevue',
+              test: /node_modules[\\/](primevue|@primeuix|primeicons)/,
+              priority: 20,
+            },
+            {
+              name: 'vendor',
+              test: /node_modules/,
+              priority: 10,
+            },
+          ],
+        },
+      },
+    },
+  },
 })
