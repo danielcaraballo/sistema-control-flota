@@ -82,7 +82,10 @@ watch(
               class="w-full"
               :class="{ 'p-invalid': submitted && !localForm.numero_economico }"
             />
-            <small v-if="submitted && !localForm.numero_economico" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.numero_economico"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El número económico es requerido
             </small>
           </div>
@@ -96,7 +99,10 @@ watch(
               maxlength="17"
               :class="{ 'p-invalid': submitted && !localForm.vin }"
             />
-            <small v-if="submitted && !localForm.vin" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.vin"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El serial de carrocería es requerido
             </small>
           </div>
@@ -149,7 +155,10 @@ watch(
               class="w-full"
               :class="{ 'p-invalid': submitted && !localForm.categoria_id }"
             />
-            <small v-if="submitted && !localForm.categoria_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.categoria_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               La categoría es requerida
             </small>
           </div>
@@ -176,7 +185,10 @@ watch(
               class="w-full"
               :class="{ 'p-invalid': submitted && !localForm.clase_id }"
             />
-            <small v-if="submitted && !localForm.clase_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.clase_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               La clase es requerida
             </small>
           </div>
@@ -193,7 +205,10 @@ watch(
               class="w-full"
               :class="{ 'p-invalid': submitted && !localForm.tipo_combustible_id }"
             />
-            <small v-if="submitted && !localForm.tipo_combustible_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.tipo_combustible_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El tipo de combustible es requerido
             </small>
           </div>
@@ -208,7 +223,10 @@ watch(
               class="w-full"
               :class="{ 'p-invalid': submitted && !localForm.marca_id }"
             />
-            <small v-if="submitted && !localForm.marca_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.marca_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               La marca es requerida
             </small>
           </div>
@@ -224,7 +242,10 @@ watch(
               :disabled="!localForm.marca_id"
               :class="{ 'p-invalid': submitted && !localForm.modelo_id }"
             />
-            <small v-if="submitted && !localForm.modelo_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.modelo_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El modelo es requerido
             </small>
           </div>
@@ -239,7 +260,10 @@ watch(
                 :max="maxAnio"
                 :invalid="submitted && !localForm.anio"
               />
-              <small v-if="submitted && !localForm.anio" class="text-xs text-red-500">
+              <small
+                v-if="submitted && !localForm.anio"
+                class="text-xs text-red-500 dark:text-red-400"
+              >
                 El año es requerido
               </small>
             </div>
@@ -268,7 +292,10 @@ watch(
                 class="w-full"
                 :class="{ 'p-invalid': submitted && !localForm.estatus_id }"
               />
-              <small v-if="submitted && !localForm.estatus_id" class="text-xs text-red-500">
+              <small
+                v-if="submitted && !localForm.estatus_id"
+                class="text-xs text-red-500 dark:text-red-400"
+              >
                 El estatus es requerido
               </small>
             </div>
@@ -292,7 +319,10 @@ watch(
               :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.estado_id }"
             />
-            <small v-if="submitted && !localForm.estado_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.estado_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El estado es requerido
             </small>
           </div>
@@ -311,7 +341,10 @@ watch(
               :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.gerencia_id }"
             />
-            <small v-if="submitted && !localForm.gerencia_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.gerencia_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               La gerencia es requerida
             </small>
           </div>
@@ -344,7 +377,10 @@ watch(
               :pt="{ item: { class: 'truncate' } }"
               :class="{ 'p-invalid': submitted && !localForm.emplazamiento_id }"
             />
-            <small v-if="submitted && !localForm.emplazamiento_id" class="text-xs text-red-500">
+            <small
+              v-if="submitted && !localForm.emplazamiento_id"
+              class="text-xs text-red-500 dark:text-red-400"
+            >
               El emplazamiento es requerido
             </small>
           </div>

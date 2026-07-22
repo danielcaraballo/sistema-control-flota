@@ -587,7 +587,7 @@ watch(() => route.params.id, loadVehiculo)
         <div class="flex-1 min-w-0 space-y-6">
           <div>
             <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
-              <i class="pi pi-id-card text-primary" /> Identificación
+              <i class="pi pi-id-card text-[var(--p-primary-color)]" /> Identificación
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
               <span class="text-muted-color">N° Económico</span>
@@ -619,7 +619,7 @@ watch(() => route.params.id, loadVehiculo)
 
           <div>
             <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
-              <i class="pi pi-cog text-primary" /> Características
+              <i class="pi pi-cog text-[var(--p-primary-color)]" /> Características
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
               <span class="text-muted-color">Categoría</span>
@@ -652,7 +652,7 @@ watch(() => route.params.id, loadVehiculo)
 
           <div>
             <h2 class="text-base font-semibold text-color flex items-center gap-2 mb-3">
-              <i class="pi pi-map-marker text-primary" /> Asignación
+              <i class="pi pi-map-marker text-[var(--p-primary-color)]" /> Asignación
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-base">
               <span class="text-muted-color">Estado</span>

@@ -602,16 +602,14 @@ onMounted(async () => {
           </div>
         </template>
         <template #loading>
-          <div v-for="n in 5" :key="n" class="flex items-center gap-4 p-2">
+          <div v-for="n in 8" :key="n" class="flex items-center gap-4 p-2">
             <Skeleton width="12%" height="1rem" />
-            <Skeleton width="16%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
-            <Skeleton width="14%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
             <Skeleton width="10%" height="1rem" />
-            <Skeleton width="12%" height="1rem" />
-            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="16%" height="1rem" />
+            <Skeleton width="6%" height="1rem" />
+            <Skeleton width="10%" height="1rem" />
+            <Skeleton width="14%" height="1rem" />
+            <Skeleton width="5rem" height="1.75rem" borderRadius="6px" class="ml-auto" />
           </div>
         </template>
 

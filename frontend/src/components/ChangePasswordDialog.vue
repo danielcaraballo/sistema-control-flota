@@ -84,14 +84,14 @@ function handleClose() {
       </Message>
 
       <div class="space-y-2">
-        <label for="currentPassword" class="text-sm font-medium text-color"
+        <label for="currentPassword" class="text-sm font-semibold text-color"
           >Contraseña actual</label
         >
         <InputText id="currentPassword" v-model="currentPassword" type="password" class="w-full" />
       </div>
 
       <div class="space-y-2">
-        <label for="newPassword" class="text-sm font-medium text-color">Nueva contraseña</label>
+        <label for="newPassword" class="text-sm font-semibold text-color">Nueva contraseña</label>
         <InputText
           id="newPassword"
           v-model="newPassword"
@@ -105,7 +105,7 @@ function handleClose() {
       </div>
 
       <div class="space-y-2">
-        <label for="confirmPassword" class="text-sm font-medium text-color"
+        <label for="confirmPassword" class="text-sm font-semibold text-color"
           >Confirmar nueva contraseña</label
         >
         <InputText

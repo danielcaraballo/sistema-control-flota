@@ -6,7 +6,7 @@ import Toast from 'primevue/toast'
 <template>
   <Toast position="bottom-right" />
   <RouterView v-slot="{ Component }">
-    <Transition name="fade" mode="out-in">
+    <Transition name="fade">
       <component :is="Component" />
     </Transition>
   </RouterView>

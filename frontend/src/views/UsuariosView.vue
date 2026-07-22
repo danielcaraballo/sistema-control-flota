@@ -18,6 +18,7 @@ import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
+import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import CredentialModal from '@/components/CredentialModal.vue'
@@ -374,6 +375,17 @@ onMounted(() => {
             />
           </div>
         </template>
+        <template #loading>
+          <div v-for="n in 8" :key="n" class="flex items-center gap-4 p-2">
+            <Skeleton width="10%" height="1rem" />
+            <Skeleton width="14%" height="1rem" />
+            <Skeleton width="18%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="12%" height="1rem" />
+            <Skeleton width="8%" height="1rem" />
+            <Skeleton width="12%" height="1rem" />
+          </div>
+        </template>
         <template #empty>
           <div class="flex flex-col items-center justify-center py-12 text-muted-color">
             <i class="pi pi-users text-4xl mb-3 opacity-40" />
@@ -562,21 +574,27 @@ onMounted(() => {
               <p class="text-sm text-muted-color font-semibold mb-4">
                 Revisa los datos antes de crear:
               </p>
-              <div class="flex justify-between py-1.5 border-b border-surface-100">
+              <div
+                class="flex justify-between py-1.5 border-b border-surface-100 dark:border-surface-700"
+              >
                 <span class="text-sm text-muted-color">Nombre</span>
                 <span class="text-sm font-medium">{{ form.first_name }} {{ form.last_name }}</span>
               </div>
-              <div class="flex justify-between py-1.5 border-b border-surface-100">
+              <div
+                class="flex justify-between py-1.5 border-b border-surface-100 dark:border-surface-700"
+              >
                 <span class="text-sm text-muted-color">Correo</span>
                 <span class="text-sm font-medium">{{ form.email }}</span>
               </div>
-              <div class="flex justify-between py-1.5 border-b border-surface-100">
+              <div
+                class="flex justify-between py-1.5 border-b border-surface-100 dark:border-surface-700"
+              >
                 <span class="text-sm text-muted-color">Rol</span>
                 <span class="text-sm font-medium">{{ rolLabelForm }}</span>
               </div>
               <div
                 v-if="isEstatal(form.rol)"
-                class="flex justify-between py-1.5 border-b border-surface-100"
+                class="flex justify-between py-1.5 border-b border-surface-100 dark:border-surface-700"
               >
                 <span class="text-sm text-muted-color">Estado</span>
                 <span class="text-sm font-medium">{{ estadoNombreForm }}</span>

@@ -215,7 +215,6 @@ onMounted(loadItems)
       :value="items"
       v-model:filters="filters"
       :globalFilterFields="[config.filterField]"
-      :loading="loading"
       scrollable
       stripedRows
       paginator
