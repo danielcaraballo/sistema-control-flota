@@ -1,126 +1,186 @@
 # Changelog
 
-## v0.10.0 — Indicador de completitud de ficha técnica (2026-07-20)
+## v0.11.0 — 2026-07-22
 
-- Backend: `Vehiculo.porcentaje_completado` (`@property`) calcula qué % de los 20 campos están llenos.
-- API: campo incluido en `VehiculoSchema` y `VehiculoListItemSchema`.
-- Frontend: `Knob` de PrimeVue en la esquina superior derecha del detalle (rojo <50%, amarillo 50–79%, verde ≥80%).
-- Frontend: columna ordenable "Ficha" con Knob en la lista de vehículos con tooltip.
-- 121 tests, lint 0 warnings.
+### Changed
+- README reescrito: descripción factual, funcionalidades actuales sin roadmap, estructura movida a `docs/structure.md`
+- CONTRIBUTING.md: documentado flujo GitHub Flow y proceso de releases
+- docs/architecture.md: agregados ADR #11 (scope v1) y #12 (GitHub Flow); NFRs etiquetados como v2
 
-## v0.9.0 — Eliminación de seed data del proyecto (2026-07-16)
+### Removed
+- `AGENTS.md` del control de versiones (`.gitignore` + `git rm --cached`)
 
-- Eliminado `backend/seeds/` por completo (management command, loaders, JSONs).
-- El proyecto ya no incluye datos precargados. Para poblar la BD se usa `createsuperuser`, el admin de Django, la API REST, o `loaddata` con fixtures externos.
-- `AGENTS.md`: removidas todas las referencias a seed_data.
+### Docs
+- Creado `docs/structure.md` con el árbol completo del proyecto
 
-## v0.8.0 — Paginación server-side + índices para escalar a 10k vehículos (2026-07-08)
+Tests: 121
 
-- Backend: `GET /vehiculos/` ahora usa paginación manual (`limit`/`offset`) + filtros server-side (`search`, `estado_id`, `estatus_id`, `gerencia_id`).
-- Backend: Migración 0005 agrega índices compuestos `(estatus_activo, estado_id)`, `(estatus_id)`, `(gerencia_id)`.
-- Frontend: DataTable convertido a `lazy` mode — solo carga la página actual desde el servidor.
-- Frontend: Búsqueda con debounce de 350ms + filtros rápidos por Estado y Estatus.
-- 18 tests, lint 0 warnings.
+## v0.10.0 — 2026-07-20
 
-## v0.7.0 — CentroDeServicio vinculado a Estado, TipoUso vinculado a Vehiculo, reportes solo Nacional (2026-07-08)
+### Added
+- `Vehiculo.porcentaje_completado` como propiedad calculada sobre 20 campos
+- Campo de completitud en `VehiculoSchema` y `VehiculoListItemSchema`
+- Knob de PrimeVue en detalle del vehículo con colores según rango (rojo <50%, amarillo 50-79%, verde ≥80%)
+- Columna ordenable "Ficha" con Knob en lista de vehículos
 
-- `CentroDeServicio` ahora tiene FK a `Estado` (no-nullable, on_delete=RESTRICT). CRUD frontend incluye dropdown de Estado.
-- `TipoUso` ahora es FK nullable en `Vehiculo`. Se agregó dropdown en step 2 del stepper y display en detalle.
-- Reportes cambiado de `ROL_ANALISTA` a `ROL_NACIONAL` (router + sidebar).
-- Dashboard callback ahora incluye KPIs de vehículos (`total_vehiculos`, `vehiculos_activos`).
-- Reemplazado string literal `'nacional'` por constante `ROL_NACIONAL` en `VehiculosView.vue`.
-- NFR-02 en docs marcado con 🚧 para restricción de texto libre en taller.
-- 113 tests, lint 0 warnings.
+Tests: 121
 
-## v0.6.2 — Fix import dinámico inefectivo en api.js (2026-07-05)
+## v0.9.0 — 2026-07-16
 
-- Reemplaza `import()` dinámico por import estático en `api.js` para eliminar
-  warning `INEFFECTIVE_DYNAMIC_IMPORT` de Vite.
-- Agrega convención de commits (español, Conventional Commits) en `AGENTS.md`.
-- 113 tests, lint 0 warnings, build 691ms sin warnings.
+### Removed
+- `backend/seeds/` por completo (management command, loaders, JSONs)
 
-## v0.6.1 — Refactor CRUD: helpers + factory + UniqueConstraints condicionales (2026-07-05)
+### Docs
+- `AGENTS.md`: removidas referencias a seed_data
+- README: actualizado con opciones de población de BD
 
-- `utils/api_helpers.py`: helpers compartidos (filter_activos, get_object_or_404, check_duplicate, check_duplicate_composite) eliminan ~100 líneas duplicadas de 3 api.py
-- `utils/crud_factory.py`: `register_crud()` + `CrudConfig` generan endpoints list/get/create/update/deactivate para catálogos y organización. Elimina ~435 líneas duplicadas
-- `catalogos/api.py`: 531→78 líneas (9 entidades via factory)
-- `organizacion/api.py`: 160→34 líneas (3 entidades via factory)
-- Modelos migrados a `UniqueConstraint(condition=Q(estatus_activo=True))` — permite reciclar nombres de registros soft-deleteados en catálogos y organización. Elimina riesgo de IntegrityError al crear registros que colisionan con nombres de registros inactivos.
-- Modelo cambia de `unique_together` a `UniqueConstraint` condicional
-- `numero_economico` y `vin` mantienen `unique=True` (identificadores reales únicos permanentemente)
-- 113 tests pasan, Ruff 0 warnings
+## v0.8.0 — 2026-07-08
 
-## v0.6.0 — Frontend Vehículos + CRUD completo (2026-07-05)
+### Added
+- Paginación server-side en `GET /vehiculos/` con `limit`/`offset`
+- Filtros server-side: `search`, `estado_id`, `estatus_id`, `gerencia_id`
+- Índices compuestos en migración 0005: `(estatus_activo, estado_id)`, `(estatus_id)`, `(gerencia_id)`
 
-- Frontend completo de vehículos: DataTable con filtros, stepper vertical de 4 pasos para crear/editar, vista detalle con QR y ficha técnica
-- Backend: Vehiculo CRUD con 17 campos, QR autogenerado, filtro por estado del usuario
-- EstatusVehiculo y ColorPlaca como catálogos independientes
-- VehiculoUpdate soporta reactivación (estatus_activo)
-- Hover en filas DataTable, dialogs sin scroll, stepper alineado a la izquierda
+### Changed
+- DataTable convertido a modo `lazy` — carga solo la página actual desde el servidor
+- Búsqueda con debounce de 350ms y filtros rápidos por Estado y Estatus
+
+Tests: 18
+
+## v0.7.0 — 2026-07-08
+
+### Added
+- FK de `CentroDeServicio` a `Estado` (no-nullable, on_delete=RESTRICT). Dropdown de Estado en CRUD frontend
+- FK nullable de `TipoUso` en `Vehiculo`. Dropdown en formulario y display en detalle
+- KPIs de vehículos en dashboard callback (`total_vehiculos`, `vehiculos_activos`)
+
+### Changed
+- Reportes cambiado de `ROL_ANALISTA` a `ROL_NACIONAL` (router + sidebar)
+- String literal `'nacional'` reemplazado por constante `ROL_NACIONAL` en `VehiculosView.vue`
+
+### Docs
+- NFR-02 marcado con 🚧 para restricción de texto libre en taller
+
+Tests: 113
+
+## v0.6.2 — 2026-07-05
+
+### Fixed
+- Import dinámico inefectivo en `api.js`: reemplazado por import estático para eliminar warning `INEFFECTIVE_DYNAMIC_IMPORT` de Vite
+
+### Docs
+- Convención de commits (español, Conventional Commits) documentada en `AGENTS.md`
+
+Tests: 113
+
+## v0.6.1 — 2026-07-05
+
+### Added
+- Helpers compartidos en `utils/api_helpers.py`: `filter_activos`, `get_object_or_404`, `check_duplicate`, `check_duplicate_composite` (eliminan ~100 líneas duplicadas)
+- `register_crud()` + `CrudConfig` en `utils/crud_factory.py` para generar endpoints CRUD de catálogos y organización (elimina ~435 líneas duplicadas)
+
+### Changed
+- `catalogos/api.py`: 531 → 78 líneas (9 entidades via factory)
+- `organizacion/api.py`: 160 → 34 líneas (3 entidades via factory)
+- Modelos migrados de `unique_together` a `UniqueConstraint(condition=Q(estatus_activo=True))` — permite reciclar nombres soft-deleteados sin IntegrityError
+- `numero_economico` y `vin` mantienen `unique=True` (identificadores reales, únicos permanentemente)
+
+Tests: 113
+
+## v0.6.0 — 2026-07-05
+
+### Added
+- Frontend completo de vehículos: DataTable con filtros, formulario tipo stepper, vista detalle con QR y ficha técnica
+- Backend: CRUD de vehículos con 17 campos, QR autogenerado, filtro por estado del usuario
+- `EstatusVehiculo` y `ColorPlaca` como catálogos independientes
+- Soporte de reactivación en `VehiculoUpdate` (estatus_activo)
 - Admin: vehículos y estatus_vehiculo en Unfold sidebar
-- 154 tests
 
-## v0.5.2 — Dark mode homogéneo (2026-07-03)
+### Changed
+- Hover en filas DataTable, dialogs sin scroll, stepper alineado a la izquierda
 
-- Tema oscuro con tokens compuestos de PrimeVue Aura (--p-content-background, etc.)
-- Variables SCF para bg-card/border-card adaptables a modo oscuro
-- Flash prevention en index.html
+Tests: 154
 
-## v0.5.1 — UserDropdown + cambio de contraseña (2026-07-03)
+## v0.5.2 — 2026-07-03
 
-- POST /auth/change-password con validación de contraseña actual
-- UserDropdown (Popover) con theme switcher (claro/oscuro/sistema), cambio de contraseña y logout
-- useTheme.js refactorizado para 3 modos con listener matchMedia
+### Added
+- Tema oscuro con tokens compuestos de PrimeVue Aura
+- Variables SCF para `bg-card`/`border-card` adaptables a modo oscuro
+- Flash prevention en `index.html`
+
+## v0.5.1 — 2026-07-03
+
+### Added
+- Endpoint `POST /auth/change-password` con validación de contraseña actual
+- `UserDropdown` (Popover) con theme switcher (claro/oscuro/sistema), cambio de contraseña y logout
+- `useTheme.js` refactorizado para 3 modos con listener `matchMedia`
 - Sidebar footer como trigger del dropdown con chevron animado
 
-## v0.5.0 — CentroDeServicio + Login mejorado (2026-07-02/03)
+## v0.5.0 — 2026-07-02/03
 
-- Modelo CentroDeServicio con CRUD completo + admin Unfold
-- Sidebar separa Usuarios/Organización/Catálogos bajo "Administración"
-- Fix race condition en startup: auth initialization await
-- Auto-refresh token: serialización de peticiones concurrentes
+### Added
+- Modelo `CentroDeServicio` con CRUD completo y admin Unfold
+- Auto-refresh token con serialización de peticiones concurrentes
 - Login con FloatLabel, validación cliente, redirect post-login
-- Eliminación de parpadeo en catálogos con Skeleton loading
-- Estandarización de botón "Agregar" en CRUDs
-- Dashboard sin mock data
+- Skeleton loading para eliminar parpadeo en catálogos
+- Botón "Agregar" estandarizado en todos los CRUDs
 
-## v0.4.0 — Catálogos (tablas maestras) (2026-07-02)
+### Fixed
+- Race condition en startup: auth initialization await
 
+### Changed
+- Sidebar separa Usuarios/Organización/Catálogos bajo sección "Administración"
+
+## v0.4.0 — 2026-07-02
+
+### Added
 - Nueva app `catalogos` con 7 modelos: Marca, Modelo, TipoVehiculo, TipoUso, Color, SistemaAfectado, TipoFalla
 - CRUD API con soft-delete y filtro `?incluir_inactivos=true`
 - `CatalogoTabContent.vue`: componente reutilizable para CRUD de catálogos
-- CatalogosView con TabView de 7 pestañas
-- Seed data: 15 marcas, ~45 modelos, 10 colores, 12 tipos vehículo, 5 usos, 15 fallas, 9 sistemas
-- 35 tests
+- `CatalogosView` con TabView de 7 pestañas
 
-## v0.3.0 — Unfold admin + usuarios completo (2026-06-20/22)
+Tests: 35
 
-- Integración django-unfold con dashboard de KPIs/charts
+## v0.3.0 — 2026-06-20/22
+
+### Added
+- Integración django-unfold con dashboard de KPIs y charts
 - CRUD completo de usuarios con reset de contraseña
-- Endpoint POST /usuarios/{id}/reset-password
-- 31 tests
+- Endpoint `POST /usuarios/{id}/reset-password`
 
-## v0.2.0 — JWT estándar + tests + documentación (2026-06-18/20)
+Tests: 31
 
+## v0.2.0 — 2026-06-18/20
+
+### Added
 - Migración a django-ninja-jwt (JWTAuth, RefreshToken)
-- dj-database-url en vez de parsing manual
+- dj-database-url en vez de parsing manual de `DATABASE_URL`
 - Migración a uv + ruff (reemplaza pip + flake8 + black)
-- docs/architecture.md con C4, DER, APIs, ADRs
+
+### Docs
+- `docs/architecture.md` con C4, DER, APIs, ADRs
 - README con badges, estructura, tabla de features
 - ESLint + Prettier config en frontend
-- 16 tests
 
-## v0.1.1 — PrimeVue + Poppins (2026-06-17)
+Tests: 16
 
+## v0.1.1 — 2026-06-17
+
+### Added
 - Integración PrimeVue 4 con tema Aura
 - Migración de vistas a DataTable, Card, Dialog, etc.
 - Fuente Poppins (Google Fonts) con override en componentes
 
-## v0.1.0 — Setup inicial + RBAC (2026-06-17)
+## v0.1.0 — 2026-06-17
 
+### Added
 - Setup Django 5.2 + Ninja + Vue 3 + Vite
 - Modelos: Estado, Gerencia, Usuario (AbstractUser con roles)
-- JWT auth: login, refresh, me (custom, antes de django-ninja-jwt)
+- Autenticación JWT: login, refresh, me
 - CRUD de usuarios con permisos por rol
 - Sidebar dinámico según rol del usuario
 - LoginView, UsuariosView, DashboardView (skeleton)
+
+---
+
+**Tests acumulados:** 121 · **Linter:** 0 warnings (Ruff)

@@ -2,6 +2,8 @@
 
 ## 1. Diagrama de Contexto (C1)
 
+> Los actores y flujos representan la **visión completa del producto**. En v1 están implementados: gestión de inventario, autenticación JWT y dashboard administrativo. El módulo de taller, PWA y escaneo QR corresponden a v2.
+
 ```mermaid
 graph TD
     Mecanico["Mecánico (Tablet PWA)"] -->|Escanea QR, registra diagnóstico| SCF["SCF - Sistema de Control de Flota"]
@@ -73,12 +75,14 @@ Documentación interactiva de la API: `/api/docs` (Swagger UI, generado por Djan
 | 8 | Gestión de Dependencias | pip + requirements.txt vs **uv** | uv | Resolución 10-100x más rápida, lockfile determinista (`uv.lock`) |
 | 9 | CRUD factory | Repetitivo manual vs **register_crud + CrudConfig** | CrudConfig | Elimina ~435 líneas duplicadas de 12 endpoints de catálogos/organización; centraliza validaciones FK y soft-delete |
 | 10 | UniqueConstraint condicional | `unique_together` vs **UniqueConstraint(condition=Q(estatus_activo=True))** | Conditional UniqueConstraint | Permite reciclar nombres de registros soft-deleteados sin IntegrityError; todos los catálogos y organización lo usan. Vehículo mantiene `unique=True` en `numero_economico`, `vin`, `numero_unidad` (identificadores reales únicos permanentemente) |
+| 11 | Scope v1 | Todo el alcance original vs **Gestión de Inventario de Flota** | v1 reducido | Se acota el MVP a: inventario de vehículos, dashboard con KPIs/gráficos y exportación CSV/XLSX. Taller, mantenimiento preventivo y reportes personalizados se difieren a v2. Decisión basada en que la gestión de inventario es un producto autónomo viable. |
+| 12 | Git workflow | Git Flow vs **GitHub Flow** | GitHub Flow | `main` + feat branches + PR → squash-merge. Git Flow es sobreingeniería para equipo pequeño. Tags semánticos para releases. |
 
 ## 5. Requerimientos No Funcionales (NFRs)
 
-- **NFR-01 — Disponibilidad y Tolerancia a Fallos (Offline-First):** 🚧 Planificado (no implementado). La interfaz del mecánico en tablet debe ser una PWA capaz de registrar diagnósticos sin conectividad, almacenando en IndexedDB y sincronizando automáticamente. `vite-plugin-pwa` está en dependencias pero aún no hay lógica offline (Service Worker, sincronización diferida, caché de catálogos).
+- **NFR-01 — Disponibilidad y Tolerancia a Fallos (Offline-First):** 🚧 v2 (no implementado). La interfaz del mecánico en tablet debe ser una PWA capaz de registrar diagnósticos sin conectividad, almacenando en IndexedDB y sincronizando automáticamente. `vite-plugin-pwa` está en dependencias pero aún no hay lógica offline (Service Worker, sincronización diferida, caché de catálogos).
 
-- **NFR-02 — Integridad y Veracidad de Datos:** El sistema implementa `unique=True` en `numero_economico`, `vin` y `numero_unidad` para impedir duplicidades a nivel nacional. La combinación `placa + color_placa` utiliza `UniqueConstraint` condicional. 🚧 Los formularios del taller deben restringir la entrada de texto libre para fallas comunes, garantizando data estructurada.
+- **NFR-02 — Integridad y Veracidad de Datos:** El sistema implementa `unique=True` en `numero_economico`, `vin` y `numero_unidad` para impedir duplicidades a nivel nacional. La combinación `placa + color_placa` utiliza `UniqueConstraint` condicional. 🚧 v2: Los formularios del taller deben restringir la entrada de texto libre para fallas comunes, garantizando data estructurada.
 
 - **NFR-03 — Rendimiento y Velocidad de Respuesta:**
     - Los endpoints críticos de la API deben responder en menos de 400ms bajo condiciones normales de red.

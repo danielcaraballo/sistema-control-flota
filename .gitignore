@@ -28,3 +28,6 @@ frontend/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# AI Agent instructions (local to each developer)
+AGENTS.md

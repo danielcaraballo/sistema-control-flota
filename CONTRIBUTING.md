@@ -48,6 +48,30 @@ Ver [`README.md`](README.md) para requisitos e instalación.
 - **Styling**: Tailwind v4 (`@import 'tailwindcss'` en `main.css`, sin archivo de configuración)
 - **Tema**: Claro/oscuro/sistema vía `UserDropdown.vue` + `@/composables/useTheme.js`
 
+## Flujo de trabajo (GitHub Flow)
+
+```
+main  ───●────●────●────●────●───
+          \  /    \  /    \  /
+feat/*     ●─●      ●─●      ●─●
+```
+
+1. Crear rama desde `main`: `feat/dashboard`, `fix/qr-scanner`, `refactor/sidebar`, `chore/deps`, `docs/readme`
+2. Desarrollar y commitear siguiendo [Conventional Commits](#commits)
+3. Abrir Pull Request a `main` (incluso en repositorio propio)
+4. Squash-merge a `main`
+5. `main` siempre debe estar en estado deployable
+
+### Releases
+
+```bash
+# Desde main actualizado
+git tag -a v1.0.0 -m "v1.0.0 — Gestión de Inventario de Flota"
+git push origin v1.0.0
+```
+
+Luego crear GitHub Release desde el tag, usando el changelog como descripción.
+
 ## Commits
 
 Formato [Conventional Commits](https://www.conventionalcommits.org/):
@@ -69,3 +93,4 @@ Mantener actualizada cuando se hagan cambios significativos:
 - **`docs/architecture.md`** — diagramas C4, stack, ADRs, NFRs
 - **`CHANGELOG.md`** — historial de versiones
 - **`README.md`** — estructura del proyecto y comandos
+- **`docs/structure.md`** — árbol completo del proyecto
