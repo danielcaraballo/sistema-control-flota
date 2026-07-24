@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.2.0 — 2026-07-23
+
+### Added
+- `GET /dashboard/nacional`: nuevo endpoint solo NACIONAL con comparativa completa por estado (total, operatividad, activos/inactivos, breakdown por estatus, mejor/peor estado)
+- Nuevos KPIs en `GET /dashboard/kpis`: `completitud_promedio`, `por_categoria`, `por_combustible`
+- Nuevos charts en `GET /dashboard/charts`: `por_marca` (top 10), `por_anio`; `por_estado` ahora incluye `operatividad`, `activos`, `inactivos`
+- Componente `EstadoComparisonCard.vue`: tarjeta con barra de progreso coloreada para comparativa nacional
+- Admin dashboard (Unfold): gráficos de vehículos por estatus, top 5 estados por flota, tabla de vehículos recientes, KPI de operatividad e inactivos
+
+### Changed
+- `DashboardView.vue` reestructurado en 3 secciones: KPIs enriquecidos, gráficos de distribución (estado/marca/año), sección nacional exclusiva para NACIONAL con comparativa y gráfico de operatividad semáforo
+- `dashboard/schemas.py`: +6 schemas (`CategoriaItem`, `CombustibleItem`, `MarcaItem`, `AnioItem`, `EstadoDashboardItem`, `EstadoResumen`, `NacionalResponse`)
+- `dashboard/callbacks.py`: agregadas métricas de vehículos al admin (estatus chart, flota por estado, tabla recientes, operatividad %)
+
+### Fixed
+- Dashboard: la operatividad ahora refleja el estado real de la flota. Se agregó `EstatusVehiculo.es_operativo` (BooleanField, default=True) para que el admin configure qué estatus cuentan como operativos. El cálculo cambió de `estatus_activo=True` (soft-delete) a `estatus__es_operativo=True AND estatus_activo=True` en todos los endpoints.
+- Admin de EstatusVehiculo: campo `es_operativo` editable inline en changelist
+
+Tests: 135
+
 ## v0.11.0 — 2026-07-22
 
 ### Changed

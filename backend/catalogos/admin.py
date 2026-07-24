@@ -67,9 +67,10 @@ class TipoFallaAdmin(ModelAdmin):
 
 @admin.register(EstatusVehiculo)
 class EstatusVehiculoAdmin(ModelAdmin):
-    list_display = ["nombre", "estatus_activo"]
+    list_display = ["nombre", "es_operativo", "estatus_activo"]
+    list_editable = ["es_operativo"]
     search_fields = ["nombre"]
-    list_filter = ["estatus_activo"]
+    list_filter = ["es_operativo", "estatus_activo"]
 
 
 @admin.register(ClaseVehiculo)

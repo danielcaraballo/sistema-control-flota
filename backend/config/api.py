@@ -2,6 +2,7 @@ from ninja import NinjaAPI
 from ninja_jwt.authentication import JWTAuth
 
 from catalogos.api import router as catalogos_router
+from dashboard.api import router as dashboard_router
 from organizacion.api import router as organizacion_router
 from usuarios.auth_api import router as auth_router
 from usuarios.usuarios_api import router as usuarios_router
@@ -19,3 +20,4 @@ api.add_router("/usuarios/", usuarios_router, tags=["Usuarios"])
 api.add_router("/organizacion/", organizacion_router, tags=["Organización"])
 api.add_router("/catalogos/", catalogos_router, tags=["Catálogos"])
 api.add_router("/vehiculos/", vehiculos_router, tags=["Vehículos"])
+api.add_router("/dashboard/", dashboard_router, tags=["Dashboard"])

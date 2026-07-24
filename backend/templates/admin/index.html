@@ -51,9 +51,54 @@
                 {% endcomponent %}
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% component "unfold/components/card.html" with title="Total Vehículos" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ total_vehiculos }}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Vehículos Activos" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ vehiculos_activos }}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Operatividad" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ pct_operatividad }}%
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Vehículos Inactivos" %}
+                    {% component "unfold/components/title.html" %}
+                        {{ vehiculos_inactivos }}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {% component "unfold/components/card.html" with title="Vehículos por Estatus" %}
+                    {% component "unfold/components/chart/bar.html" with data=vehiculo_estatus_chart height=320 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+
+                {% component "unfold/components/card.html" with title="Top 5 Estados por Flota" %}
+                    {% component "unfold/components/chart/bar.html" with data=flota_estado_chart height=320 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
             <div>
                 {% component "unfold/components/card.html" with title="Usuarios Recientes" %}
                     {% component "unfold/components/table.html" with table=users_table card_included=1 striped=1 %}
+                    {% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+            <div>
+                {% component "unfold/components/card.html" with title="Vehículos Recientes" %}
+                    {% component "unfold/components/table.html" with table=vehiculos_table card_included=1 striped=1 %}
                     {% endcomponent %}
                 {% endcomponent %}
             </div>

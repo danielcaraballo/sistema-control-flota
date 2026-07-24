@@ -125,6 +125,7 @@ class SistemaAfectado(models.Model):
 
 class EstatusVehiculo(models.Model):
     nombre = models.CharField(max_length=50, verbose_name="Nombre")
+    es_operativo = models.BooleanField(default=True, verbose_name="¿Es operativo?")
     estatus_activo = models.BooleanField(default=True, verbose_name="Estatus activo")
 
     class Meta:

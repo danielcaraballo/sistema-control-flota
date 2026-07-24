@@ -253,7 +253,7 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | `TipoUso` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `Color` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `SistemaAfectado` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
-| `EstatusVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
+| `EstatusVehiculo` | catalogos | `id`, `nombre`, `es_operativo`, `estatus_activo` | — | `nombre` |
 | `ColorPlaca` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
 | `TipoFalla` | catalogos | `id`, `descripcion`, `sistema_afectado_id` (null=True), `estatus_activo` | SistemaAfectado (on_delete=RESTRICT, null=True) | `descripcion` |
 | `ClaseVehiculo` | catalogos | `id`, `nombre`, `estatus_activo` | — | `nombre` |
@@ -300,5 +300,5 @@ Nota: Todos los `UNIQUE` son condicionales a `estatus_activo=True` mediante `Uni
 | Ver Ficha Técnica (QR) | ✅ Todo | ✅ Su Estado | ✅ Su Estado | ✅ Su Estado |
 | Generar Diagnóstico (Taller) | 🚧 | 🚧 | ❌ | 🚧 |
 | Cotizar / Aprobar OS | 🚧 | 🚧 | 🚧 | ❌ |
-| Dashboard | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton | 🟡 Skeleton |
+| Dashboard | ✅ KPIs+Chart | ✅ KPIs+Chart | ✅ KPIs+Chart | ✅ KPIs+Chart |
 | Reportes | 🚧 v2 | ❌ | ❌ | ❌ |

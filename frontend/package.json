@@ -21,6 +21,7 @@
     "primevue": "^4.5.5",
     "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.5.38",
+    "vue-chartjs": "^5.3.4",
     "vue-qrcode-reader": "^5.7.3",
     "vue-router": "^5.1.0"
   },
