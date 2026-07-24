@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import Button from 'primevue/button'
 import api from '@/services/api'
-import Skeleton from 'primevue/skeleton'
 import PageHeader from '@/components/PageHeader.vue'
 import KpiCard from '@/components/KpiCard.vue'
 import KpiTotalCard from '@/components/dashboard/KpiTotalCard.vue'
@@ -13,32 +13,82 @@ import { ROL_NACIONAL } from '@/utils/roles'
 
 const toast = useToast()
 const auth = useAuthStore()
-const loading = ref(true)
 const kpis = ref(null)
 const nacionalData = ref(null)
+const error = ref(false)
 
 const esNacional = computed(() => auth.tieneRol(ROL_NACIONAL))
 
+const kpisValidos = computed(() => {
+  if (!kpis.value) return false
+  const required = [
+    'total_vehiculos',
+    'porcentaje_operatividad',
+    'operativos',
+    'inactivos',
+    'completitud_promedio',
+    'estatus',
+  ]
+  return required.every((k) => k in kpis.value) && Array.isArray(kpis.value.estatus)
+})
+
+const nacionalDataValidos = computed(() => {
+  if (!nacionalData.value) return false
+  if (nacionalData.value.mejor_operatividad) {
+    if (
+      !(
+        'estado_nombre' in nacionalData.value.mejor_operatividad &&
+        'operatividad' in nacionalData.value.mejor_operatividad
+      )
+    )
+      return false
+  }
+  if (nacionalData.value.peor_operatividad) {
+    if (
+      !(
+        'estado_nombre' in nacionalData.value.peor_operatividad &&
+        'operatividad' in nacionalData.value.peor_operatividad
+      )
+    )
+      return false
+  }
+  return Array.isArray(nacionalData.value.resumen_estados)
+})
+
 async function loadDashboard() {
-  loading.value = true
+  error.value = false
   try {
     const calls = [api.get('/dashboard/kpis')]
     if (esNacional.value) {
       calls.push(api.get('/dashboard/nacional'))
     }
-    const [kpiRes, nacionalRes] = await Promise.all(calls)
-    kpis.value = kpiRes.data
-    nacionalData.value = nacionalRes?.data ?? null
-  } catch {
+    const results = await Promise.allSettled(calls)
+    const kpiResult = results[0]
+    if (kpiResult.status === 'fulfilled') {
+      kpis.value = kpiResult.value.data
+    } else {
+      throw kpiResult.reason
+    }
+    const nacionalResult = results[1]
+    if (nacionalResult && nacionalResult.status === 'fulfilled') {
+      nacionalData.value = nacionalResult.value.data
+    }
+  } catch (err) {
+    error.value = true
+    console.error('Error al cargar dashboard:', err)
     toast.add({
       severity: 'error',
       summary: 'Error',
       detail: 'No se pudo cargar el dashboard',
       life: 5000,
     })
-  } finally {
-    loading.value = false
   }
+}
+
+function retryDashboard() {
+  kpis.value = null
+  nacionalData.value = null
+  loadDashboard()
 }
 
 onMounted(loadDashboard)
@@ -48,20 +98,20 @@ onMounted(loadDashboard)
   <div class="max-w-[1200px]">
     <PageHeader title="Dashboard" subtitle="Resumen general de la flota" icon="pi pi-home" />
 
-    <template v-if="loading">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Skeleton class="h-[220px]" />
-        <Skeleton class="h-[220px]" />
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <Skeleton v-for="i in 3" :key="'r2-' + i" class="h-[100px]" />
-      </div>
-      <div class="mb-6">
-        <Skeleton class="h-[200px]" />
+    <template v-if="error">
+      <div class="border border-card-border rounded-md bg-card p-8 text-center">
+        <p class="text-muted-color mb-4">Error al cargar el dashboard</p>
+        <Button label="Reintentar" severity="secondary" size="small" @click="retryDashboard" />
       </div>
     </template>
 
-    <template v-else-if="kpis?.total_vehiculos > 0">
+    <template v-else-if="kpis === null">
+      <div class="border border-card-border rounded-md bg-card p-8 text-center text-muted-color">
+        Cargando...
+      </div>
+    </template>
+
+    <template v-else-if="kpisValidos && kpis.total_vehiculos > 0">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <KpiTotalCard
           :total="kpis.total_vehiculos"
@@ -77,9 +127,9 @@ onMounted(loadDashboard)
           title="Completitud promedio"
           :value="`${kpis.completitud_promedio}%`"
           icon="pi pi-check-circle"
-          color="info-color"
+          color="info"
         />
-        <template v-if="esNacional && nacionalData">
+        <template v-if="esNacional && nacionalDataValidos">
           <KpiCard
             v-if="nacionalData.mejor_operatividad"
             title="Mejor operatividad"
@@ -102,7 +152,7 @@ onMounted(loadDashboard)
         <div v-else class="lg:col-span-2" />
       </div>
 
-      <template v-if="esNacional && nacionalData?.resumen_estados?.length">
+      <template v-if="esNacional && nacionalDataValidos && nacionalData.resumen_estados.length">
         <div class="border border-card-border rounded-md bg-card p-5 mb-6">
           <h2 class="text-sm font-semibold text-muted-color uppercase tracking-wider mb-4">
             Comparativa por estado

@@ -14,7 +14,8 @@ async function loadEstados() {
   try {
     const { data } = await api.get('/organizacion/estados/?incluir_inactivos=true')
     estados.value = data
-  } catch {
+  } catch (err) {
+    console.error('Error al cargar estados:', err)
     toast.add({
       severity: 'error',
       summary: 'Error',

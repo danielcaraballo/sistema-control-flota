@@ -73,16 +73,19 @@ async function loadMarcas() {
   try {
     const { data } = await api.get('/catalogos/marcas/?incluir_inactivos=true')
     catalogoMarcas.value = data
-  } catch {}
+  } catch (err) {
+    console.error('Error al cargar marcas:', err)
+  }
 }
 
 async function loadSistemasAfectados() {
   try {
     const { data } = await api.get('/catalogos/sistemas-afectados/?incluir_inactivos=true')
     catalogoSistemas.value = data
-  } catch {}
+  } catch (err) {
+    console.error('Error al cargar sistemas afectados:', err)
+  }
 }
-
 onMounted(() => {
   loadMarcas()
   loadSistemasAfectados()

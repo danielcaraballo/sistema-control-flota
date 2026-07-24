@@ -31,7 +31,9 @@ function barWidth(cantidad) {
           class="w-2.5 h-2.5 rounded-full shrink-0"
           :style="{ backgroundColor: CARD_COLORS[i % CARD_COLORS.length] }"
         />
-        <span class="text-sm text-color flex-1 min-w-0 truncate capitalize">{{ e.nombre }}</span>
+        <span class="text-sm text-color flex-1 min-w-0 truncate capitalize">{{
+          e.nombre ?? ''
+        }}</span>
         <div class="flex items-center gap-2 flex-1 max-w-[200px]">
           <div
             class="flex-1 h-1.5 rounded-full overflow-hidden bg-[var(--p-surface-200)] dark:bg-[var(--p-surface-600)]"
@@ -46,7 +48,7 @@ function barWidth(cantidad) {
           </div>
         </div>
         <span class="text-sm font-semibold text-color shrink-0 w-10 text-right">{{
-          e.cantidad.toLocaleString()
+          (e.cantidad ?? 0).toLocaleString()
         }}</span>
       </div>
     </div>

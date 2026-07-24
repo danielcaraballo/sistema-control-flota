@@ -40,8 +40,7 @@ defineProps({
           'bg-orange-100 dark:bg-orange-900/25 text-orange-600 dark:text-orange-400':
             color === 'warn',
           'bg-red-100 dark:bg-red-900/25 text-red-600 dark:text-red-400': color === 'danger',
-          'bg-cyan-100 dark:bg-cyan-900/25 text-cyan-600 dark:text-cyan-400':
-            color === 'info-color',
+          'bg-cyan-100 dark:bg-cyan-900/25 text-cyan-600 dark:text-cyan-400': color === 'info',
         }"
       >
         <i :class="icon" class="text-base" />

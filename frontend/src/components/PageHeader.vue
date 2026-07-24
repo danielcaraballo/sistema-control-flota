@@ -9,11 +9,11 @@ defineProps({
 <template>
   <div class="flex justify-between items-start gap-4 mb-6">
     <div class="flex-1 min-w-0">
-      <h1 class="m-0 text-2xl font-semibold text-[var(--p-text-color)] flex items-center gap-2">
+      <h1 class="text-2xl font-semibold text-[var(--p-text-color)] flex items-center gap-2">
         <i v-if="icon" :class="icon" class="text-xl text-[var(--p-primary-color)]" />
         {{ title }}
       </h1>
-      <p v-if="subtitle" class="mt-1 text-sm text-muted-color m-0">{{ subtitle }}</p>
+      <p v-if="subtitle" class="mt-1 text-sm text-muted-color">{{ subtitle }}</p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
       <slot />
