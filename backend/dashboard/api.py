@@ -7,16 +7,12 @@ from ninja_jwt.authentication import JWTAuth
 
 from usuarios.models import Usuario
 from usuarios.roles import requiere_rol_minimo
-from vehiculos.models import Vehiculo
+from vehiculos.models import COMPLETITUD_FIELD_NAMES, Vehiculo
 
 from .schemas import (
-    AnioItem,
-    ChartsResponse,
-    EstadoDashboardItem,
     EstadoResumen,
     EstatusKPI,
     KPIsResponse,
-    MarcaItem,
     NacionalResponse,
 )
 
@@ -33,9 +29,12 @@ OPTIONAL_FIELDS = [
     ("unidad_usuaria", Q(unidad_usuaria__isnull=False)),
 ]
 
+REQUIRED_BASE = len(COMPLETITUD_FIELD_NAMES) - len(OPTIONAL_FIELDS)
+TOTAL_POSIBLE = len(COMPLETITUD_FIELD_NAMES)
+
 
 def _scoped_qs(request):
-    qs = Vehiculo.objects.all()
+    qs = Vehiculo.objects.filter(estatus_activo=True)
     user = request.auth
     if user.estado_id:
         qs = qs.filter(estado_id=user.estado_id)
@@ -43,9 +42,6 @@ def _scoped_qs(request):
 
 
 def _completitud_promedio(qs):
-    # Each vehicle starts with 12 base points (for always-required fields).
-    # Up to 8 optional fields can add 1 point each → max 20 points per vehicle.
-    # Formula: (12*total + filled_sum) / (20*total) * 100 → percentage.
     stats = qs.aggregate(
         total=Count("id"),
         **{f"cnt_{f}": Count("pk", filter=filtro) for f, filtro in OPTIONAL_FIELDS},
@@ -54,7 +50,7 @@ def _completitud_promedio(qs):
     if not total:
         return 0.0
     filled_sum = sum(stats[f"cnt_{f}"] for f, _ in OPTIONAL_FIELDS)
-    return round(((12 * total) + filled_sum) / (20 * total) * 100, 1)
+    return round(((REQUIRED_BASE * total) + filled_sum) / (TOTAL_POSIBLE * total) * 100, 1)
 
 
 @router.get("/kpis", response=KPIsResponse, auth=JWTAuth())
@@ -87,61 +83,13 @@ def kpis(request):
     )
 
 
-@router.get("/charts", response=ChartsResponse, auth=JWTAuth())
-@requiere_rol_minimo(Usuario.Rol.MECANICO)
-def charts(request):
-    qs = _scoped_qs(request)
-
-    por_estado = (
-        qs.values("estado_id", "estado__nombre")
-        .annotate(
-            total=Count("id"),
-            activos=Count("id", filter=Q(estatus__es_operativo=True, estatus_activo=True)),
-        )
-        .annotate(
-            inactivos=F("total") - F("activos"),
-            operatividad=Case(
-                When(total=0, then=Value(0.0)),
-                default=Cast(F("activos"), FloatField()) / Cast(F("total"), FloatField()) * 100.0,
-                output_field=FloatField(),
-            ),
-        )
-        .order_by("-total")
-    )
-
-    por_marca = (
-        qs.values("marca_id", "marca__nombre")
-        .annotate(cantidad=Count("id"))
-        .order_by("-cantidad")[:10]
-    )
-
-    por_anio = qs.values("anio").annotate(cantidad=Count("id")).order_by("anio")
-
-    return ChartsResponse(
-        por_estado=[
-            EstadoDashboardItem(
-                estado_nombre=e["estado__nombre"],
-                total=e["total"],
-                operatividad=round(e["operatividad"], 1),
-                activos=e["activos"],
-                inactivos=e["inactivos"],
-            )
-            for e in por_estado
-        ],
-        por_marca=[
-            MarcaItem(id=e["marca_id"], nombre=e["marca__nombre"], cantidad=e["cantidad"])
-            for e in por_marca
-        ],
-        por_anio=[AnioItem(anio=e["anio"], cantidad=e["cantidad"]) for e in por_anio],
-    )
-
-
 @router.get("/nacional", response=NacionalResponse, auth=JWTAuth())
 @requiere_rol_minimo(Usuario.Rol.NACIONAL)
 def nacional(request):
     # 1) Per-state totals and operatividad
     estado_stats = (
-        Vehiculo.objects.values("estado_id", "estado__nombre")
+        Vehiculo.objects.filter(estatus_activo=True)
+        .values("estado_id", "estado__nombre")
         .annotate(
             total=Count("id"),
             activos=Count("id", filter=Q(estatus__es_operativo=True, estatus_activo=True)),
@@ -163,7 +111,8 @@ def nacional(request):
 
     # 2) Per-state + per-status breakdown
     estado_estatus = (
-        Vehiculo.objects.values("estado_id", "estado__nombre", "estatus_id", "estatus__nombre")
+        Vehiculo.objects.filter(estatus_activo=True)
+        .values("estado_id", "estado__nombre", "estatus_id", "estatus__nombre")
         .annotate(cantidad=Count("id"))
         .order_by("estado__nombre", "-cantidad")
     )

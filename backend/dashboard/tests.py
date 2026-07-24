@@ -113,10 +113,6 @@ class TestDashboardKPIs(TestCase):
         response = client.get("/dashboard/kpis")
         self.assertEqual(response.status_code, 401)
 
-    def test_charts_unauthenticated(self):
-        response = client.get("/dashboard/charts")
-        self.assertEqual(response.status_code, 401)
-
     def test_nacional_unauthenticated(self):
         response = client.get("/dashboard/nacional")
         self.assertEqual(response.status_code, 401)
@@ -128,21 +124,23 @@ class TestDashboardKPIs(TestCase):
         response = client.get("/dashboard/kpis", headers=self.nac_headers)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total_vehiculos"], 6)
-        self.assertEqual(data["porcentaje_operatividad"], 50.0)
+        # Only 4 vehicles with estatus_activo=True
+        self.assertEqual(data["total_vehiculos"], 4)
+        self.assertEqual(data["porcentaje_operatividad"], 75.0)
         self.assertEqual(data["operativos"], 3)
-        self.assertEqual(data["inactivos"], 3)
+        self.assertEqual(data["inactivos"], 1)
         self.assertEqual(data["completitud_promedio"], 65.0)
         statuses = {s["nombre"]: s["cantidad"] for s in data["estatus"]}
         self.assertEqual(statuses["Operativo"], 3)
         self.assertEqual(statuses["En reparacion"], 1)
-        self.assertEqual(statuses["Inoperativo"], 2)
+
     def test_kpis_estatal_scoped(self):
         self._crear_data_basica()
         response = client.get("/dashboard/kpis", headers=self.est_headers)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total_vehiculos"], 4)
+        # Estado A has 3 vehicles with estatus_activo=True
+        self.assertEqual(data["total_vehiculos"], 3)
         self.assertIn("completitud_promedio", data)
 
     def test_kpis_mecanico_has_access(self):
@@ -150,7 +148,7 @@ class TestDashboardKPIs(TestCase):
         response = client.get("/dashboard/kpis", headers=self.mec_headers)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total_vehiculos"], 4)
+        self.assertEqual(data["total_vehiculos"], 3)
 
     def test_kpis_empty(self):
         response = client.get("/dashboard/kpis", headers=self.nac_headers)
@@ -162,49 +160,6 @@ class TestDashboardKPIs(TestCase):
         self.assertEqual(data["inactivos"], 0)
         self.assertEqual(data["completitud_promedio"], 0.0)
         self.assertEqual(data["estatus"], [])
-
-    # --- charts ---
-
-    def test_charts_nacional(self):
-        self._crear_data_basica()
-        response = client.get("/dashboard/charts", headers=self.nac_headers)
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        estados = {e["estado_nombre"]: e for e in data["por_estado"]}
-        self.assertEqual(estados["Estado A"]["total"], 4)
-        self.assertEqual(estados["Estado A"]["activos"], 2)
-        self.assertEqual(estados["Estado A"]["inactivos"], 2)
-        self.assertEqual(estados["Estado A"]["operatividad"], 50.0)
-        self.assertEqual(estados["Estado B"]["total"], 2)
-        self.assertEqual(estados["Estado B"]["activos"], 1)
-        self.assertEqual(estados["Estado B"]["inactivos"], 1)
-        self.assertEqual(estados["Estado B"]["operatividad"], 50.0)
-        # ordered by total desc
-        self.assertEqual(data["por_estado"][0]["estado_nombre"], "Estado A")
-        # new chart data
-        self.assertEqual(len(data["por_marca"]), 6)
-        self.assertEqual(len(data["por_anio"]), 1)
-        self.assertEqual(data["por_anio"][0]["anio"], 2024)
-        self.assertEqual(data["por_anio"][0]["cantidad"], 6)
-
-    def test_charts_estatal_scoped(self):
-        self._crear_data_basica()
-        response = client.get("/dashboard/charts", headers=self.est_headers)
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(len(data["por_estado"]), 1)
-        self.assertEqual(data["por_estado"][0]["estado_nombre"], "Estado A")
-        self.assertEqual(data["por_estado"][0]["total"], 4)
-        self.assertIn("por_marca", data)
-        self.assertIn("por_anio", data)
-
-    def test_charts_empty(self):
-        response = client.get("/dashboard/charts", headers=self.nac_headers)
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data["por_estado"], [])
-        self.assertEqual(data["por_marca"], [])
-        self.assertEqual(data["por_anio"], [])
 
     # --- nacional ---
 
@@ -218,34 +173,34 @@ class TestDashboardKPIs(TestCase):
         response = client.get("/dashboard/nacional", headers=self.nac_headers)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total_vehiculos"], 6)
+        self.assertEqual(data["total_vehiculos"], 4)
         self.assertEqual(data["total_estados_con_vehiculos"], 2)
         self.assertEqual(len(data["resumen_estados"]), 2)
 
         estados = {r["estado_nombre"]: r for r in data["resumen_estados"]}
-        # Estado A: 4 total, 2 operativos, 2 inactivos, 50%
-        self.assertEqual(estados["Estado A"]["total"], 4)
+        # Estado A: 3 total, 2 operativos, 1 inactivo, 66.7%
+        self.assertEqual(estados["Estado A"]["total"], 3)
         self.assertEqual(estados["Estado A"]["activos"], 2)
-        self.assertEqual(estados["Estado A"]["inactivos"], 2)
-        self.assertEqual(estados["Estado A"]["operatividad"], 50.0)
+        self.assertEqual(estados["Estado A"]["inactivos"], 1)
+        self.assertEqual(estados["Estado A"]["operatividad"], 66.7)
         self.assertEqual(
             {s["nombre"] for s in estados["Estado A"]["estatus"]},
-            {"Operativo", "En reparacion", "Inoperativo"},
+            {"Operativo", "En reparacion"},
         )
-        # Estado B: 2 total, 1 activo, 1 inactivo, 50%
-        self.assertEqual(estados["Estado B"]["total"], 2)
+        # Estado B: 1 total, 1 activo, 0 inactivo, 100%
+        self.assertEqual(estados["Estado B"]["total"], 1)
         self.assertEqual(estados["Estado B"]["activos"], 1)
-        self.assertEqual(estados["Estado B"]["inactivos"], 1)
-        self.assertEqual(estados["Estado B"]["operatividad"], 50.0)
+        self.assertEqual(estados["Estado B"]["inactivos"], 0)
+        self.assertEqual(estados["Estado B"]["operatividad"], 100.0)
         self.assertEqual(
             {s["nombre"] for s in estados["Estado B"]["estatus"]},
-            {"Operativo", "Inoperativo"},
+            {"Operativo"},
         )
-        # mejor / peor (both at 50.0, Estado A is first in order)
-        self.assertEqual(data["mejor_operatividad"]["estado_nombre"], "Estado A")
-        self.assertEqual(data["mejor_operatividad"]["operatividad"], 50.0)
+        # mejor / peor
+        self.assertEqual(data["mejor_operatividad"]["estado_nombre"], "Estado B")
+        self.assertEqual(data["mejor_operatividad"]["operatividad"], 100.0)
         self.assertEqual(data["peor_operatividad"]["estado_nombre"], "Estado A")
-        self.assertEqual(data["peor_operatividad"]["operatividad"], 50.0)
+        self.assertEqual(data["peor_operatividad"]["operatividad"], 66.7)
 
     def test_nacional_empty(self):
         response = client.get("/dashboard/nacional", headers=self.nac_headers)
@@ -263,7 +218,7 @@ class TestDashboardKPIs(TestCase):
         response = client.get("/dashboard/nacional", headers=self.nac_headers)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["total_vehiculos"], 2)
+        self.assertEqual(data["total_vehiculos"], 1)
         self.assertEqual(data["total_estados_con_vehiculos"], 1)
         self.assertEqual(len(data["resumen_estados"]), 1)
         # same state is both best and worst

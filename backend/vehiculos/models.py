@@ -1,6 +1,13 @@
 from django.db import models
 from django.db.models import Q
 
+COMPLETITUD_FIELD_NAMES = [
+    "numero_economico", "vin", "placa", "color_placa", "placa_intt",
+    "serial_motor", "numero_unidad", "categoria", "clase", "tipo_combustible",
+    "tipo_uso", "marca", "modelo", "anio", "color", "estatus",
+    "estado", "gerencia", "unidad_usuaria", "emplazamiento",
+]
+
 
 class Vehiculo(models.Model):
     numero_economico = models.CharField(
@@ -86,28 +93,5 @@ class Vehiculo(models.Model):
 
     @property
     def porcentaje_completado(self):
-        contados = sum(
-            [
-                bool(self.numero_economico),
-                bool(self.vin),
-                bool(self.placa),
-                bool(self.color_placa_id),
-                bool(self.placa_intt),
-                bool(self.serial_motor),
-                bool(self.numero_unidad),
-                bool(self.categoria_id),
-                bool(self.clase_id),
-                bool(self.tipo_combustible_id),
-                bool(self.tipo_uso_id),
-                bool(self.marca_id),
-                bool(self.modelo_id),
-                bool(self.anio),
-                bool(self.color_id),
-                bool(self.estatus_id),
-                bool(self.estado_id),
-                bool(self.gerencia_id),
-                bool(self.unidad_usuaria_id),
-                bool(self.emplazamiento_id),
-            ]
-        )
-        return round(contados / 20 * 100)
+        contados = sum(bool(getattr(self, name)) for name in COMPLETITUD_FIELD_NAMES)
+        return round(contados / len(COMPLETITUD_FIELD_NAMES) * 100)

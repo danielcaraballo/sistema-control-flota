@@ -7,17 +7,6 @@ class EstatusKPI(Schema):
     cantidad: int
 
 
-class MarcaItem(Schema):
-    id: int
-    nombre: str
-    cantidad: int
-
-
-class AnioItem(Schema):
-    anio: int
-    cantidad: int
-
-
 class KPIsResponse(Schema):
     total_vehiculos: int
     porcentaje_operatividad: float
@@ -37,12 +26,6 @@ class EstadoDashboardItem(Schema):
 
 class EstadoResumen(EstadoDashboardItem):
     estatus: list[EstatusKPI]
-
-
-class ChartsResponse(Schema):
-    por_estado: list[EstadoDashboardItem]
-    por_marca: list[MarcaItem]
-    por_anio: list[AnioItem]
 
 
 class NacionalResponse(Schema):

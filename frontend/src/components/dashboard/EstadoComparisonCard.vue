@@ -39,9 +39,7 @@ const barBg = computed(() => {
       <div class="flex items-center gap-3 mt-1 text-xs text-muted-color">
         <span>{{ estado.total }} vehículos</span>
         <span class="text-green-600"> {{ estado.activos }} operativos </span>
-        <span v-if="estado.inactivos > 0" class="text-red-600">
-          {{ estado.inactivos }} inactivos
-        </span>
+        <span class="text-red-600"> {{ estado.inactivos }} inactivos </span>
       </div>
     </div>
   </div>

@@ -19,41 +19,9 @@ const error = ref(false)
 
 const esNacional = computed(() => auth.tieneRol(ROL_NACIONAL))
 
-const kpisValidos = computed(() => {
-  if (!kpis.value) return false
-  const required = [
-    'total_vehiculos',
-    'porcentaje_operatividad',
-    'operativos',
-    'inactivos',
-    'completitud_promedio',
-    'estatus',
-  ]
-  return required.every((k) => k in kpis.value) && Array.isArray(kpis.value.estatus)
-})
+const kpisValidos = computed(() => kpis.value && kpis.value.total_vehiculos !== undefined)
 
-const nacionalDataValidos = computed(() => {
-  if (!nacionalData.value) return false
-  if (nacionalData.value.mejor_operatividad) {
-    if (
-      !(
-        'estado_nombre' in nacionalData.value.mejor_operatividad &&
-        'operatividad' in nacionalData.value.mejor_operatividad
-      )
-    )
-      return false
-  }
-  if (nacionalData.value.peor_operatividad) {
-    if (
-      !(
-        'estado_nombre' in nacionalData.value.peor_operatividad &&
-        'operatividad' in nacionalData.value.peor_operatividad
-      )
-    )
-      return false
-  }
-  return Array.isArray(nacionalData.value.resumen_estados)
-})
+const nacionalDataValidos = computed(() => Array.isArray(nacionalData.value?.resumen_estados))
 
 async function loadDashboard() {
   error.value = false
@@ -149,7 +117,6 @@ onMounted(loadDashboard)
             color="danger"
           />
         </template>
-        <div v-else class="lg:col-span-2" />
       </div>
 
       <template v-if="esNacional && nacionalDataValidos && nacionalData.resumen_estados.length">
