@@ -73,7 +73,7 @@ onUnmounted(() => {
             { icon: 'pi pi-desktop', label: 'Sistema', value: 'system' },
           ]"
           :key="opt.value"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-sm transition-colors cursor-pointer"
+          class="flex-1 flex flex-col items-center justify-center gap-0.5 px-1 py-2 text-sm transition-colors cursor-pointer"
           :class="
             themeMode === opt.value
               ? 'bg-primary text-primary-contrast font-medium'

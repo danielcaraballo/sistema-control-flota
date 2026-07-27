@@ -63,7 +63,7 @@ onMounted(loadDashboard)
 </script>
 
 <template>
-  <div class="max-w-[1200px]">
+  <div class="w-full">
     <PageHeader title="Dashboard" subtitle="Resumen general de la flota" icon="pi pi-home" />
 
     <template v-if="error">

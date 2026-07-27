@@ -250,11 +250,11 @@ watch(
             </small>
           </div>
           <div class="col-span-2 grid grid-cols-3 gap-x-4">
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1 min-w-0">
               <label class="text-sm font-semibold">Año <span class="text-red-500">*</span></label>
               <InputNumber
                 v-model="localForm.anio"
-                class="w-full"
+                fluid
                 :useGrouping="false"
                 :min="1900"
                 :max="maxAnio"

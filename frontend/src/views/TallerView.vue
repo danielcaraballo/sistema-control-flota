@@ -3,7 +3,7 @@ import PageHeader from '@/components/PageHeader.vue'
 </script>
 
 <template>
-  <div class="max-w-[1200px]">
+  <div class="w-full">
     <PageHeader
       title="Taller"
       subtitle="Módulo operativo de taller y mantenimiento"
