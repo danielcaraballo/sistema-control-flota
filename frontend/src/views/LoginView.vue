@@ -3,6 +3,19 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useTheme } from '@/composables/useTheme'
+import { isDemoMode } from '@/utils/demo'
+import { demoLogin as _demoLogin } from '@/services/demo'
+
+async function handleDemoLogin() {
+  demoLoading.value = true
+  try {
+    await _demoLogin()
+  } catch {
+    error.value = 'Error al iniciar sesión como demo'
+  } finally {
+    demoLoading.value = false
+  }
+}
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
@@ -24,6 +37,7 @@ const loading = ref(false)
 const rememberMe = ref(localStorage.getItem('remember_me') === 'true')
 const showCard = ref(false)
 const submitted = ref(false)
+const demoLoading = ref(false)
 
 const credentialError = computed(() => {
   if (!submitted.value) return ''
@@ -177,6 +191,25 @@ async function handleLogin() {
               icon="pi pi-sign-in"
               class="w-full"
               :loading="loading"
+            />
+
+            <div v-if="isDemoMode && !loading" class="relative my-4">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-surface-300 dark:border-surface-600" />
+              </div>
+              <div class="relative flex justify-center text-xs">
+                <span class="bg-[var(--scf-page-bg)] px-2 text-muted-color">o</span>
+              </div>
+            </div>
+
+            <Button
+              v-if="isDemoMode && !loading"
+              label="Entrar como demo"
+              icon="pi pi-play"
+              severity="secondary"
+              class="w-full"
+              :loading="demoLoading"
+              @click="handleDemoLogin"
             />
 
             <div v-if="loading" class="absolute inset-0 cursor-wait rounded-xl" />

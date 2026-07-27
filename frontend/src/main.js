@@ -11,6 +11,7 @@ import './assets/main.css'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
+import { isDemoMode } from './utils/demo'
 
 const ScfPreset = definePreset(Aura, {
   semantic: {
@@ -69,6 +70,11 @@ updateSurfacePalette({
 })
 
 async function startApp() {
+  if (isDemoMode) {
+    const { worker } = await import('./mocks/browser')
+    await worker.start({ onUnhandledRequest: 'bypass' })
+  }
+
   if (auth.token) {
     await auth.initialize()
   }

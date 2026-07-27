@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { rolLabel, ROL_NACIONAL } from '@/utils/roles'
+import { isDemoMode } from '@/utils/demo'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import UserDropdown from '@/components/UserDropdown.vue'
@@ -18,7 +19,6 @@ const showScanner = ref(false)
 function onScanned(vehicleId) {
   router.push(`/vehiculos/${vehicleId}`)
 }
-
 const sidebarCollapsed = ref(false)
 const mobileOpen = ref(false)
 const isMobile = ref(false)
@@ -185,6 +185,13 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           v-tooltip.bottom="isMobile ? 'Menú' : 'Colapsar sidebar'"
         />
         <span class="text-sm font-medium text-muted-color">Sistema de Control de Flota</span>
+        <span
+          v-if="isDemoMode"
+          class="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400"
+        >
+          <i class="pi pi-code text-amber-500 text-xs" />
+          Demo
+        </span>
         <div class="flex-1" />
         <Button
           icon="pi pi-camera"
