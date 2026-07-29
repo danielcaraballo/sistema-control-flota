@@ -9,8 +9,6 @@
 
 Sistema web para la gestión centralizada del inventario de flota vehicular. Permite registrar, consultar y mantener fichas técnicas de vehículos con generación de códigos QR, control de acceso por roles (RBAC), catálogos configurables y estructura organizativa jerárquica por estados y gerencias.
 
-> 🚧 **Estado del proyecto:** SCF se encuentra en una fase temprana de desarrollo activo. La arquitectura, API y flujos de trabajo pueden experimentar cambios significativos mientras evolucionamos hacia una versión estable.
-
 ## Stack
 
 | Capa | Tecnología |
@@ -22,7 +20,7 @@ Sistema web para la gestión centralizada del inventario de flota vehicular. Per
 
 Versiones exactas y dependencias adicionales en [`docs/architecture.md`](docs/architecture.md).
 
-## Funcionalidades actuales (v0.10.0)
+## Funcionalidades actuales (v0.12.0)
 
 - Autenticación JWT (login, refresh, perfil, cambio de contraseña)
 - CRUD de usuarios con 4 roles jerárquicos (RBAC) y asignación por estado

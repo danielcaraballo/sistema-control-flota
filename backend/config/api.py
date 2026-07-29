@@ -10,7 +10,7 @@ from vehiculos.api import router as vehiculos_router
 
 api = NinjaAPI(
     title="SCF - Sistema de Control de Flota",
-    version="1.0.0",
+    version="0.12.0",
     description="API del Sistema de Control de Flota (SCF).",
     auth=JWTAuth(),
 )

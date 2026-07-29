@@ -1,6 +1,11 @@
 # Changelog
 
-## v1.2.0 — 2026-07-23
+Todas las cambios notables de este proyecto se documentan aquí.
+
+El formato sigue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+y este proyecto se adhiere a [SemVer](https://semver.org/spec/v2.0.0.html).
+
+## v0.12.0 — 2026-07-23
 
 ### Added
 - `GET /dashboard/nacional`: nuevo endpoint solo NACIONAL con comparativa completa por estado (total, operatividad, activos/inactivos, breakdown por estatus, mejor/peor estado)
@@ -18,8 +23,6 @@
 - Dashboard: la operatividad ahora refleja el estado real de la flota. Se agregó `EstatusVehiculo.es_operativo` (BooleanField, default=True) para que el admin configure qué estatus cuentan como operativos. El cálculo cambió de `estatus_activo=True` (soft-delete) a `estatus__es_operativo=True AND estatus_activo=True` en todos los endpoints.
 - Admin de EstatusVehiculo: campo `es_operativo` editable inline en changelist
 
-Tests: 135
-
 ## v0.11.0 — 2026-07-22
 
 ### Changed
@@ -30,10 +33,8 @@ Tests: 135
 ### Removed
 - `AGENTS.md` del control de versiones (`.gitignore` + `git rm --cached`)
 
-### Docs
+### Changed
 - Creado `docs/structure.md` con el árbol completo del proyecto
-
-Tests: 121
 
 ## v0.10.0 — 2026-07-20
 
@@ -43,14 +44,12 @@ Tests: 121
 - Knob de PrimeVue en detalle del vehículo con colores según rango (rojo <50%, amarillo 50-79%, verde ≥80%)
 - Columna ordenable "Ficha" con Knob en lista de vehículos
 
-Tests: 121
-
 ## v0.9.0 — 2026-07-16
 
 ### Removed
 - `backend/seeds/` por completo (management command, loaders, JSONs)
 
-### Docs
+### Changed
 - `AGENTS.md`: removidas referencias a seed_data
 - README: actualizado con opciones de población de BD
 
@@ -65,8 +64,6 @@ Tests: 121
 - DataTable convertido a modo `lazy` — carga solo la página actual desde el servidor
 - Búsqueda con debounce de 350ms y filtros rápidos por Estado y Estatus
 
-Tests: 18
-
 ## v0.7.0 — 2026-07-08
 
 ### Added
@@ -78,20 +75,16 @@ Tests: 18
 - Reportes cambiado de `ROL_ANALISTA` a `ROL_NACIONAL` (router + sidebar)
 - String literal `'nacional'` reemplazado por constante `ROL_NACIONAL` en `VehiculosView.vue`
 
-### Docs
+### Changed
 - NFR-02 marcado con 🚧 para restricción de texto libre en taller
-
-Tests: 113
 
 ## v0.6.2 — 2026-07-05
 
 ### Fixed
 - Import dinámico inefectivo en `api.js`: reemplazado por import estático para eliminar warning `INEFFECTIVE_DYNAMIC_IMPORT` de Vite
 
-### Docs
+### Changed
 - Convención de commits (español, Conventional Commits) documentada en `AGENTS.md`
-
-Tests: 113
 
 ## v0.6.1 — 2026-07-05
 
@@ -105,8 +98,6 @@ Tests: 113
 - Modelos migrados de `unique_together` a `UniqueConstraint(condition=Q(estatus_activo=True))` — permite reciclar nombres soft-deleteados sin IntegrityError
 - `numero_economico` y `vin` mantienen `unique=True` (identificadores reales, únicos permanentemente)
 
-Tests: 113
-
 ## v0.6.0 — 2026-07-05
 
 ### Added
@@ -118,8 +109,6 @@ Tests: 113
 
 ### Changed
 - Hover en filas DataTable, dialogs sin scroll, stepper alineado a la izquierda
-
-Tests: 154
 
 ## v0.5.2 — 2026-07-03
 
@@ -159,16 +148,12 @@ Tests: 154
 - `CatalogoTabContent.vue`: componente reutilizable para CRUD de catálogos
 - `CatalogosView` con TabView de 7 pestañas
 
-Tests: 35
-
 ## v0.3.0 — 2026-06-20/22
 
 ### Added
 - Integración django-unfold con dashboard de KPIs y charts
 - CRUD completo de usuarios con reset de contraseña
 - Endpoint `POST /usuarios/{id}/reset-password`
-
-Tests: 31
 
 ## v0.2.0 — 2026-06-18/20
 
@@ -177,12 +162,10 @@ Tests: 31
 - dj-database-url en vez de parsing manual de `DATABASE_URL`
 - Migración a uv + ruff (reemplaza pip + flake8 + black)
 
-### Docs
+### Changed
 - `docs/architecture.md` con C4, DER, APIs, ADRs
 - README con badges, estructura, tabla de features
 - ESLint + Prettier config en frontend
-
-Tests: 16
 
 ## v0.1.1 — 2026-06-17
 
@@ -200,7 +183,3 @@ Tests: 16
 - CRUD de usuarios con permisos por rol
 - Sidebar dinámico según rol del usuario
 - LoginView, UsuariosView, DashboardView (skeleton)
-
----
-
-**Tests acumulados:** 121 · **Linter:** 0 warnings (Ruff)

@@ -218,7 +218,7 @@ async function handleLogin() {
       </div>
 
       <div class="pt-6 text-center text-xs text-muted-color">
-        <p>&copy; 2026 SCF &middot; Desarrollado por Daniel Caraballo &middot; v1.0.0</p>
+        <p>&copy; 2026 SCF &middot; Desarrollado por Daniel Caraballo &middot; v0.12.0</p>
       </div>
     </div>
   </div>

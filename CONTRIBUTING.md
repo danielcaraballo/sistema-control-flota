@@ -66,11 +66,23 @@ feat/*     ●─●      ●─●      ●─●
 
 ```bash
 # Desde main actualizado
-git tag -a v1.0.0 -m "v1.0.0 — Gestión de Inventario de Flota"
-git push origin v1.0.0
+git tag -a v0.12.0 -m "v0.12.0"
+git push origin v0.12.0
 ```
 
 Luego crear GitHub Release desde el tag, usando el changelog como descripción.
+
+## Versionado
+
+Este proyecto sigue [SemVer 2.0.0](https://semver.org/).
+
+- **v0.x.x** — desarrollo activo. Breaking changes permitidos sin MAJOR bump.
+- **v1.x.x+** — API pública estable. Breaking changes solo en MAJOR.
+- **Regla de consistencia:** la versión debe ser idéntica en `CHANGELOG.md`,
+  `backend/pyproject.toml`, `backend/config/api.py`, `frontend/package.json`,
+  `frontend/src/views/LoginView.vue` y `README.md`.
+- **Pre-release:** antes de taggear, verificar que todos los artefactos anteriores
+  tengan el mismo número.
 
 ## Commits
 
