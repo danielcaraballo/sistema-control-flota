@@ -71,8 +71,15 @@ updateSurfacePalette({
 
 async function startApp() {
   if (isDemoMode) {
-    const { worker } = await import('./mocks/browser')
-    await worker.start({ onUnhandledRequest: 'bypass' })
+    try {
+      const { worker } = await import('./mocks/browser')
+      await worker.start({ onUnhandledRequest: 'bypass' })
+    } catch (e) {
+      console.warn(
+        '[MSW] No se pudo iniciar el service worker. Las peticiones API se enviarán al servidor real.',
+        e,
+      )
+    }
   }
 
   if (auth.token) {
