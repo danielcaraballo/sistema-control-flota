@@ -35,6 +35,7 @@ sistema-control-flota/
 │   ├── manage.py
 │   └── pyproject.toml
 ├── frontend/
+│   ├── public/                    # Static assets + MSW service worker
 │   ├── src/
 │   │   ├── layouts/               # DefaultLayout (sidebar dinámico por rol)
 │   │   ├── views/                 # Dashboard, Login, Usuarios, Vehículos, etc.
@@ -42,13 +43,17 @@ sistema-control-flota/
 │   │   ├── composables/           # useTheme (dark/light/system)
 │   │   ├── stores/                # Pinia store (auth)
 │   │   ├── services/              # Axios client + interceptors
+│   │   ├── mocks/                 # MSW handlers + data (demo mode)
 │   │   ├── utils/                 # roles.js (constantes + helpers)
 │   │   └── router/                # Vue Router + guards
+│   ├── vercel.json
 │   └── package.json
 ├── docs/
 │   ├── architecture.md            # C4, stack, ADRs, NFRs
 │   ├── database.md                # DER, data dictionary, RBAC
+│   ├── design-system.md           # Tipografía, componentes, colores
 │   └── structure.md               # Este archivo
+├── Makefile                       # Comandos dev, test, lint, format, setup
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 └── README.md
