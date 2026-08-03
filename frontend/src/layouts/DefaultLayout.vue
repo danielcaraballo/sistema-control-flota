@@ -18,14 +18,17 @@ const userDropdownRef = ref()
 const dropdownOpen = ref(false)
 const showScanner = ref(false)
 const showIosModal = ref(false)
+const showAndroidModal = ref(false)
 
-const { canInstall, isInstalled, promptInstall } = usePwaInstall()
+const { canInstall, isInstalled, isIos, promptInstall } = usePwaInstall()
 
 function handleInstallPwa() {
   if (canInstall.value) {
     promptInstall()
-  } else {
+  } else if (isIos.value) {
     showIosModal.value = true
+  } else {
+    showAndroidModal.value = true
   }
 }
 
@@ -156,8 +159,8 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           </a>
         </template>
 
-        <!-- PWA Installation Option -->
-        <div v-if="!isInstalled" class="px-3 pt-4">
+        <!-- PWA Installation Option (Móvil) -->
+        <div v-if="!isInstalled && isMobile" class="px-3 pt-4">
           <button
             type="button"
             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-semibold cursor-pointer"
@@ -347,6 +350,46 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
     </div>
     <template #footer>
       <Button label="Entendido" severity="primary" size="small" @click="showIosModal = false" />
+    </template>
+  </Dialog>
+
+  <!-- Modal explicativo para instalación en Android / Chrome -->
+  <Dialog
+    v-model:visible="showAndroidModal"
+    header="Instalar App en Android"
+    modal
+    :style="{ width: 'min(400px, calc(100vw - 1.5rem))' }"
+    :draggable="false"
+  >
+    <div class="flex flex-col gap-4 text-sm py-1">
+      <p class="text-muted-color">
+        Para agregar <strong class="text-color">Sistema de Control de Flota</strong> a tu pantalla
+        de inicio en Android:
+      </p>
+      <div class="flex items-start gap-3 p-3 rounded-md bg-card-hover border border-card-border">
+        <span
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-primary-contrast font-bold text-xs shrink-0"
+          >1</span
+        >
+        <div>
+          Toca el menú de opciones <strong class="text-color">(⋮)</strong> en la parte superior
+          derecha de tu navegador Chrome.
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-md bg-card-hover border border-card-border">
+        <span
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-primary-contrast font-bold text-xs shrink-0"
+          >2</span
+        >
+        <div>
+          Selecciona
+          <strong class="text-color">"Añadir a la pantalla de inicio"</strong> o
+          <strong class="text-color">"Instalar aplicación"</strong>.
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <Button label="Entendido" severity="primary" size="small" @click="showAndroidModal = false" />
     </template>
   </Dialog>
 </template>

@@ -4,6 +4,7 @@ const deferredPrompt = ref(null)
 const canInstall = ref(false)
 const isInstalled = ref(false)
 const isIos = ref(false)
+const isAndroid = ref(false)
 
 export function usePwaInstall() {
   function checkStandalone() {
@@ -12,9 +13,10 @@ export function usePwaInstall() {
       window.navigator.standalone === true
   }
 
-  function checkIos() {
+  function checkPlatform() {
     const userAgent = window.navigator.userAgent.toLowerCase()
     isIos.value = /iphone|ipad|ipod/.test(userAgent) && !window.MSStream
+    isAndroid.value = /android/.test(userAgent)
   }
 
   function onBeforeInstallPrompt(e) {
@@ -31,7 +33,7 @@ export function usePwaInstall() {
 
   onMounted(() => {
     checkStandalone()
-    checkIos()
+    checkPlatform()
     window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
     window.addEventListener('appinstalled', onAppInstalled)
   })
@@ -56,6 +58,7 @@ export function usePwaInstall() {
     canInstall,
     isInstalled,
     isIos,
+    isAndroid,
     promptInstall,
   }
 }
