@@ -309,8 +309,8 @@ async function openNew() {
   form.value = initialForm()
   formSnapshot.value = JSON.parse(JSON.stringify(form.value))
   submitted.value = false
-  await ensureCatalogos()
   showDialog.value = true
+  await ensureCatalogos()
 }
 
 async function openEdit(vehiculo) {
@@ -341,8 +341,8 @@ async function openEdit(vehiculo) {
   }
   formSnapshot.value = JSON.parse(JSON.stringify(form.value))
   submitted.value = false
-  await ensureCatalogos()
   showDialog.value = true
+  await ensureCatalogos()
 }
 
 function validarFormulario(f) {
@@ -759,9 +759,6 @@ onMounted(async () => {
 }
 :deep(.p-datatable-tbody) tr:active {
   filter: brightness(0.92);
-}
-:deep(.p-datatable-tbody) tr:focus-visible {
-  outline: 2px solid var(--p-primary-color);
 }
 :deep(.p-datatable-tbody) tr:focus-visible {
   outline: 2px solid var(--p-primary-color);

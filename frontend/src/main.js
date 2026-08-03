@@ -82,9 +82,7 @@ async function startApp() {
     }
   }
 
-  if (auth.token) {
-    await auth.initialize()
-  }
+  await auth.initialize()
   app.mount('#app')
 }
 
