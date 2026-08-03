@@ -80,7 +80,7 @@ onMounted(loadDashboard)
     </template>
 
     <template v-else-if="kpisValidos && kpis.total_vehiculos > 0">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 sm:mb-6">
         <KpiTotalCard
           :total="kpis.total_vehiculos"
           :porcentaje="kpis.porcentaje_operatividad"
@@ -90,7 +90,7 @@ onMounted(loadDashboard)
         <StatusCard :estatus="kpis.estatus" :total="kpis.total_vehiculos" />
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <KpiCard
           title="Completitud promedio"
           :value="`${kpis.completitud_promedio}%`"

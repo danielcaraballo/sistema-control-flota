@@ -22,11 +22,13 @@ const pctBg = computed(() => {
 </script>
 
 <template>
-  <div class="border border-card-border rounded-md bg-card p-6 h-full flex flex-col">
-    <div class="text-5xl font-bold leading-none text-[var(--p-text-color)]">
+  <div class="border border-card-border rounded-md bg-card p-4 sm:p-6 h-full flex flex-col">
+    <div class="text-4xl sm:text-5xl font-bold leading-none text-[var(--p-text-color)]">
       {{ total.toLocaleString() }}
     </div>
-    <div class="text-sm font-semibold text-muted-color uppercase tracking-wider mt-1 mb-5">
+    <div
+      class="text-xs sm:text-sm font-semibold text-muted-color uppercase tracking-wider mt-1 mb-4 sm:mb-5"
+    >
       Vehículos registrados
     </div>
 
@@ -35,7 +37,7 @@ const pctBg = computed(() => {
     >
       <div>
         <div class="flex items-baseline gap-2 mb-1.5">
-          <span class="text-2xl font-bold leading-none" :style="{ color: pctColor }">
+          <span class="text-xl sm:text-2xl font-bold leading-none" :style="{ color: pctColor }">
             {{ porcentaje }}%
           </span>
           <span class="text-xs text-muted-color">de operatividad</span>
@@ -48,17 +50,17 @@ const pctBg = computed(() => {
         </div>
       </div>
 
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
         <div class="flex items-center gap-2">
           <div class="w-2.5 h-2.5 rounded-full bg-[var(--p-green-500)] shrink-0" />
-          <span class="text-sm">
+          <span class="text-xs sm:text-sm">
             <strong class="text-[var(--p-green-500)]">{{ operativos.toLocaleString() }}</strong>
             <span class="text-muted-color ml-1">operativos</span>
           </span>
         </div>
         <div class="flex items-center gap-2">
           <div class="w-2.5 h-2.5 rounded-full bg-[var(--p-red-500)] shrink-0" />
-          <span class="text-sm">
+          <span class="text-xs sm:text-sm">
             <strong class="text-[var(--p-red-500)]">{{ inactivos.toLocaleString() }}</strong>
             <span class="text-muted-color ml-1">inactivos</span>
           </span>

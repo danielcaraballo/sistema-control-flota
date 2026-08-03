@@ -36,10 +36,10 @@ const barBg = computed(() => {
           :style="{ width: Math.min(estado.operatividad, 100) + '%' }"
         />
       </div>
-      <div class="flex items-center gap-3 mt-1 text-xs text-muted-color">
+      <div class="flex items-center gap-2 sm:gap-3 mt-1.5 text-xs text-muted-color flex-wrap">
         <span>{{ estado.total }} vehículos</span>
-        <span class="text-green-600"> {{ estado.activos }} operativos </span>
-        <span class="text-red-600"> {{ estado.inactivos }} inactivos </span>
+        <span class="text-green-600 font-medium"> {{ estado.activos }} operativos </span>
+        <span class="text-red-600 font-medium"> {{ estado.inactivos }} inactivos </span>
       </div>
     </div>
   </div>
