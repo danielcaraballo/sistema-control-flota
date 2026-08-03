@@ -19,13 +19,13 @@ const dropdownOpen = ref(false)
 const showScanner = ref(false)
 const showIosModal = ref(false)
 
-const { canInstall, isInstalled, isIos, promptInstall } = usePwaInstall()
+const { canInstall, isInstalled, promptInstall } = usePwaInstall()
 
 function handleInstallPwa() {
-  if (isIos.value) {
-    showIosModal.value = true
-  } else {
+  if (canInstall.value) {
     promptInstall()
+  } else {
+    showIosModal.value = true
   }
 }
 
@@ -157,7 +157,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
         </template>
 
         <!-- PWA Installation Option -->
-        <div v-if="!isInstalled && (canInstall || isIos)" class="px-3 pt-4">
+        <div v-if="!isInstalled" class="px-3 pt-4">
           <button
             type="button"
             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-semibold cursor-pointer"

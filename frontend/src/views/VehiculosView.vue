@@ -701,7 +701,7 @@ onMounted(async () => {
       :style="{ width: 'min(780px, calc(100vw - 1rem))', maxHeight: '90vh' }"
       :closable="true"
       :draggable="false"
-      :pt="{ content: { class: 'overflow-hidden' } }"
+      :pt="{ content: { class: 'overflow-y-auto max-h-[65vh] sm:max-h-[70vh] p-3 sm:p-4' } }"
     >
       <VehiculoFormStepper
         v-model:active-index="activeIndex"
