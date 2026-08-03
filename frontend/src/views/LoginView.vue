@@ -5,6 +5,12 @@ import { useAuthStore } from '@/stores/auth'
 import { useTheme } from '@/composables/useTheme'
 import { isDemoMode } from '@/utils/demo'
 import { demoLogin as _demoLogin } from '@/services/demo'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Message from 'primevue/message'
+import Checkbox from 'primevue/checkbox'
+import FloatLabel from 'primevue/floatlabel'
 
 async function handleDemoLogin() {
   demoLoading.value = true
@@ -16,12 +22,6 @@ async function handleDemoLogin() {
     demoLoading.value = false
   }
 }
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
-import Message from 'primevue/message'
-import Checkbox from 'primevue/checkbox'
-import FloatLabel from 'primevue/floatlabel'
 
 const router = useRouter()
 const route = useRoute()
