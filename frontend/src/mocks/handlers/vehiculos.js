@@ -1,8 +1,13 @@
 import { http, HttpResponse } from 'msw'
+import QRCode from 'qrcode'
 import vehiculosData from '../data/vehiculos'
 
 let vehiculos = [...vehiculosData]
 let nextId = 100
+
+async function qrDataUri(id) {
+  return QRCode.toDataURL(`${window.location.origin}/vehiculos/${id}`, { width: 260 })
+}
 
 function paginate(items, limit, offset) {
   const sliced = items.slice(offset, offset + limit)
@@ -101,7 +106,7 @@ export const vehiculosHandlers = [
     return HttpResponse.json({ items, count: result.count })
   }),
 
-  http.get('/api/vehiculos/:id', ({ params }) => {
+  http.get('/api/vehiculos/:id', async ({ params }) => {
     const id = Number(params.id)
     const vehiculo = vehiculos.find((v) => v.id === id)
     if (!vehiculo) {
@@ -109,8 +114,7 @@ export const vehiculosHandlers = [
     }
     return HttpResponse.json({
       ...vehiculo,
-      codigo_qr:
-        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualHwAAAABJRU5ErkJggg==',
+      codigo_qr: await qrDataUri(id),
     })
   }),
 
@@ -161,7 +165,7 @@ export const vehiculosHandlers = [
     return HttpResponse.json({ detail: 'Vehículo desactivado' })
   }),
 
-  http.post('/api/vehiculos/:id/regenerar-qr', ({ params }) => {
+  http.post('/api/vehiculos/:id/regenerar-qr', async ({ params }) => {
     const id = Number(params.id)
     const vehiculo = vehiculos.find((v) => v.id === id)
     if (!vehiculo) {
@@ -169,8 +173,7 @@ export const vehiculosHandlers = [
     }
     return HttpResponse.json({
       ...vehiculo,
-      codigo_qr:
-        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualHwAAAABJRU5ErkJggg==',
+      codigo_qr: await qrDataUri(id),
     })
   }),
 ]
