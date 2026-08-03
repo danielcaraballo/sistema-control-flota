@@ -86,6 +86,11 @@ async function loadSistemasAfectados() {
     console.error('Error al cargar sistemas afectados:', err)
   }
 }
+function handleItemSaved(key) {
+  if (key === 'marcas') loadMarcas()
+  if (key === 'sistemasAfectados') loadSistemasAfectados()
+}
+
 onMounted(() => {
   loadMarcas()
   loadSistemasAfectados()
@@ -110,6 +115,7 @@ onMounted(() => {
           <CatalogoTabContent
             :config="cat"
             :fk-catalogs="{ marcas: catalogoMarcas, sistemas: catalogoSistemas }"
+            @item-saved="handleItemSaved"
           />
         </TabPanel>
       </TabView>

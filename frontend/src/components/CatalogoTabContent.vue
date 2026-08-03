@@ -22,6 +22,8 @@ const props = defineProps({
   fkCatalogs: { type: Object, default: () => ({}) },
 })
 
+const emit = defineEmits(['item-saved'])
+
 const toast = useToast()
 const auth = useAuthStore()
 
@@ -123,6 +125,7 @@ async function saveItem() {
     }
     showDialog.value = false
     await loadItems()
+    emit('item-saved', props.config.key)
   } catch (err) {
     const errData = err.response?.data
     errorMessage.value = Array.isArray(errData)
@@ -156,6 +159,7 @@ async function deactivateItem() {
       life: 3000,
     })
     itemToToggle.value = null
+    emit('item-saved', props.config.key)
   } catch (err) {
     toast.add({
       severity: 'error',
@@ -181,6 +185,7 @@ async function activateItem() {
       life: 3000,
     })
     itemToToggle.value = null
+    emit('item-saved', props.config.key)
   } catch (err) {
     toast.add({
       severity: 'error',

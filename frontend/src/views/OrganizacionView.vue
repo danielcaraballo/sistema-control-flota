@@ -54,6 +54,10 @@ const CATALOGOS = [
 
 const activeIndex = ref(0)
 
+function handleItemSaved(key) {
+  if (key === 'estados') loadEstados()
+}
+
 onMounted(loadEstados)
 </script>
 
@@ -72,7 +76,11 @@ onMounted(loadEstados)
             <i :class="cat.icon + ' mr-2'" />
             {{ cat.label }}
           </template>
-          <CatalogoTabContent :config="cat" :fk-catalogs="{ estados }" />
+          <CatalogoTabContent
+            :config="cat"
+            :fk-catalogs="{ estados }"
+            @item-saved="handleItemSaved"
+          />
         </TabPanel>
       </TabView>
     </div>
