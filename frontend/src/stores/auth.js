@@ -6,7 +6,7 @@ import { tieneRolMinimo, esEstatal, ROLES } from '@/utils/roles'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('access_token') || null)
-  const isAuthenticated = ref(!!token.value)
+  const isAuthenticated = computed(() => !!token.value)
   const loading = ref(!!token.value)
 
   let _resolveInit = null
@@ -26,7 +26,6 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await api.post('/auth/login', { username: credential, password })
     token.value = data.access
     user.value = data.user
-    isAuthenticated.value = true
     localStorage.setItem('access_token', data.access)
     localStorage.setItem('refresh_token', data.refresh)
     return data
@@ -46,7 +45,6 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     user.value = null
     token.value = null
-    isAuthenticated.value = false
     loading.value = false
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')

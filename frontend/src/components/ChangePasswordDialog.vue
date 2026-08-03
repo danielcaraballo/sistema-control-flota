@@ -4,7 +4,7 @@ import { useToast } from 'primevue/usetoast'
 import api from '@/services/api'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
 import Message from 'primevue/message'
 
 const emit = defineEmits(['close'])
@@ -87,16 +87,23 @@ function handleClose() {
         <label for="currentPassword" class="text-sm font-semibold text-color"
           >Contraseña actual</label
         >
-        <InputText id="currentPassword" v-model="currentPassword" type="password" class="w-full" />
+        <Password
+          id="currentPassword"
+          v-model="currentPassword"
+          :feedback="false"
+          toggleMask
+          fluid
+        />
       </div>
 
       <div class="space-y-2">
         <label for="newPassword" class="text-sm font-semibold text-color">Nueva contraseña</label>
-        <InputText
+        <Password
           id="newPassword"
           v-model="newPassword"
-          type="password"
-          class="w-full"
+          :feedback="false"
+          toggleMask
+          fluid
           :invalid="!!(newPassword && !passwordLengthOk)"
         />
         <small v-if="newPassword && !passwordLengthOk" class="text-red-500 dark:text-red-400">
@@ -108,11 +115,12 @@ function handleClose() {
         <label for="confirmPassword" class="text-sm font-semibold text-color"
           >Confirmar nueva contraseña</label
         >
-        <InputText
+        <Password
           id="confirmPassword"
           v-model="confirmPassword"
-          type="password"
-          class="w-full"
+          :feedback="false"
+          toggleMask
+          fluid
           :invalid="!!(confirmPassword && !passwordsMatch)"
         />
         <small v-if="confirmPassword && !passwordsMatch" class="text-red-500 dark:text-red-400">

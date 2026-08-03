@@ -43,6 +43,16 @@ watch(
   { deep: true },
 )
 
+watch(
+  () => props.form,
+  (newVal) => {
+    if (JSON.stringify(newVal) !== JSON.stringify(localForm.value)) {
+      localForm.value = { ...newVal }
+    }
+  },
+  { deep: true },
+)
+
 const maxAnio = computed(() => new Date().getFullYear() + 1)
 
 const filteredModelos = computed(() => {
