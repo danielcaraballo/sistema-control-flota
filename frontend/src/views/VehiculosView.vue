@@ -624,13 +624,13 @@ onMounted(async () => {
                 v-tooltip.top="'Limpiar filtros'"
               />
             </div>
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
               <Button
                 v-if="auth.tieneRol(ROL_NACIONAL)"
                 label="Agregar vehículo"
                 icon="pi pi-plus"
                 size="small"
-                class="flex-1 sm:flex-none"
+                class="w-1/2 sm:w-auto justify-center"
                 @click="openNew"
               />
               <Button
@@ -638,7 +638,7 @@ onMounted(async () => {
                 label="Exportar"
                 icon="pi pi-download"
                 size="small"
-                class="flex-1 sm:flex-none"
+                class="w-1/2 sm:w-auto justify-center"
                 :loading="exportando"
                 :disabled="exportando"
                 @click="toggleExportMenu"
