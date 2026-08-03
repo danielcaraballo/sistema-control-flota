@@ -4,8 +4,10 @@ import { RouterView, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { rolLabel, ROL_NACIONAL } from '@/utils/roles'
 import { isDemoMode } from '@/utils/demo'
+import { usePwaInstall } from '@/composables/usePwaInstall'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
 import UserDropdown from '@/components/UserDropdown.vue'
 import QrScannerModal from '@/components/QrScannerModal.vue'
 
@@ -15,6 +17,17 @@ const route = useRoute()
 const userDropdownRef = ref()
 const dropdownOpen = ref(false)
 const showScanner = ref(false)
+const showIosModal = ref(false)
+
+const { canInstall, isInstalled, isIos, promptInstall } = usePwaInstall()
+
+function handleInstallPwa() {
+  if (isIos.value) {
+    showIosModal.value = true
+  } else {
+    promptInstall()
+  }
+}
 
 function onScanned(vehicleId) {
   router.push(`/vehiculos/${vehicleId}`)
@@ -142,6 +155,22 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
             <span v-show="!sidebarCollapsed || isMobile" class="truncate">{{ item.label }}</span>
           </a>
         </template>
+
+        <!-- PWA Installation Option -->
+        <div v-if="!isInstalled && (canInstall || isIos)" class="px-3 pt-4">
+          <button
+            type="button"
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-semibold cursor-pointer"
+            @click="handleInstallPwa"
+          >
+            <span
+              class="w-7 h-7 flex items-center justify-center shrink-0 rounded-md bg-primary text-primary-contrast"
+            >
+              <i class="pi pi-mobile text-sm" />
+            </span>
+            <span v-show="!sidebarCollapsed || isMobile" class="truncate">Instalar App</span>
+          </button>
+        </div>
       </nav>
 
       <div
@@ -280,4 +309,44 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
   </div>
 
   <QrScannerModal v-model:visible="showScanner" @scan="onScanned" />
+
+  <!-- Modal explicativo para instalación en iOS Safari -->
+  <Dialog
+    v-model:visible="showIosModal"
+    header="Instalar App en iPhone / iPad"
+    modal
+    :style="{ width: 'min(400px, calc(100vw - 1.5rem))' }"
+    :draggable="false"
+  >
+    <div class="flex flex-col gap-4 text-sm py-1">
+      <p class="text-muted-color">
+        Para agregar <strong class="text-color">Sistema de Control de Flota</strong> a tu pantalla
+        de inicio en iOS:
+      </p>
+      <div class="flex items-start gap-3 p-3 rounded-md bg-card-hover border border-card-border">
+        <span
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-primary-contrast font-bold text-xs shrink-0"
+          >1</span
+        >
+        <div>
+          Toca el botón <strong class="text-color">Compartir</strong>
+          <i class="pi pi-share-alt text-primary mx-1" /> en la barra inferior de Safari.
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-md bg-card-hover border border-card-border">
+        <span
+          class="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-primary-contrast font-bold text-xs shrink-0"
+          >2</span
+        >
+        <div>
+          Selecciona
+          <strong class="text-color">"Añadir a la pantalla de inicio"</strong>
+          <i class="pi pi-plus-square text-primary mx-1" />.
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <Button label="Entendido" severity="primary" size="small" @click="showIosModal = false" />
+    </template>
+  </Dialog>
 </template>

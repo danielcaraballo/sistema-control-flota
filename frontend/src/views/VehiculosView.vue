@@ -627,7 +627,7 @@ onMounted(async () => {
             <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
               <Button
                 v-if="auth.tieneRol(ROL_NACIONAL)"
-                label="Agregar vehículo"
+                label="Agregar"
                 icon="pi pi-plus"
                 size="small"
                 class="w-1/2 sm:w-auto justify-center"
