@@ -318,8 +318,8 @@ async function abrirEdicion() {
     tipo_combustible_id: v.tipo_combustible,
   }
   editFormSnapshot.value = JSON.parse(JSON.stringify(editForm.value))
-  await ensureCatalogos()
   showEditDialog.value = true
+  await ensureCatalogos()
 }
 
 function onCancelarEdicion() {
@@ -521,7 +521,12 @@ async function activar() {
 }
 
 onMounted(loadVehiculo)
-watch(() => route.params.id, loadVehiculo)
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) loadVehiculo()
+  },
+)
 </script>
 
 <template>
