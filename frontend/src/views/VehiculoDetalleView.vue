@@ -531,32 +531,39 @@ watch(
 
 <template>
   <div class="w-full">
-    <div class="flex items-center gap-3 mb-6">
-      <Button
-        icon="pi pi-arrow-left"
-        severity="secondary"
-        text
-        rounded
-        @click="volver"
-        v-tooltip.top="'Volver al listado'"
-        aria-label="Volver al listado"
-      />
-      <div v-if="vehiculo" class="flex-1 min-w-0">
-        <PageHeader
-          :title="`${vehiculo.numero_economico} — ${vehiculo.marca_nombre} ${vehiculo.modelo_nombre}`"
-          subtitle="Ficha técnica del vehículo"
-          icon="pi pi-truck"
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <Button
+          icon="pi pi-arrow-left"
+          severity="secondary"
+          text
+          rounded
+          class="shrink-0 !w-10 !h-10"
+          @click="volver"
+          v-tooltip.top="'Volver al listado'"
+          aria-label="Volver al listado"
         />
+        <div v-if="vehiculo" class="flex-1 min-w-0">
+          <PageHeader
+            :title="`${vehiculo.numero_economico} — ${vehiculo.marca_nombre} ${vehiculo.modelo_nombre}`"
+            subtitle="Ficha técnica del vehículo"
+            icon="pi pi-truck"
+          />
+        </div>
+        <div v-else class="flex-1" />
       </div>
-      <div v-else class="flex-1" />
-      <div v-if="auth.tieneRol(ROL_NACIONAL)" class="flex items-center gap-3 shrink-0">
+      <div
+        v-if="auth.tieneRol(ROL_NACIONAL)"
+        class="flex items-center gap-2 sm:gap-3 shrink-0 self-end sm:self-auto"
+      >
         <div class="flex items-center gap-2">
-          <Button label="Editar" icon="pi pi-pencil" @click="abrirEdicion" />
+          <Button label="Editar" icon="pi pi-pencil" size="small" @click="abrirEdicion" />
           <Button
             v-if="vehiculo?.estatus_activo"
             label="Desactivar"
             icon="pi pi-ban"
             severity="danger"
+            size="small"
             @click="confirmDesactivar"
           />
           <Button
@@ -564,6 +571,7 @@ watch(
             label="Reactivar"
             icon="pi pi-check-circle"
             severity="success"
+            size="small"
             @click="confirmActivar"
           />
         </div>

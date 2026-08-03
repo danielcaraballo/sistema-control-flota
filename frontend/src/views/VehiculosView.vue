@@ -575,15 +575,20 @@ onMounted(async () => {
         }"
       >
         <template #header>
-          <div class="flex justify-between items-center gap-2 flex-wrap">
-            <div class="flex items-center gap-2 flex-wrap">
-              <IconField>
+          <div
+            class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3"
+          >
+            <div
+              class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-wrap flex-1 min-w-0"
+            >
+              <IconField class="w-full sm:w-auto">
                 <InputIcon class="pi pi-search" />
                 <InputText
                   :modelValue="searchQuery"
                   @update:modelValue="onSearchInput"
                   placeholder="Buscar..."
                   size="small"
+                  class="w-full sm:w-48"
                 />
               </IconField>
               <Select
@@ -592,7 +597,7 @@ onMounted(async () => {
                 optionValue="id"
                 optionLabel="nombre"
                 placeholder="Estado"
-                class="w-40"
+                class="w-full sm:w-36"
                 size="small"
                 clearable
                 @update:modelValue="onFilterChange"
@@ -603,7 +608,7 @@ onMounted(async () => {
                 optionValue="id"
                 optionLabel="nombre"
                 placeholder="Estatus"
-                class="w-40"
+                class="w-full sm:w-36"
                 size="small"
                 clearable
                 @update:modelValue="onFilterChange"
@@ -614,16 +619,18 @@ onMounted(async () => {
                 severity="secondary"
                 variant="text"
                 size="small"
+                class="self-start sm:self-auto"
                 @click="limpiarFiltros"
                 v-tooltip.top="'Limpiar filtros'"
               />
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
               <Button
                 v-if="auth.tieneRol(ROL_NACIONAL)"
                 label="Agregar vehículo"
                 icon="pi pi-plus"
                 size="small"
+                class="flex-1 sm:flex-none"
                 @click="openNew"
               />
               <Button
@@ -631,6 +638,7 @@ onMounted(async () => {
                 label="Exportar"
                 icon="pi pi-download"
                 size="small"
+                class="flex-1 sm:flex-none"
                 :loading="exportando"
                 :disabled="exportando"
                 @click="toggleExportMenu"
