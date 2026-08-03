@@ -88,7 +88,7 @@ function handleClose() {
           >Contraseña actual</label
         >
         <Password
-          id="currentPassword"
+          :inputId="'currentPassword'"
           v-model="currentPassword"
           :feedback="false"
           toggleMask
@@ -99,7 +99,7 @@ function handleClose() {
       <div class="space-y-2">
         <label for="newPassword" class="text-sm font-semibold text-color">Nueva contraseña</label>
         <Password
-          id="newPassword"
+          :inputId="'newPassword'"
           v-model="newPassword"
           :feedback="false"
           toggleMask
@@ -116,7 +116,7 @@ function handleClose() {
           >Confirmar nueva contraseña</label
         >
         <Password
-          id="confirmPassword"
+          :inputId="'confirmPassword'"
           v-model="confirmPassword"
           :feedback="false"
           toggleMask
