@@ -200,7 +200,7 @@ onMounted(loadItems)
 </script>
 
 <template>
-  <div class="px-4">
+  <div class="px-2 sm:px-4">
     <DataTable
       :value="loading ? skeletonRows : items"
       v-model:filters="filters"
@@ -215,16 +215,22 @@ onMounted(loadItems)
       :rowsPerPageOptions="[10, 25, 50]"
     >
       <template #header>
-        <div class="flex justify-between items-center gap-2 flex-wrap">
-          <IconField>
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+          <IconField class="w-full sm:w-auto">
             <InputIcon class="pi pi-search" />
-            <InputText v-model="filters.global.value" placeholder="Buscar..." size="small" />
+            <InputText
+              v-model="filters.global.value"
+              placeholder="Buscar..."
+              size="small"
+              class="w-full sm:w-48"
+            />
           </IconField>
           <Button
             v-if="auth.tieneRol(ROL_NACIONAL)"
             label="Agregar"
             icon="pi pi-plus"
             size="small"
+            class="w-full sm:w-auto shrink-0"
             @click="openNew"
           />
         </div>
