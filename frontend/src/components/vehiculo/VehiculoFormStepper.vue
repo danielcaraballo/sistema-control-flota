@@ -82,7 +82,7 @@ watch(
     >
       <TabPanel>
         <template #header> <i class="pi pi-id-card mr-2" />Identificación </template>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 sm:gap-y-2">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold"
               >Número económico <span class="text-red-500">*</span></label
@@ -116,7 +116,9 @@ watch(
               El serial de carrocería es requerido
             </small>
           </div>
-          <div class="col-span-2 grid grid-cols-3 gap-x-4">
+          <div
+            class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3 sm:gap-y-2"
+          >
             <div class="flex flex-col gap-1">
               <label class="text-sm font-semibold">Placa</label>
               <InputText v-model="localForm.placa" class="w-full" />
@@ -151,7 +153,7 @@ watch(
 
       <TabPanel>
         <template #header> <i class="pi pi-cog mr-2" />Características </template>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 sm:gap-y-2">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold"
               >Categoría <span class="text-red-500">*</span></label
@@ -259,7 +261,9 @@ watch(
               El modelo es requerido
             </small>
           </div>
-          <div class="col-span-2 grid grid-cols-3 gap-x-4">
+          <div
+            class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3 sm:gap-y-2"
+          >
             <div class="flex flex-col gap-1 min-w-0">
               <label class="text-sm font-semibold">Año <span class="text-red-500">*</span></label>
               <InputNumber
@@ -315,7 +319,7 @@ watch(
 
       <TabPanel>
         <template #header> <i class="pi pi-map-marker mr-2" />Asignación </template>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 sm:gap-y-2">
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold">Estado <span class="text-red-500">*</span></label>
             <Dropdown

@@ -729,11 +729,17 @@ onMounted(async () => {
           <Message v-if="errorMessage" severity="error" :closable="false" class="!text-xs">
             {{ errorMessage }}
           </Message>
-          <div class="flex justify-end w-full gap-2">
-            <Button label="Cancelar" severity="secondary" @click="onCancelarClick" />
+          <div class="flex flex-col-reverse sm:flex-row justify-end w-full gap-2">
+            <Button
+              label="Cancelar"
+              severity="secondary"
+              class="w-full sm:w-auto"
+              @click="onCancelarClick"
+            />
             <Button
               :label="isCreating ? 'Crear vehículo' : 'Guardar cambios'"
               icon="pi pi-check"
+              class="w-full sm:w-auto"
               :loading="saving"
               :disabled="saving"
               @click="saveVehiculo"

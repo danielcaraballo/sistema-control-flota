@@ -872,11 +872,17 @@ watch(
           <Message v-if="editErrorMessage" severity="error" :closable="false" class="!text-xs">
             {{ editErrorMessage }}
           </Message>
-          <div class="flex justify-end w-full gap-2">
-            <Button label="Cancelar" severity="secondary" @click="onCancelarEdicion" />
+          <div class="flex flex-col-reverse sm:flex-row justify-end w-full gap-2">
+            <Button
+              label="Cancelar"
+              severity="secondary"
+              class="w-full sm:w-auto"
+              @click="onCancelarEdicion"
+            />
             <Button
               label="Guardar cambios"
               icon="pi pi-check"
+              class="w-full sm:w-auto"
               :loading="editSaving"
               :disabled="editSaving"
               @click="actualizarVehiculo"
