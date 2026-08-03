@@ -365,16 +365,24 @@ onMounted(() => {
         :sortOrder="1"
       >
         <template #header>
-          <div class="flex justify-between items-center gap-2 flex-wrap">
-            <IconField>
+          <div
+            class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2"
+          >
+            <IconField class="w-full sm:w-auto">
               <InputIcon class="pi pi-search" />
-              <InputText v-model="filters.global.value" placeholder="Buscar..." size="small" />
+              <InputText
+                v-model="filters.global.value"
+                placeholder="Buscar..."
+                size="small"
+                class="w-full sm:w-48"
+              />
             </IconField>
             <Button
               v-if="auth.tieneRol(ROL_NACIONAL)"
               label="Agregar usuario"
               icon="pi pi-plus"
               size="small"
+              class="w-full sm:w-auto shrink-0"
               @click="openNew"
             />
           </div>
@@ -495,7 +503,7 @@ onMounted(() => {
 
         <StepPanels>
           <StepPanel :value="1">
-            <div class="grid grid-cols-2 gap-4 pt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               <div class="flex flex-col gap-1.5">
                 <label for="first_name" class="text-sm font-semibold">Nombre</label>
                 <InputText
@@ -528,7 +536,7 @@ onMounted(() => {
                 </small>
               </div>
 
-              <div class="flex flex-col gap-1.5 col-span-2">
+              <div class="flex flex-col gap-1.5 col-span-1 sm:col-span-2">
                 <label for="email" class="text-sm font-semibold">Correo</label>
                 <InputText
                   id="email"
@@ -678,7 +686,7 @@ onMounted(() => {
           {{ errorMessage }}
         </Message>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
             <label for="edit-username" class="text-sm font-semibold">Usuario</label>
             <InputText
