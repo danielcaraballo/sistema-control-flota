@@ -478,7 +478,7 @@ onMounted(() => {
       v-model:visible="showDialog"
       :header="'Nuevo usuario'"
       :modal="true"
-      :style="{ width: '550px' }"
+      :style="{ width: 'min(550px, calc(100vw - 1rem))' }"
       :closable="true"
       :draggable="false"
       v-if="isCreating"
@@ -668,7 +668,7 @@ onMounted(() => {
       v-model:visible="showDialog"
       :header="'Editar usuario'"
       :modal="true"
-      :style="{ width: '550px' }"
+      :style="{ width: 'min(550px, calc(100vw - 1rem))' }"
       :closable="true"
       :draggable="false"
       v-else

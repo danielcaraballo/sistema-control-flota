@@ -47,7 +47,7 @@ async function copy() {
     :modal="true"
     :closable="false"
     :draggable="false"
-    :style="{ width: '450px' }"
+    :style="{ width: 'min(450px, calc(100vw - 1.5rem))' }"
     @update:visible="close"
   >
     <div class="space-y-4">

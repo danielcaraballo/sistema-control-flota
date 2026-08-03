@@ -92,9 +92,9 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
 </script>
 
 <template>
-  <div class="flex h-dvh">
+  <div class="flex h-dvh overflow-hidden">
     <aside
-      class="sidebar fixed md:relative z-[100] flex flex-col bg-card border-r border-card-border overflow-hidden transition-all duration-200"
+      class="sidebar fixed md:relative inset-y-0 left-0 z-[100] flex flex-col bg-card border-r border-card-border overflow-hidden transition-all duration-200"
       :class="[
         isMobile ? (mobileOpen ? 'translate-x-0' : '-translate-x-full') : '',
         sidebarCollapsed && !isMobile ? 'w-[64px]' : 'w-[260px]',
@@ -102,9 +102,18 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
     >
       <div class="flex items-center min-h-14 px-5 border-b border-card-border shrink-0">
         <div class="flex items-center gap-2 font-bold text-color">
-          <i class="pi pi-car text-xl" />
+          <i class="pi pi-car text-xl text-[var(--p-primary-color)]" />
           <span v-show="!sidebarCollapsed || isMobile" class="text-xl">SCF</span>
         </div>
+        <Button
+          v-if="isMobile"
+          icon="pi pi-times"
+          severity="secondary"
+          text
+          rounded
+          class="ml-auto !w-9 !h-9"
+          @click="closeMobile"
+        />
       </div>
 
       <nav class="flex-1 overflow-y-auto py-2">
@@ -119,7 +128,7 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           <a
             v-for="item in section.items"
             :key="item.routeName"
-            class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-muted-color cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-color hover:bg-card-hover"
+            class="flex items-center gap-3 px-5 py-3 md:py-2.5 text-sm font-medium text-muted-color cursor-pointer transition-all duration-150 border-l-3 border-transparent hover:text-color hover:bg-card-hover"
             :class="{
               '!text-primary !bg-card-hover !border-l-[var(--p-primary-color)]':
                 route.path === item.path ||
@@ -168,26 +177,33 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
 
     <div
       v-if="isMobile && mobileOpen"
-      class="fixed inset-0 bg-black/40 z-[99]"
+      class="fixed inset-0 bg-black/50 backdrop-blur-xs z-[99] transition-opacity"
       @click="closeMobile"
     />
 
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <header
-        class="h-14 flex items-center gap-3 px-6 bg-card border-b border-card-border shrink-0"
+        class="h-14 flex items-center gap-2 sm:gap-3 px-3 sm:px-6 bg-card border-b border-card-border shrink-0"
       >
         <Button
           icon="pi pi-bars"
           severity="secondary"
           text
           rounded
+          class="!hidden md:!inline-flex !w-10 !h-10"
           @click="toggleSidebar"
-          v-tooltip.bottom="isMobile ? 'Menú' : 'Colapsar sidebar'"
+          v-tooltip.bottom="'Colapsar sidebar'"
         />
-        <span class="text-sm font-medium text-muted-color">Sistema de Control de Flota</span>
+        <div class="flex items-center gap-1.5 text-color sm:hidden">
+          <i class="pi pi-car text-lg text-[var(--p-primary-color)]" />
+          <span class="text-sm font-bold tracking-tight">SCF</span>
+        </div>
+        <span class="text-sm font-medium text-muted-color hidden sm:inline"
+          >Sistema de Control de Flota</span
+        >
         <span
           v-if="isDemoMode"
-          class="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400"
+          class="ml-1 sm:ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400 shrink-0"
         >
           <i class="pi pi-code text-amber-500 text-xs" />
           Demo
@@ -198,14 +214,68 @@ const userRolLabel = computed(() => rolLabel(auth.user?.rol))
           severity="secondary"
           text
           rounded
+          class="!w-10 !h-10"
           @click="showScanner = true"
           v-tooltip.bottom="'Escanear QR'"
         />
       </header>
 
-      <main class="flex-1 p-6 md:p-8 bg-[var(--scf-page-bg)] overflow-y-auto">
+      <main
+        class="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 bg-[var(--scf-page-bg)] overflow-y-auto pb-20 md:pb-6"
+      >
         <RouterView />
       </main>
+
+      <!-- Bottom Navigation Bar for Mobile Phones -->
+      <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-card-border flex items-center justify-around h-16 px-1 shadow-lg"
+      >
+        <button
+          type="button"
+          class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg gap-1 transition-colors text-xs font-medium"
+          :class="
+            route.path === '/' ? 'text-primary font-semibold' : 'text-muted-color hover:text-color'
+          "
+          @click="navigate('/')"
+        >
+          <i class="pi pi-home text-lg" />
+          <span>Inicio</span>
+        </button>
+        <button
+          type="button"
+          class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg gap-1 transition-colors text-xs font-medium"
+          :class="
+            route.path.startsWith('/vehiculos')
+              ? 'text-primary font-semibold'
+              : 'text-muted-color hover:text-color'
+          "
+          @click="navigate('/vehiculos')"
+        >
+          <i class="pi pi-truck text-lg" />
+          <span>Vehículos</span>
+        </button>
+        <button
+          type="button"
+          class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg gap-1 transition-colors text-xs font-medium"
+          :class="
+            route.path.startsWith('/taller')
+              ? 'text-primary font-semibold'
+              : 'text-muted-color hover:text-color'
+          "
+          @click="navigate('/taller')"
+        >
+          <i class="pi pi-wrench text-lg" />
+          <span>Taller</span>
+        </button>
+        <button
+          type="button"
+          class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg gap-1 transition-colors text-xs font-medium text-muted-color hover:text-color"
+          @click="toggleSidebar"
+        >
+          <i class="pi pi-th-large text-lg" />
+          <span>Más</span>
+        </button>
+      </nav>
     </div>
   </div>
 

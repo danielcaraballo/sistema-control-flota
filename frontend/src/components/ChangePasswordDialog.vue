@@ -75,7 +75,7 @@ function handleClose() {
     :modal="true"
     :closable="true"
     :draggable="false"
-    :style="{ width: '420px' }"
+    :style="{ width: 'min(420px, calc(100vw - 1.5rem))' }"
     @update:visible="handleClose"
   >
     <div class="space-y-4">

@@ -833,7 +833,7 @@ watch(
       @update:visible="onDialogEditarClose"
       header="Editar vehículo"
       :modal="true"
-      :style="{ width: '780px', height: '580px' }"
+      :style="{ width: 'min(780px, calc(100vw - 1rem))', maxHeight: '90vh' }"
       :closable="true"
       :draggable="false"
       :pt="{ content: { class: 'overflow-hidden' } }"
