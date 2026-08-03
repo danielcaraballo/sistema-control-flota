@@ -28,7 +28,7 @@ Versiones exactas y dependencias adicionales en [`docs/architecture.md`](docs/ar
 - Organización jerárquica (Estados, Gerencias, Centros de Servicio)
 - Gestión de vehículos con 20 campos, códigos QR e indicador de completitud
 - Dashboard administrativo en Unfold con KPIs y charts
-- 121 tests, 0 warnings de linter
+- 131 tests, 0 warnings de linter
 
 ## Requisitos
 
