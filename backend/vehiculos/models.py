@@ -11,7 +11,7 @@ COMPLETITUD_FIELD_NAMES = [
 
 class Vehiculo(models.Model):
     numero_economico = models.CharField(
-        max_length=50, unique=True, verbose_name="Número económico (Activo SAP)"
+        max_length=50, unique=True, verbose_name="Número económico"
     )
     gerencia = models.ForeignKey(
         "organizacion.Gerencia", on_delete=models.RESTRICT, verbose_name="Gerencia"

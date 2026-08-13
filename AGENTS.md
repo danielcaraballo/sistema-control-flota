@@ -157,3 +157,19 @@ Cuando el usuario plantee una funcionalidad, corrección o mejora sin especifica
 - **`docs/architecture.md`** is the source of truth for C4 diagrams, stack versions, and ADRs. UPDATE when stack or architectural decisions change.
 - **`CHANGELOG.md`** is version history. UPDATE on each meaningful change (new feature, breaking change, milestone).
 - **README.md** must reflect current structure and commands. UPDATE when directory structure or dev workflow changes.
+
+## Reglas de sanitización (nunca más)
+
+Este es un producto de propósito general. Prohibido introducir vínculos a un cliente específico:
+
+- **Sin marca institucional**: no incluir nombres, siglas, logotipos o unidades organizativas reales de ninguna empresa/organización. Usar placeholders neutros (`EnergyCompany`, `Client`, `DemoCo`).
+- **Sin PII**: prohibido versionar cédulas, correos reales, teléfonos, placas/seriales reales ni inventarios reales. Identificadores de demo = series sintéticas (`SCF-1001`).
+- **Geografías ficticias**: usar regiones genéricas (Norte/Sur/Este/Oeste/Central) o nombres inventados; nunca estados/ciudades reales de un cliente.
+- **Solo mock data**: los datos de demostración (CSV, JSON, dumps, fixtures, MSW) deben ser ficticios y generados para el repo.
+- **Sin secretos ni endpoints**: no versionar contraseñas, tokens, API keys, credenciales de BD ni URLs privadas. Únicamente CDNs públicos necesarios.
+- **Copyright y localización neutros**: sin nombres personales salvo decisión del propietario; locales genéricos (`es`, `en`) y no atados a un país cliente.
+- **Revisión pre-commit/PR**: correr un grep de referencia antes de commitear:
+  ```bash
+  grep -rniE "gob\.ve|@scf|corpoelec|\bSAP\b|\bCaraballo\b" --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.venv .
+  ```
+  Si hay coincidencias (fuera de esta sección de reglas), sanitizar antes de commitear.

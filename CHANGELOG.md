@@ -5,6 +5,19 @@ Todas las cambios notables de este proyecto se documentan aquí.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto se adhiere a [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## v0.12.1 — 2026-08-12
+
+### Changed
+- Sanitización del repositorio (guía de sanitización): eliminadas referencias a marca personal (`Daniel Caraballo`), proceso corporativo (`Activo SAP`) y datos de demo con geografía real venezolana
+- Mocks MSW: regiones ficticias (`Región Norte/Sur/Este/Oeste/Central`), centros de servicio genéricos y correos demo neutros (`@demo.flota`)
+- README: footer de copyright neutro y enlace personal de GitHub removido
+- `vehiculos/models.py`: `verbose_name` de `numero_economico` sin referencia a SAP (migración `0008`)
+- `.gitignore`: excluye `*.sql`, `*.dump`, `*.xlsx` y `backend/seeds/` para evitar re-versionar datos reales
+- AGENTS.md: sección `Reglas de sanitización (nunca más)` con criterios permanentes y grep de referencia pre-commit
+
+### Nota (historial git)
+- El historial previo a `e58fef3` contiene seeds con unidades organizativas reales de un cliente (`backend/seeds/`, migración `0003_seed_estados`) y contraseñas en claro. No se purgó (requiere aprobación y `push --force`); si se expone públicamente, reescribir la historia.
+
 ## v0.12.0 — 2026-07-23
 
 ### Added

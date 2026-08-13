@@ -31,3 +31,9 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
+# Datos sensibles / dumps (nunca versionar)
+*.sql
+*.dump
+*.xlsx
+backend/seeds/
+

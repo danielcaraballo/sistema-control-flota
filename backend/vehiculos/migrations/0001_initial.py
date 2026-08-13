@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='Vehiculo',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('numero_economico', models.CharField(max_length=50, unique=True, verbose_name='Número económico (Activo SAP)')),
+                ('numero_economico', models.CharField(max_length=50, unique=True, verbose_name='Número económico')),
                 ('anio', models.IntegerField(verbose_name='Año')),
                 ('vin', models.CharField(max_length=17, unique=True, verbose_name='VIN / Serial de chasis')),
                 ('numero_unidad', models.CharField(blank=True, max_length=50, null=True, unique=True, verbose_name='Número de unidad')),

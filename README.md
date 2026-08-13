@@ -116,6 +116,4 @@ cd frontend && npm run lint
 
 ---
 
-© 2026 Daniel Caraballo. Licencia MIT.
-
-¿Te gusta el proyecto? Dale una ⭐ en [GitHub](https://github.com/danielcaraballo/sistema-control-flota)
+© 2026 Sistema de Control de Flota. Licencia MIT.
